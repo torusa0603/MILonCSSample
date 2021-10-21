@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Matrox.MatroxImagingLibrary;
 using System.Runtime.InteropServices;
+using System.IO;
 
 namespace MatroxCS
 {
