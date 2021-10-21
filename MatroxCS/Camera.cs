@@ -113,10 +113,51 @@ namespace MatroxCS
         public void Through()
         {
             //MdigProcess使う
-
+            if (m_bThroughFlg == false)
+            {
+                if (m_iBoardType != (int)MTX_TYPE.MTX_HOST)
+                {
+                    m_handUserData_doThrough = GCHandle.Alloc(this);
+                    m_delProcessingFunctionPtr = new MIL_DIG_HOOK_FUNCTION_PTR(ProcessingFunction);
+                    //	フック関数を使用する
+                    MIL.MdigProcess(m_milDigitizer, m_milGrabImageArray, m_milGrabImageArray.Length,
+                                        MIL.M_START, MIL.M_DEFAULT, m_delProcessingFunctionPtr, GCHandle.ToIntPtr(m_handUserData_doThrough));
+                }
+                m_bThroughFlg = true;
+            }
             //フック関数を使ってスルーを行うがm_milShowImageがNULLでなければこれにも画像をコピー
             //結果として画面にカメラ映像が映る
 
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="nlHookType"></param>
+        /// <param name="nEventId"></param>
+        /// <param name="npUserDataPtr"></param>
+        /// <returns></returns>
+        protected MIL_INT ProcessingFunction(MIL_INT nlHookType, MIL_ID nEventId, IntPtr npUserDataPtr)
+        {
+            if (!IntPtr.Zero.Equals(npUserDataPtr))
+            {
+                MIL_ID mil_modified_image = MIL.M_NULL;
+
+                nlHookType = 0;
+                //　送られてきたポインタをマトロックスクラスポインタにキャスティングする
+                m_handUserData_ProcessingFunction = GCHandle.FromIntPtr(npUserDataPtr);
+                m_cCamera = m_handUserData_ProcessingFunction.Target as CCamera;
+                //　変更されたバッファIDを取得する
+                MIL.MdigGetHookInfo(nEventId, MIL.M_MODIFIED_BUFFER + MIL.M_BUFFER_ID, ref mil_modified_image);
+                MIL.MbufCopy(mil_modified_image, m_cCamera.m_milShowImage);
+                //// リスト化する(リングバッファ数以上あれば削除)
+                //m_milGrabImageArray.Add(mil_modified_image);
+                //while (MAX_AVERAGE_IMAGE_GRAB_NUM < m_milGrabImageArray.Count())
+                //{
+                //    m_lstImageGrab.RemoveAt(0);
+                //}
+            }
+            return (0);
         }
 
         /// <summary>
