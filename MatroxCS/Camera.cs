@@ -165,7 +165,18 @@ namespace MatroxCS
         /// </summary>
         public void Freeze()
         {
-
+            if (m_bThroughFlg == true)
+            {
+                if (m_iBoardType != (int)MTX_TYPE.MTX_HOST)
+                {
+                    GCHandle hUserData = GCHandle.Alloc(this);
+                    MIL_DIG_HOOK_FUNCTION_PTR ProcessingFunctionPtr = new MIL_DIG_HOOK_FUNCTION_PTR(ProcessingFunction);
+                    //	フック関数を使用する
+                    MIL.MdigProcess(m_milDigitizer, m_milGrabImageArray, m_milGrabImageArray.Length,
+                                MIL.M_STOP + MIL.M_WAIT, MIL.M_DEFAULT, ProcessingFunctionPtr, GCHandle.ToIntPtr(hUserData));
+                }
+                m_bThroughFlg = false;
+            }
         }
 
         /// <summary>
