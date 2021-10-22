@@ -146,7 +146,21 @@ namespace MatroxCS
         public int CloseDisplay()
         {
             //  ディスプレイID、オーバーレイバッファ、表示用画像バッファ等を開放。nullに
-
+            if (m_milDisplay != MIL.M_NULL)
+            {
+                MIL.MdigFree(m_milDisplay);
+                m_milDisplay = MIL.M_NULL;
+            }
+            if (m_milOverlay != MIL.M_NULL)
+            {
+                MIL.MdigFree(m_milOverlay);
+                m_milOverlay = MIL.M_NULL;
+            }
+            if (m_milDisplayImage != MIL.M_NULL)
+            {
+                MIL.MdigFree(m_milDisplayImage);
+                m_milDisplayImage = MIL.M_NULL;
+            }
             return 0;
         }
 
