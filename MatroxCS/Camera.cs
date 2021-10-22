@@ -96,13 +96,30 @@ namespace MatroxCS
         public int CloseCamera()
         {
             //  スルー状態なら、フリーズにする
-
+            if (m_bThroughFlg == true)
+            {
+                Freeze();
+            }
             //  グラブ専用バッファ開放
-
+            foreach (MIL_ID GrabImageArray in m_milGrabImageArray)
+            {
+                if (GrabImageArray != MIL.M_NULL)
+                {
+                    MIL.MdigFree(GrabImageArray);
+                    m_milDigitizer = MIL.M_NULL;
+                }
+            }
             //m_milShowImageは開放しない。これはdispクラスが開放するから。
 
             //  デジタイザ開放
-
+            if (m_iBoardType != (int)MTX_TYPE.MTX_HOST)
+            {
+                if (m_milDigitizer != MIL.M_NULL)
+                {
+                    MIL.MdigFree(m_milDigitizer);
+                    m_milDigitizer = MIL.M_NULL;
+                }
+            }
 
             return 0;
         }
@@ -150,12 +167,6 @@ namespace MatroxCS
                 //　変更されたバッファIDを取得する
                 MIL.MdigGetHookInfo(nEventId, MIL.M_MODIFIED_BUFFER + MIL.M_BUFFER_ID, ref mil_modified_image);
                 MIL.MbufCopy(mil_modified_image, m_cCamera.m_milShowImage);
-                //// リスト化する(リングバッファ数以上あれば削除)
-                //m_milGrabImageArray.Add(mil_modified_image);
-                //while (MAX_AVERAGE_IMAGE_GRAB_NUM < m_milGrabImageArray.Count())
-                //{
-                //    m_lstImageGrab.RemoveAt(0);
-                //}
             }
             return (0);
         }
@@ -221,6 +232,10 @@ namespace MatroxCS
             return m_szImageSize;
         }
 
+        public void readParameter(string nstrSettingPath)
+        {
+
+        }
 
         #endregion
 

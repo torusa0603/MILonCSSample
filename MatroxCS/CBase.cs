@@ -98,10 +98,6 @@ namespace MatroxCS
             }
 
             //  設定ファイル読んだり？
-
-
-
-
             return 0;
         }
 
