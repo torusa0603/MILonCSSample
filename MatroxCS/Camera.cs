@@ -89,6 +89,8 @@ namespace MatroxCS
             return 0;
         }
 
+        
+
         /// <summary>
         /// カメラクローズ
         /// </summary>
@@ -197,8 +199,12 @@ namespace MatroxCS
         public int SetShowImage(MIL_ID nMilShowImage)
         {
             //  nMilShowImageの画像サイズ取得
+            Size sz_show_image = InquireBaffaSize(nMilShowImage);
             //  カメラ画像とこのサイズが一致してなければ表示出来ないのでエラー
-
+            if (m_szImageSize != sz_show_image)
+            {
+                return -1;
+            }
             //  サイズが一致していた
             m_milShowImage = nMilShowImage;
             //  ↑メモリコピーでなく、参照渡しなのでm_milShowImageとnMilShowImageは全く同じもの
@@ -206,6 +212,23 @@ namespace MatroxCS
 
             return 0;
         }
+        /// <summary>
+        /// 指定バッファのサイズを答える
+        /// </summary>
+        /// <param name="nmilBaffa"></param>
+        /// <returns></returns>
+        private Size InquireBaffaSize(MIL_ID nmilBaffa)
+        {
+            Size sz_ret = new Size(0, 0);
+            if (nmilBaffa != MIL.M_NULL)
+            {
+                // サイズを聞く
+                sz_ret.Width = (int)MIL.MbufInquire(nmilBaffa, MIL.M_SIZE_X, MIL.M_NULL);
+                sz_ret.Height = (int)MIL.MbufInquire(nmilBaffa, MIL.M_SIZE_Y, MIL.M_NULL);
+            }
+            return sz_ret;
+        }
+
         /// <summary>
         /// 保持している表示用バッファをnullにする
         /// </summary>
