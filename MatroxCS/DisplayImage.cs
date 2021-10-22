@@ -30,6 +30,7 @@ namespace MatroxCS
 
         private const double m_cdMinMagRate = 0.1;//    最小倍率(10%)
         private const double m_cdMaxMagRate = 8.0;//    最大倍率(800%)
+        private readonly MIL_INT TRANSPARENT_COLOR = MIL.M_RGB888(1, 1, 1);      //透過色
 
         #endregion
 
@@ -50,13 +51,17 @@ namespace MatroxCS
             }
 
             //  ディスプレイオープン
-            //例:MdispAlloc(m_milSys, M_DEFAULT, MIL_TEXT("M_DEFAULT"), M_DEFAULT, &m_milDisp);
-            
+            MIL.MdispAlloc(m_smilSystem, MIL.M_DEFAULT, "M_DEFAULT", MIL.M_DEFAULT, ref m_milDisplay);
+            if (m_milDisplay == MIL.M_NULL)
+            {
+                return -1;
+            }
+
             //  ディスプレイの各種設定。C++のImageMatrox.dllとか見ればわかる
-            //MdispControl(m_milDisp, M_INTERPOLATION_MODE, M_NEAREST_NEIGHBOR);
-            //MdispControl(m_milDisp, M_OVERLAY, M_ENABLE);
-            //MdispControl(m_milDisp, M_OVERLAY_SHOW, M_ENABLE);
-            //MdispControl(m_milDisp, (MIL_INT64)M_TRANSPARENT_COLOR, (MIL_DOUBLE)TRANSPARENT_COLOR);
+            MIL.MdispControl(m_milDisplay, MIL.M_INTERPOLATION_MODE, MIL.M_NEAREST_NEIGHBOR);
+            MIL.MdispControl(m_milDisplay, MIL.M_OVERLAY, MIL.M_ENABLE);
+            MIL.MdispControl(m_milDisplay, MIL.M_OVERLAY_SHOW, MIL.M_ENABLE);
+            MIL.MdispControl(m_milDisplay, (long)MIL.M_TRANSPARENT_COLOR, TRANSPARENT_COLOR);
 
             //  ハンドルをコピー
             m_hDisplayHandle = nhDisplayHandle;

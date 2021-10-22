@@ -191,7 +191,6 @@ namespace MatroxCS
                 //	致命的なエラーかどうか判断する
                 //	MdigProcess、xxxAllocで発生するエラーは全て致命的とする
                 str_function = ErrorMessageFunction.ToString();
-                //if (str_function.find("MdigProcess") != string::npos || str_function.find("Alloc") != string::npos)
                 if (str_function.IndexOf("Alloc") != -1)
                 {
                     p_matrox_common.m_bFatalErrorOccured = true;
