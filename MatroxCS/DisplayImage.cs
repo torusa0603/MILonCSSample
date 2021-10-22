@@ -8,7 +8,7 @@ using Matrox.MatroxImagingLibrary;
 
 namespace MatroxCS
 {
-    class CDisplayImage:CBase
+    class CDisplayImage : CBase
     {
         #region メンバー変数
         //  ディスプレイID
@@ -45,7 +45,7 @@ namespace MatroxCS
         public int OpenDisplay(IntPtr nhDisplayHandle)
         {
             //  既にオープンされたインスタンスならエラー
-            if(m_bOpenDone == true)
+            if (m_bOpenDone == true)
             {
                 return -999;
             }
@@ -63,6 +63,9 @@ namespace MatroxCS
             MIL.MdispControl(m_milDisplay, MIL.M_OVERLAY_SHOW, MIL.M_ENABLE);
             MIL.MdispControl(m_milDisplay, (long)MIL.M_TRANSPARENT_COLOR, TRANSPARENT_COLOR);
 
+            
+            MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_PACKED + MIL.M_BGR24, ref m_milDisplay);
+            MIL.MbufClear(m_milDisplay, 0);
             //  ハンドルをコピー
             m_hDisplayHandle = nhDisplayHandle;
 
@@ -99,17 +102,20 @@ namespace MatroxCS
         public int CreateImage(Size niImageSize)
         {
             //  そもそも同じサイズで確定していれば何もしない
-            if( m_szImageSize == niImageSize )
+            if (m_szImageSize == niImageSize)
             {
                 return 0;
             }
             //  違ければ今の画像バッファをクリアしてこの大きさで再確保
+            MIL.MbufFree(m_milDisplay);
+            MIL.MbufAllocColor(m_smilSystem, 3, niImageSize.Width, niImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_PACKED + MIL.M_BGR24, ref m_milDisplay);
             //MbufFree
             //MbufAllocColor
 
             //  ここでMdispSelectWindow( m_milDisp, m_milDisplayImage, nhDispHandle );
+            MIL.MdispSelectWindow(m_milDisplay, m_milDisplayImage, m_hDisplayHandle);
             //  MdispSelectWindowのあとはオーバーレイバッファを確保
-            //  MdispInquire( m_milDisp, M_OVERLAY_ID, &m_milOverLay );
+            MIL.MdispInquire(m_milDisplay, MIL.M_OVERLAY_ID, ref m_milOverlay);
 
             m_szImageSize = niImageSize;
 
@@ -223,7 +229,7 @@ namespace MatroxCS
             //	オーバーレイを検査結果画像上にコピー
             //	MbufTransfer( mil_temp, mil_result_temp, M_DEFAULT, M_DEFAULT, M_DEFAULT, M_DEFAULT, M_DEFAULT, M_DEFAULT, M_DEFAULT, M_DEFAULT, M_DEFAULT, M_DEFAULT, M_COMPOSITION, M_DEFAULT, M_RGB888(1,1,1), M_NULL );
 
-            
+
 
             return 0;
         }
