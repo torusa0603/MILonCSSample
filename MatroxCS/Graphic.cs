@@ -74,6 +74,7 @@ namespace MatroxCS
         {
             //MgraLine(m_milGraphic, m_milTargetOverlay, nptStartPoint.x, nptStartPoint.y,
             //  nptEndPoint.x, nptEndPoint.y);
+            MIL.MgraLine(m_milGraphic, m_milTargetOverlay, nptStartPoint.X, nptStartPoint.Y, nptEndPoint.X, nptEndPoint.Y);
             return 0;
         }
 
