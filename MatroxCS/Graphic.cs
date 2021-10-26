@@ -72,12 +72,32 @@ namespace MatroxCS
         /// <returns></returns>
         public int DrawLine(Point nptStartPoint, Point nptEndPoint)
         {
-            //MgraLine(m_milGraphic, m_milTargetOverlay, nptStartPoint.x, nptStartPoint.y,
-            //  nptEndPoint.x, nptEndPoint.y);
+            //MgraLine(m_milGraphic, m_milTargetOverlay, nptStartPoint.x, nptStartPoint.Y,
+            //  nptEndPoint.x, nptEndPoint.Y);
             MIL.MgraLine(m_milGraphic, m_milTargetOverlay, nptStartPoint.X, nptStartPoint.Y, nptEndPoint.X, nptEndPoint.Y);
             return 0;
         }
 
+        /// <summary>
+        /// 平行四辺形を描画
+        /// </summary>
+        /// <param name="nptFirstPoint"></param>
+        /// <param name="nptSecondPoint"></param>
+        /// <param name="nptThirdPoint"></param>
+        public void DrawParallelogram(Point nptFirstPoint, Point nptSecondPoint, Point nptThirdPoint)
+        {
+            Point pt_fourth_point = new Point(0, 0);          //　平行四辺形の第４点
+
+            //　４番目の点を計算する
+            pt_fourth_point.X = nptThirdPoint.X - nptSecondPoint.X + nptFirstPoint.X;
+            pt_fourth_point.Y = nptThirdPoint.Y - nptSecondPoint.Y + nptFirstPoint.Y;
+
+            //	平行四辺形は4本の直線から求める
+            DrawLine(nptFirstPoint, nptSecondPoint);        //	1→2
+            DrawLine(nptSecondPoint, nptThirdPoint);        //	2→3
+            DrawLine(nptThirdPoint, pt_fourth_point);   //	3→4
+            DrawLine(pt_fourth_point, nptFirstPoint);	//	4→1
+        }
 
     }
 }
