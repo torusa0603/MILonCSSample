@@ -107,13 +107,13 @@ namespace MatroxCS
                 return 0;
             }
             //  違ければ今の画像バッファをクリアしてこの大きさで再確保
-            MIL.MbufFree(m_milDisplay);
-            MIL.MbufAllocColor(m_smilSystem, 3, niImageSize.Width, niImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_PACKED + MIL.M_BGR24, ref m_milDisplay);
+            MIL.MbufFree(m_milDisplayImage);
+            MIL.MbufAllocColor(m_smilSystem, 3, niImageSize.Width, niImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_PACKED + MIL.M_BGR24, ref m_milDisplayImage);
             //MbufFree
             //MbufAllocColor
 
             //  ここでMdispSelectWindow( m_milDisp, m_milDisplayImage, nhDispHandle );
-            MIL.MdispSelectWindow(m_milDisplay, m_milDisplayImage, m_hDisplayHandle);
+            MIL.MdispSelectWindow(m_milDisplay, m_smilSystem, m_hDisplayHandle);
             //  MdispSelectWindowのあとはオーバーレイバッファを確保
             MIL.MdispInquire(m_milDisplay, MIL.M_OVERLAY_ID, ref m_milOverlay);
 
@@ -171,14 +171,21 @@ namespace MatroxCS
         /// <returns></returns>
         public int LoadImage(string nstrImageFilePath)
         {
-            //  MIL関数でロード
-            //  もし既に画像バッファを確保していたら、一度開放してから再度確保する
-            //  画像サイズも更新
 
+            //  MIL関数でロード
+            if (m_milDisplay != MIL.M_NULL)
+            {
+                //  もし既に画像バッファを確保していたら、一度開放してから再度確保する
+                MIL.MbufFree(m_milDisplay);
+                //  画像サイズも更新
+                MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_PACKED + MIL.M_BGR24, ref m_milDisplay);
+            }
             //  ここでMdispSelectWindow( m_milDisp, m_milDisplayImage, nhDispHandle );
+            MIL.MdispSelectWindow(m_milDisplay, m_milDisplayImage, m_hDisplayHandle);
+            MIL.MbufImport(nstrImageFilePath, MIL.M_DEFAULT, MIL.M_LOAD, m_smilSystem, ref m_milDisplayImage);
             //  ↑毎回やって大丈夫かな？
             //  MdispSelectWindowのあとはオーバーレイバッファを確保
-            //  MdispInquire( m_milDisp, M_OVERLAY_ID, &m_milOverLay );
+            MIL.MdispInquire(m_milDisplay, MIL.M_OVERLAY_ID, ref m_milOverlay);
 
             return 0;
         }
@@ -191,7 +198,7 @@ namespace MatroxCS
         public int SetMagRate(double ndMagRate)
         {
             //  倍率を切り替える
-            //MdispZoom( m_milDisp, ndMag, ndMag );
+            MIL.MdispZoom(m_milDisplay, ndMagRate, ndMagRate);
             m_dMagRate = ndMagRate;
             //  最大最小で丸める!
 
