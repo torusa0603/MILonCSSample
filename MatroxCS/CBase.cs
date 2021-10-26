@@ -227,7 +227,7 @@ namespace MatroxCS
         }
 
         /// <summary>
-        /// 
+        /// フォルダーパスを作成する
         /// </summary>
         /// <param name="nstrExecFolderName"></param>
         /// <param name="nstrFolderName"></param>
