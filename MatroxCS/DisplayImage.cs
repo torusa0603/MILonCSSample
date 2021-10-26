@@ -230,7 +230,7 @@ namespace MatroxCS
         /// <returns></returns>
         public int ClearGraphic()
         {
-            //MdispControl( m_milDisp, M_OVERLAY_CLEAR, M_TRANSPARENT_COLOR );
+            MIL.MdispControl( m_milDisplay, MIL.M_OVERLAY_CLEAR, MIL.M_TRANSPARENT_COLOR );
             return 0;
         }
 
@@ -243,14 +243,67 @@ namespace MatroxCS
         /// <returns></returns>
         public int SaveImage(string nstrImageFilePath, string nstrExt, bool nbIncludeGraphic)
         {
-            //  グラフィック含めるときはこんな感じのイメージ
-            //MbufAllocColor(m_milSys, 3, m_szImageSize.cx, m_szImageSize.cy, 8 + M_UNSIGNED, M_IMAGE + M_PROC + M_DISP + M_PACKED + M_BGR24, &mil_temp);
-            //	一時バッファに画像をコピー
-            //MbufCopy(m_milOverlay, mil_temp);
-            //	オーバーレイを検査結果画像上にコピー
-            //	MbufTransfer( mil_temp, mil_result_temp, M_DEFAULT, M_DEFAULT, M_DEFAULT, M_DEFAULT, M_DEFAULT, M_DEFAULT, M_DEFAULT, M_DEFAULT, M_DEFAULT, M_DEFAULT, M_COMPOSITION, M_DEFAULT, M_RGB888(1,1,1), M_NULL );
+            MIL_ID mil_temp = MIL.M_NULL;
+            MIL_ID mil_result_temp = MIL.M_NULL;
+            int i_index;
+            string str_ext;
 
+            MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR24, ref mil_result_temp);
+            if (nbIncludeGraphic)
+            {
+                //	オーバーレイバッファと検査結果画像バッファの一時バッファを用意
+                MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR24, ref mil_temp);
+                //	一時バッファに画像をコピー
+                MIL.MbufCopy(m_milOverlay, mil_temp);
+                //	オーバーレイを検査結果画像上にコピー
+                MIL.MbufTransfer(mil_temp, mil_result_temp, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_COMPOSITION, MIL.M_DEFAULT, MIL.M_RGB888(1, 1, 1), MIL.M_NULL);
+                //	メモリ開放
+                MIL.MbufFree(mil_temp);
+            }
+            else
+            {
+                MIL.MbufCopy(mil_result_temp, mil_temp);
+            }
 
+            //	拡張子を抽出
+            i_index = nstrImageFilePath.IndexOf(".");
+            //	拡張子がない場合は仕方ないのでビットマップの拡張子をつけてビットマップで保存する
+            if (i_index < 0)
+            {
+                nstrImageFilePath += ".bmp";
+                str_ext = "bmp";
+            }
+            else
+            {
+                //	ファイル名の最後の文字が「.」だった場合もビットマップにしてしまう
+                if (i_index + 1 == nstrImageFilePath.Length)
+                {
+                    nstrImageFilePath += "bmp";
+                    str_ext = "bmp";
+                }
+                else
+                {
+                    str_ext = nstrImageFilePath.Substring(i_index + 1);
+                }
+            }
+            //	jpg
+            if (string.Compare(str_ext, "jpg") == 0 || string.Compare(str_ext, "JPG") == 0)
+            {
+                MIL.MbufExport(nstrImageFilePath, MIL.M_JPEG_LOSSY, mil_result_temp);
+            }
+            //	png
+            else if (string.Compare(str_ext, "png") == 0 || string.Compare(str_ext, "PNG") == 0)
+            {
+                MIL.MbufExport(nstrImageFilePath, MIL.M_PNG, mil_result_temp);
+            }
+            //	bmp
+            else
+            {
+                MIL.MbufExport(nstrImageFilePath, MIL.M_BMP, mil_result_temp);
+            }
+
+            //	メモリ開放
+            MIL.MbufFree(mil_result_temp);
 
             return 0;
         }
