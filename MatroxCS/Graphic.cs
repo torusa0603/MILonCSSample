@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace MatroxCS
 {
-    class CGraphic:CBase
+    class CGraphic : CBase
     {
         //  グラフィックバッファID
         private MIL_ID m_milGraphic = MIL.M_NULL;
@@ -22,7 +22,7 @@ namespace MatroxCS
         /// <returns></returns>
         public int OpenGraphic()
         {
-            //MgraAlloc( m_milSys, &m_milGraphic );
+            MIL.MgraAlloc(m_smilSystem, ref m_milGraphic);
 
             return 0;
         }
@@ -57,7 +57,7 @@ namespace MatroxCS
         /// <returns></returns>
         public int SetOverlay(MIL_ID nmilOverlay)
         {
-            
+
             m_milTargetOverlay = nmilOverlay;
 
             return 0;
