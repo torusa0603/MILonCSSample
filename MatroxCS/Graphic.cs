@@ -33,8 +33,9 @@ namespace MatroxCS
         /// <returns></returns>
         public int CloseGraphic()
         {
-
             //グラフィックバッファ開放
+            MIL.MdigFree(m_milGraphic);
+            m_milGraphic = MIL.M_NULL;
 
             return 0;
         }
@@ -45,7 +46,7 @@ namespace MatroxCS
         /// <returns></returns>
         public int SetColor(int niRed, int niGreen, int niBlue)
         {
-            //  MgraColor( m_milGraphic, M_RGB888( l_red, l_green, l_blue ) );	
+            MIL.MgraColor(m_milGraphic, MIL.M_RGB888(niRed, niGreen, niBlue));
 
             return 0;
         }
