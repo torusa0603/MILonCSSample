@@ -15,6 +15,7 @@ namespace MatroxCS
         //  描画先のオーバーレイバッファ。これはCDisplayImageクラスのバッファの参照なので
         //  このクラスでは確保とか開放とかしない
         private MIL_ID m_milTargetOverlay = MIL.M_NULL;
+        MIL_INT m_miliColor = MIL.M_RGB888(1, 1, 1);
 
         /// <summary>
         /// グラフィックバッファ作成
@@ -46,7 +47,8 @@ namespace MatroxCS
         /// <returns></returns>
         public int SetColor(int niRed, int niGreen, int niBlue)
         {
-            MIL.MgraColor(m_milGraphic, MIL.M_RGB888(niRed, niGreen, niBlue));
+            m_miliColor = MIL.M_RGB888(niRed, niGreen, niBlue);
+            MIL.MgraColor(m_milGraphic, m_miliColor);
 
             return 0;
         }
@@ -58,7 +60,6 @@ namespace MatroxCS
         /// <returns></returns>
         public int SetOverlay(MIL_ID nmilOverlay)
         {
-
             m_milTargetOverlay = nmilOverlay;
 
             return 0;
@@ -67,8 +68,8 @@ namespace MatroxCS
         /// <summary>
         /// 直線を描画
         /// </summary>
-        /// <param name="nptStartPoint"></param>
-        /// <param name="nptEndPoint"></param>
+        /// <param name="nptStartPoint">始点座標</param>
+        /// <param name="nptEndPoint">終点座標</param>
         /// <returns></returns>
         public int DrawLine(Point nptStartPoint, Point nptEndPoint)
         {
@@ -97,6 +98,11 @@ namespace MatroxCS
             DrawLine(nptSecondPoint, nptThirdPoint);        //	2→3
             DrawLine(nptThirdPoint, pt_fourth_point);   //	3→4
             DrawLine(pt_fourth_point, nptFirstPoint);	//	4→1
+        }
+
+        public void clearGraphic()
+        {
+
         }
 
     }

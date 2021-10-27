@@ -197,12 +197,18 @@ namespace MatroxCS
         /// <returns></returns>
         public int SetMagRate(double ndMagRate)
         {
+            //  最大最小で丸める!
+            if (ndMagRate < m_cdMinMagRate)
+            {
+                ndMagRate = m_cdMinMagRate;
+            }
+            if (ndMagRate > m_cdMaxMagRate)
+            {
+                ndMagRate = m_cdMaxMagRate;
+            }
             //  倍率を切り替える
             MIL.MdispZoom(m_milDisplay, ndMagRate, ndMagRate);
             m_dMagRate = ndMagRate;
-            //  最大最小で丸める!
-
-
             return 0;
         }
 
@@ -256,9 +262,10 @@ namespace MatroxCS
                 //	一時バッファに画像をコピー
                 MIL.MbufCopy(m_milOverlay, mil_temp);
                 //	オーバーレイを検査結果画像上にコピー
-                MIL.MbufTransfer(mil_temp, mil_result_temp, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_COMPOSITION, MIL.M_DEFAULT, MIL.M_RGB888(1, 1, 1), MIL.M_NULL);
+                MIL.MbufTransfer(mil_temp, mil_result_temp, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_COMPOSITION, MIL.M_DEFAULT, TRANSPARENT_COLOR, MIL.M_NULL);
                 //	メモリ開放
                 MIL.MbufFree(mil_temp);
+                
             }
             else
             {
