@@ -247,17 +247,23 @@ namespace MatroxCS
         }
     }
 
+    public class CJsonCameraGeneral
+    {
+        [JsonPropertyName("Number")] public int m_iNumber { get; set; }
+        [JsonPropertyName("CameraInfoArray")] public CJsonCameraInfo[] m_arrCameraInfo { get; set; }
+    }
+
     public class CJsonCameraInfo
     {
-        [JsonPropertyName("IdentifyName")]  public string   IdentifyName    { get; set; }
-        [JsonPropertyName("CameraType")]    public int      CameraType      { get; set; }
-        [JsonPropertyName("CameraFile")]    public string   CameraFile      { get; set; }
-        [JsonPropertyName("Width")]         public int      Width           { get; set; }
-        [JsonPropertyName("Height")]        public int      Height          { get; set; }
-        [JsonPropertyName("Color")]         public int      Color           { get; set; }
-        [JsonPropertyName("ImagePose")]     public int      ImagePose       { get; set; }
-        [JsonPropertyName("UseSerialComm")] public int      UseSerialComm   { get; set; }
-        [JsonPropertyName("COMNo")]         public int      COMNo           { get; set; }
-        [JsonPropertyName("IPAddress")]     public string   IPAddress       { get; set; }
+        [JsonPropertyName("IdentifyName")] public string m_strIdentifyName { get; set; }
+        [JsonPropertyName("CameraType")] public int m_iCameraType { get; set; }
+        [JsonPropertyName("CameraFile")] public string m_strCameraFile { get; set; }
+        [JsonPropertyName("Width")] public int m_iWidth { get; set; }
+        [JsonPropertyName("Height")] public int m_iHeight { get; set; }
+        [JsonPropertyName("Color")] public int m_iColor { get; set; }
+        [JsonPropertyName("ImagePose")] public int m_iImagePose { get; set; }
+        [JsonPropertyName("UseSerialComm")] public int m_iUseSerialComm { get; set; }
+        [JsonPropertyName("COMNo")] public int m_iCOMNo { get; set; }
+        [JsonPropertyName("IPAddress")] public string m_strIPAddress { get; set; }
     }
 }
