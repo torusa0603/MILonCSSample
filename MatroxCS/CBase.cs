@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using Matrox.MatroxImagingLibrary;
 using System.Runtime.InteropServices;
 using System.IO;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace MatroxCS
 {
@@ -243,5 +245,19 @@ namespace MatroxCS
             str_folder_name = $"{str_folder_name}\\";
             return str_folder_name;
         }
+    }
+
+    public class CJsonCameraInfo
+    {
+        [JsonPropertyName("IdentifyName")]  public string   IdentifyName    { get; set; }
+        [JsonPropertyName("CameraType")]    public int      CameraType      { get; set; }
+        [JsonPropertyName("CameraFile")]    public string   CameraFile      { get; set; }
+        [JsonPropertyName("Width")]         public int      Width           { get; set; }
+        [JsonPropertyName("Height")]        public int      Height          { get; set; }
+        [JsonPropertyName("Color")]         public int      Color           { get; set; }
+        [JsonPropertyName("ImagePose")]     public int      ImagePose       { get; set; }
+        [JsonPropertyName("UseSerialComm")] public int      UseSerialComm   { get; set; }
+        [JsonPropertyName("COMNo")]         public int      COMNo           { get; set; }
+        [JsonPropertyName("IPAddress")]     public string   IPAddress       { get; set; }
     }
 }
