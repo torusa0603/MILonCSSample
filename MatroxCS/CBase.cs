@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 using Matrox.MatroxImagingLibrary;
 using System.Runtime.InteropServices;
 using System.IO;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+//using System.Text.Json;
+//using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace MatroxCS
 {
@@ -43,6 +44,8 @@ namespace MatroxCS
         protected GCHandle hUserData_Error;
         protected MIL_APP_HOOK_FUNCTION_PTR ProcessingFunctionPtr_Error;
         protected bool m_bFatalErrorOccured;   //	致命的なエラー発生(ソフト再起動必須)
+
+        protected CJsonCameraGeneral m_cJsonCameraGeneral = new CJsonCameraGeneral();
 
 
 
@@ -110,6 +113,10 @@ namespace MatroxCS
         /// <returns></returns>
         protected int readParameter(string nstrSettingPath)
         {
+            string str_jsonfile_contents = File.ReadAllText(nstrSettingPath);
+
+            m_cJsonCameraGeneral = JsonConvert.DeserializeObject<CJsonCameraGeneral>(str_jsonfile_contents);
+
             return 0;
         }
 
@@ -249,21 +256,21 @@ namespace MatroxCS
 
     public class CJsonCameraGeneral
     {
-        [JsonPropertyName("Number")] public int m_iNumber { get; set; }
-        [JsonPropertyName("CameraInfoArray")] public CJsonCameraInfo[] m_arrCameraInfo { get; set; }
+        public int Number { get; set; }
+        public List<CJsonCameraInfo> CameraInformation { get; private set; } = new List<CJsonCameraInfo>();
     }
 
     public class CJsonCameraInfo
     {
-        [JsonPropertyName("IdentifyName")] public string m_strIdentifyName { get; set; }
-        [JsonPropertyName("CameraType")] public int m_iCameraType { get; set; }
-        [JsonPropertyName("CameraFile")] public string m_strCameraFile { get; set; }
-        [JsonPropertyName("Width")] public int m_iWidth { get; set; }
-        [JsonPropertyName("Height")] public int m_iHeight { get; set; }
-        [JsonPropertyName("Color")] public int m_iColor { get; set; }
-        [JsonPropertyName("ImagePose")] public int m_iImagePose { get; set; }
-        [JsonPropertyName("UseSerialComm")] public int m_iUseSerialComm { get; set; }
-        [JsonPropertyName("COMNo")] public int m_iCOMNo { get; set; }
-        [JsonPropertyName("IPAddress")] public string m_strIPAddress { get; set; }
+        public string IdentifyName { get; set; }
+        public int CameraType { get; set; }
+        public string CameraFile { get; set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
+        public int Color { get; set; }
+        public int ImagePose { get; set; }
+        public int UseSerialComm { get; set; }
+        public int COMNo { get; set; }
+        public string IPAddress { get; set; }
     }
 }

@@ -1,1 +1,1 @@
-NuGetで"System.Text.Json"パッケージを追加
+NuGetで"Newtonsoft.Json"パッケージを追加
