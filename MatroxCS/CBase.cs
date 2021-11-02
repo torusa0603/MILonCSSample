@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 using System.IO;
 //using System.Text.Json;
 //using System.Text.Json.Serialization;
-using Newtonsoft.Json;
+
 
 namespace MatroxCS
 {
@@ -45,15 +45,13 @@ namespace MatroxCS
         protected MIL_APP_HOOK_FUNCTION_PTR ProcessingFunctionPtr_Error;
         protected bool m_bFatalErrorOccured;   //	致命的なエラー発生(ソフト再起動必須)
 
-        protected CJsonCameraGeneral m_cJsonCameraGeneral = new CJsonCameraGeneral();
-
 
 
 
         public int initial(string nstrSettingPath)
         {
-            //	パラメータファイルを読み込む
-            readParameter(nstrSettingPath);
+            ////	パラメータファイルを読み込む
+            //readParameter(nstrSettingPath);
 
             //色々初期化
 
@@ -103,20 +101,6 @@ namespace MatroxCS
             }
 
             //  設定ファイル読んだり？
-            return 0;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="nstrSettingPath"></param>
-        /// <returns></returns>
-        protected int readParameter(string nstrSettingPath)
-        {
-            string str_jsonfile_contents = File.ReadAllText(nstrSettingPath);
-
-            m_cJsonCameraGeneral = JsonConvert.DeserializeObject<CJsonCameraGeneral>(str_jsonfile_contents);
-
             return 0;
         }
 
@@ -254,23 +238,5 @@ namespace MatroxCS
         }
     }
 
-    public class CJsonCameraGeneral
-    {
-        public int Number { get; set; }
-        public List<CJsonCameraInfo> CameraInformation { get; private set; } = new List<CJsonCameraInfo>();
-    }
-
-    public class CJsonCameraInfo
-    {
-        public string IdentifyName { get; set; }
-        public int CameraType { get; set; }
-        public string CameraFile { get; set; }
-        public int Width { get; set; }
-        public int Height { get; set; }
-        public int Color { get; set; }
-        public int ImagePose { get; set; }
-        public int UseSerialComm { get; set; }
-        public int COMNo { get; set; }
-        public string IPAddress { get; set; }
-    }
+    
 }

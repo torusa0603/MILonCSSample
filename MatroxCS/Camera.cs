@@ -43,6 +43,13 @@ namespace MatroxCS
 
         //  カメラパラメーターはカメラ毎に文字列違うのでそれを考慮する
 
+        //public CCamera(string nstrIPAddress, string nstrCameraFilePath, Size nszImageSize)
+        public CCamera(CJsonCameraInfo ncJsonCameraInfo)
+        {
+            m_strIPAddress = ncJsonCameraInfo.IPAddress;
+            m_strCameraFilePath = ncJsonCameraInfo.CameraFile;
+            m_szImageSize = new Size(ncJsonCameraInfo.Width, ncJsonCameraInfo.Height);
+        }
 
         /// <summary>
         /// カメラオープン

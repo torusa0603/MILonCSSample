@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Matrox.MatroxImagingLibrary;
+using Newtonsoft.Json;
+using System.IO;
 
 namespace MatroxCS
 {
@@ -20,6 +22,8 @@ namespace MatroxCS
         List<CDisplayImage> m_lstDisplayImage = new List<CDisplayImage>();    //  ディスプレイオブジェクト
         CGraphic m_cGraphic = new CGraphic();   //  グラフィックオブジェクト
 
+        CJsonCameraGeneral m_cJsonCameraGeneral = new CJsonCameraGeneral();
+
         //  パターンマッチング
         //  フィルター
         //  各種アルゴリズム(?)これはSPVIみたいにする？
@@ -33,7 +37,8 @@ namespace MatroxCS
         /// <returns></returns>
         public int initMatrox()
         {
-            int i_camera_num = 2;   //  適当
+            readParameter("");
+            int i_camera_num = m_cJsonCameraGeneral.Number;   //  適当
 
             //  設定ファイル読む。この設定ファイルは人が書くので人が読み書きしやすい必要あり
             //  でも設定ファイルにはカメラ情報しかないからCCmaeraクラスでやればいいか?
@@ -42,7 +47,7 @@ namespace MatroxCS
             //  カメラ初期化
             for(int i_loop = 0; i_loop < i_camera_num; i_loop++)
             {
-                CCamera c_camera = new CCamera();
+                CCamera c_camera = new CCamera(m_cJsonCameraGeneral.CameraInformation[i_loop]);
                 c_camera.OpenCamera(i_loop);
                 m_lstCamera.Add(c_camera);
             }
@@ -294,6 +299,35 @@ namespace MatroxCS
             return i_index;
         }
 
+        protected int readParameter(string nstrSettingPath)
+        {
+            string str_jsonfile_contents = File.ReadAllText(nstrSettingPath);
 
+            m_cJsonCameraGeneral = JsonConvert.DeserializeObject<CJsonCameraGeneral>(str_jsonfile_contents);
+
+            return 0;
+        }
+
+
+    }
+
+    public class CJsonCameraGeneral
+    {
+        public int Number { get; set; }
+        public List<CJsonCameraInfo> CameraInformation { get; private set; } = new List<CJsonCameraInfo>();
+    }
+
+    public class CJsonCameraInfo
+    {
+        public string IdentifyName { get; set; }
+        public int CameraType { get; set; }
+        public string CameraFile { get; set; }
+        public int Width { get; set; }
+        public int Height { get; set; }
+        public int Color { get; set; }
+        public int ImagePose { get; set; }
+        public int UseSerialComm { get; set; }
+        public int COMNo { get; set; }
+        public string IPAddress { get; set; }
     }
 }
