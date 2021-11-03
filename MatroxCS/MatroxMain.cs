@@ -46,7 +46,7 @@ namespace MatroxCS
             //  でもカメラ数は知らないとダメ
 
             //  カメラ初期化
-            for (int i_loop = 0; i_loop < i_camera_num; i_loop++)
+            for (int i_loop = 0; i_loop < i_camera_num - 1; i_loop++)
             {
                 // カメラクラスに各種設定値を代入
                 CCamera c_camera = new CCamera(m_cJsonCameraGeneral.CameraInformation[i_loop]);
@@ -65,13 +65,13 @@ namespace MatroxCS
         public void endMatrox()
         {
             // 全カメラクラスをクローズ
-            for (int i_loop = 0; i_loop < m_lstCamera.Count(); i_loop++)
+            for (int i_loop = 0; i_loop < m_lstCamera.Count() - 1; i_loop++)
             {
                 m_lstCamera[i_loop].CloseCamera();
             }
 
             // 全ディスプレイクラスをクローズ
-            for (int i_loop = 0; i_loop < m_lstDisplayImage.Count(); i_loop++)
+            for (int i_loop = 0; i_loop < m_lstDisplayImage.Count() - 1; i_loop++)
             {
                 m_lstDisplayImage[i_loop].CloseDisplay();
             }
@@ -91,9 +91,13 @@ namespace MatroxCS
         /// カメラIDを取得
         /// </summary>
         /// <param name="niCameraIndex">指定カメラインデックス番号</param>
-        /// <returns></returns>
+        /// <returns>-1:範囲外インデックス番号、-1以外:カメラID</returns>
         public int GetCameraID(int niCameraIndex)
         {
+            if ((m_lstCamera.Count() - 1) < niCameraIndex)
+            {
+                return -1;
+            }
             return m_lstCamera[niCameraIndex].GetID();
         }
 
