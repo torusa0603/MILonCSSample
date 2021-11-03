@@ -14,7 +14,7 @@ namespace MatroxCS
     //  dll使う人は基本全部ここを通るからこのファイル(クラス)長くなる。
     //  機能毎にファイル分けたほうがいいかも。
 
-    class CMatroxMain
+    public class CMatroxMain
     {
         #region メンバー変数
 
@@ -311,13 +311,13 @@ namespace MatroxCS
 
     }
 
-    public class CJsonCameraGeneral
+    class CJsonCameraGeneral
     {
         public int Number { get; set; }
         public List<CJsonCameraInfo> CameraInformation { get; private set; } = new List<CJsonCameraInfo>();
     }
 
-    public class CJsonCameraInfo
+    class CJsonCameraInfo
     {
         public string IdentifyName { get; set; }
         public int CameraType { get; set; }

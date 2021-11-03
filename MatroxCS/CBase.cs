@@ -21,7 +21,7 @@ namespace MatroxCS
         MTX_GIGE,
         MTX_HOST = 100
     };
-    public class CBase
+    class CBase
     {
 
         //  全てのMIL操作共通のものはCBaseで定義する
