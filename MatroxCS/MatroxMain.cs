@@ -230,11 +230,8 @@ namespace MatroxCS
         /// <returns></returns>
         public int SetGraphicColor(Color nGraphicColor)
         {
-
             //  RGBの値に分割して設定
             m_cGraphic.SetColor(nGraphicColor.R, nGraphicColor.G, nGraphicColor.B);
-
-
             return 0;
         }
 
