@@ -73,8 +73,6 @@ namespace MatroxCS
         /// <returns></returns>
         public int DrawLine(Point nptStartPoint, Point nptEndPoint)
         {
-            //MgraLine(m_milGraphic, m_milTargetOverlay, nptStartPoint.x, nptStartPoint.Y,
-            //  nptEndPoint.x, nptEndPoint.Y);
             MIL.MgraLine(m_milGraphic, m_milTargetOverlay, nptStartPoint.X, nptStartPoint.Y, nptEndPoint.X, nptEndPoint.Y);
             return 0;
         }
@@ -87,9 +85,9 @@ namespace MatroxCS
         /// <param name="nptThirdPoint"></param>
         public void DrawParallelogram(Point nptFirstPoint, Point nptSecondPoint, Point nptThirdPoint)
         {
-            Point pt_fourth_point = new Point(0, 0);          //　平行四辺形の第４点
+            Point pt_fourth_point = new Point(0, 0);          //　平行四辺形の第4点
 
-            //　４番目の点を計算する
+            //　4番目の点を計算する
             pt_fourth_point.X = nptThirdPoint.X - nptSecondPoint.X + nptFirstPoint.X;
             pt_fourth_point.Y = nptThirdPoint.Y - nptSecondPoint.Y + nptFirstPoint.Y;
 
