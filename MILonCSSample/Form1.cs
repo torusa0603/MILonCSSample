@@ -110,11 +110,16 @@ namespace MILonCSSample
                 // エラー処理
             }
 
-            Form2 f_form2 = new Form2();
+            Form2 f_form2 = new Form2(this);
             f_form2.ShowDialog();
 
-            i_ret = cMatroxMain.OpenDisplay(pnl_camera1.Handle);
+            i_ret = cMatroxMain.OpenDisplay(f_form2.pnl_form2.Handle);
             m_lstDisplayID[0] = i_ret;
+            i_ret = cMatroxMain.SelectCameraImageDisplay(m_lstCameraID[0], m_lstDisplayID[0]);
+            if (i_ret != 0)
+            {
+                // エラー処理
+            }
         }
 
         private void pnl_camera2_Click(object sender, EventArgs e)
@@ -126,11 +131,42 @@ namespace MILonCSSample
                 // エラー処理
             }
 
-            Form3 f_form3 = new Form3();
+            Form3 f_form3 = new Form3(this);
             f_form3.ShowDialog();
 
+            i_ret = cMatroxMain.OpenDisplay(f_form3.pnl_form3.Handle);
+            m_lstDisplayID[1] = i_ret;
+            i_ret = cMatroxMain.SelectCameraImageDisplay(m_lstCameraID[1], m_lstDisplayID[1]);
+            if (i_ret != 0)
+            {
+                // エラー処理
+            }
+        }
+
+        public void Form2_close()
+        {
+            int i_ret;
+            i_ret = cMatroxMain.DeleteDisplay(m_lstDisplayID[0]);
+            if (i_ret != 0)
+            {
+                // エラー処理
+            }
+            i_ret = cMatroxMain.OpenDisplay(pnl_camera1.Handle);
+            m_lstDisplayID[0] = i_ret;
+            i_ret = cMatroxMain.SelectCameraImageDisplay(m_lstCameraID[0], m_lstDisplayID[0]);
+        }
+
+        public void Form3_close()
+        {
+            int i_ret;
+            i_ret = cMatroxMain.DeleteDisplay(m_lstDisplayID[1]);
+            if (i_ret != 0)
+            {
+                // エラー処理
+            }
             i_ret = cMatroxMain.OpenDisplay(pnl_camera2.Handle);
             m_lstDisplayID[1] = i_ret;
+            i_ret = cMatroxMain.SelectCameraImageDisplay(m_lstCameraID[1], m_lstDisplayID[1]);
         }
     }
 }
