@@ -149,7 +149,7 @@ namespace MatroxCS
 
             //まずそれぞれのIDがあることを確認。なければエラー
             i_camera_index = SearchCameraID(niCameraID);
-            i_display_index = SearchDisplayID(niCameraID);
+            i_display_index = SearchDisplayID(niDisplayID);
             if (i_camera_index == -1 || i_display_index == -1)
             {
                 if (i_camera_index == -1)
@@ -205,14 +205,18 @@ namespace MatroxCS
         /// </summary>
         /// <param name="nstrImageFilePath"></param>
         /// <param name="niDisplayID">指定ディスプレイID</param>
-        /// <returns>-1:該当ディスプレイID無し</returns>
+        /// <returns>-1:存在しないファイルパス、-2:該当ディスプレイID無し</returns>
         public int LoadImage(string nstrImageFilePath, int niDisplayID)
         {
-            int i_display_index = SearchDisplayID(niDisplayID); ;
+            int i_display_index = SearchDisplayID(niDisplayID);
+            if (!File.Exists(nstrImageFilePath))
+            {
+                return -1;
+            }
             //  指定のIDのオブジェクトがなければエラー
             if (i_display_index == -1)
             {
-                return -1;
+                return -2;
             }
             m_lstDisplayImage[i_display_index].LoadImage(nstrImageFilePath);
 
@@ -252,7 +256,7 @@ namespace MatroxCS
             //  指定の画面のオーバーレイバッファを設定
             m_cGraphic.SetOverlay(m_lstDisplayImage[i_display_index].GetOverlay());
             //  ここに直線を描画
-
+            m_cGraphic.DrawLine(nptStartPoint, nptEndPoint);
 
             return 0;
         }
