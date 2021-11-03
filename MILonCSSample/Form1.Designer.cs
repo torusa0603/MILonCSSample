@@ -47,7 +47,7 @@
             this.pnl_camera2.Name = "pnl_camera2";
             this.pnl_camera2.Size = new System.Drawing.Size(400, 225);
             this.pnl_camera2.TabIndex = 0;
-            this.pnl_camera2.Paint += new System.Windows.Forms.PaintEventHandler(this.pnl_camera2_Paint);
+            this.pnl_camera2.Click += new System.EventHandler(this.pnl_camera2_Click);
             // 
             // pnl_camera1
             // 
@@ -55,7 +55,7 @@
             this.pnl_camera1.Name = "pnl_camera1";
             this.pnl_camera1.Size = new System.Drawing.Size(400, 225);
             this.pnl_camera1.TabIndex = 0;
-            this.pnl_camera1.Paint += new System.Windows.Forms.PaintEventHandler(this.pnl_camera1_Paint);
+            this.pnl_camera1.Click += new System.EventHandler(this.pnl_camera1_Click);
             // 
             // pnl_load
             // 

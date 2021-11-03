@@ -55,18 +55,6 @@ namespace MILonCSSample
             }
         }
 
-        private void pnl_camera1_Paint(object sender, PaintEventArgs e)
-        {
-            Form2 f_form2 = new Form2();
-            f_form2.Show();
-        }
-
-        private void pnl_camera2_Paint(object sender, PaintEventArgs e)
-        {
-            Form3 f_form3 = new Form3();
-            f_form3.Show();
-        }
-
         private void Form1_Shown(object sender, EventArgs e)
         {
             int i_ret = 0;
@@ -111,6 +99,38 @@ namespace MILonCSSample
             {
                 // エラー処理
             }
+        }
+
+        private void pnl_camera1_Click(object sender, EventArgs e)
+        {
+            int i_ret;
+            i_ret = cMatroxMain.DeleteDisplay(m_lstDisplayID[0]);
+            if (i_ret != 0)
+            {
+                // エラー処理
+            }
+
+            Form2 f_form2 = new Form2();
+            f_form2.ShowDialog();
+
+            i_ret = cMatroxMain.OpenDisplay(pnl_camera1.Handle);
+            m_lstDisplayID[0] = i_ret;
+        }
+
+        private void pnl_camera2_Click(object sender, EventArgs e)
+        {
+            int i_ret;
+            i_ret = cMatroxMain.DeleteDisplay(m_lstDisplayID[1]);
+            if (i_ret != 0)
+            {
+                // エラー処理
+            }
+
+            Form3 f_form3 = new Form3();
+            f_form3.ShowDialog();
+
+            i_ret = cMatroxMain.OpenDisplay(pnl_camera2.Handle);
+            m_lstDisplayID[1] = i_ret;
         }
     }
 }
