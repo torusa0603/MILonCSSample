@@ -34,26 +34,48 @@ namespace MatroxCS
         /// <summary>
         /// Matrox制御の初期化
         /// </summary>
+        /// <param name="nstrSettingPath">設定ファイルパス</param>
         /// <returns></returns>
-        public int initMatrox()
+        public int initMatrox(string nstrSettingPath)
         {
-            readParameter("");
-            int i_camera_num = m_cJsonCameraGeneral.Number;   //  適当
+            readParameter(nstrSettingPath);
+            int i_camera_num = m_cJsonCameraGeneral.Number;     // カメラ数
 
             //  設定ファイル読む。この設定ファイルは人が書くので人が読み書きしやすい必要あり
             //  でも設定ファイルにはカメラ情報しかないからCCmaeraクラスでやればいいか?
             //  でもカメラ数は知らないとダメ
 
             //  カメラ初期化
-            for(int i_loop = 0; i_loop < i_camera_num; i_loop++)
+            for (int i_loop = 0; i_loop < i_camera_num; i_loop++)
             {
+                // カメラクラスに各種設定値を代入
                 CCamera c_camera = new CCamera(m_cJsonCameraGeneral.CameraInformation[i_loop]);
+                // カメラオープン
                 c_camera.OpenCamera(i_loop);
+                // カメラリストに追加
                 m_lstCamera.Add(c_camera);
             }
 
 
             return 0;
+        }
+
+        /// <summary>
+        /// Matrox制御の終了
+        /// </summary>
+        public void endMatrox()
+        {
+            // 全カメラクラスをクローズ
+            for (int i_loop = 0; i_loop < m_lstCamera.Count(); i_loop++)
+            {
+                m_lstCamera[i_loop].CloseCamera();
+            }
+
+            // 全ディスプレイクラスをクローズ
+            for (int i_loop = 0; i_loop < m_lstDisplayImage.Count(); i_loop++)
+            {
+                m_lstDisplayImage[i_loop].CloseDisplay();
+            }
         }
 
         /// <summary>
@@ -68,6 +90,7 @@ namespace MatroxCS
         /// <summary>
         /// カメラIDを取得
         /// </summary>
+        /// <param name="niCameraIndex">指定カメラインデックス番号</param>
         /// <returns></returns>
         public int GetCameraID(int niCameraIndex)
         {
@@ -93,11 +116,10 @@ namespace MatroxCS
             return 0;
         }
 
-        
         /// <summary>
-        /// ディスプレイオープン。
+        /// ディスプレイオープン
         /// </summary>
-        /// <param name="nhHandle"></param>
+        /// <param name="nhHandle">指定ディスプレイハンドル</param>
         /// <returns>ディスプレイID</returns>
         public int OpenDisplay(IntPtr nhHandle)
         {
@@ -141,7 +163,7 @@ namespace MatroxCS
                 {
                     return -3;
                 }
-                
+
             }
             //  カメラの画像サイズ取得
             Size sz = m_lstCamera[i_camera_index].GetImageSize();
@@ -160,7 +182,7 @@ namespace MatroxCS
         /// <returns>-1:該当ディスプレイID無し</returns>
         public int DeleteDisplay(int niDisplayID)
         {
-            int i_display_index = SearchDisplayID(niDisplayID); ;
+            int i_display_index = SearchDisplayID(niDisplayID);
             //  指定のIDのオブジェクトがなければエラー
             if (i_display_index == -1)
             {
@@ -226,7 +248,7 @@ namespace MatroxCS
             //  指定の画面のオーバーレイバッファを設定
             m_cGraphic.SetOverlay(m_lstDisplayImage[i_display_index].GetOverlay());
             //  ここに直線を描画
-            
+
 
             return 0;
         }
@@ -299,7 +321,12 @@ namespace MatroxCS
             return i_index;
         }
 
-        protected int readParameter(string nstrSettingPath)
+        /// <summary>
+        /// 設定ファイルの内容を設定用クラスに格納
+        /// </summary>
+        /// <param name="nstrSettingPath">設定ファイルパス</param>
+        /// <returns></returns>
+        private int readParameter(string nstrSettingPath)
         {
             string str_jsonfile_contents = File.ReadAllText(nstrSettingPath);
 
@@ -311,12 +338,18 @@ namespace MatroxCS
 
     }
 
+    /// <summary>
+    /// 一般設定項目
+    /// </summary>
     class CJsonCameraGeneral
     {
         public int Number { get; set; }
         public List<CJsonCameraInfo> CameraInformation { get; private set; } = new List<CJsonCameraInfo>();
     }
 
+    /// <summary>
+    /// 詳細設定項目
+    /// </summary>
     class CJsonCameraInfo
     {
         public string IdentifyName { get; set; }
