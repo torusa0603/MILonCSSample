@@ -55,8 +55,7 @@ namespace MatroxCS
                 // カメラリストに追加
                 m_lstCamera.Add(c_camera);
             }
-
-
+            m_cGraphic.OpenGraphic();
             return 0;
         }
 
@@ -76,6 +75,7 @@ namespace MatroxCS
             {
                 m_lstDisplayImage[i_loop].CloseDisplay();
             }
+            m_cGraphic.CloseGraphic();
         }
 
         /// <summary>

@@ -34,9 +34,14 @@ namespace MatroxCS
         /// <returns></returns>
         public int CloseGraphic()
         {
-            //グラフィックバッファ開放
-            MIL.MdigFree(m_milGraphic);
-            m_milGraphic = MIL.M_NULL;
+            if (m_milGraphic != MIL.M_NULL)
+            {
+                //グラフィックバッファ開放
+                MIL.MdigFree(m_milGraphic);
+                m_milGraphic = MIL.M_NULL;
+            }
+
+            //オーバーレイバッファ開放は開放しない
 
             return 0;
         }
