@@ -27,9 +27,10 @@ namespace MILonCSSample
         {
             cMatroxMain = new CMatroxMain();
             int i_ret = 0;
-
+            string m_strExePath = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
+            string str_path = $@"{m_strExePath}\setting.json";
             // 設定ファイルの読み込み、カメラオープンを行う
-            cMatroxMain.initMatrox("[設定ファイルパス]");
+            cMatroxMain.initMatrox(str_path);
             // カメラ個数を取得する
             m_iCameraNumber = cMatroxMain.GetCameraNum();
             // カメラIDを取得する

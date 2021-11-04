@@ -35,9 +35,13 @@ namespace MatroxCS
         /// Matrox制御の初期化
         /// </summary>
         /// <param name="nstrSettingPath">設定ファイルパス</param>
-        /// <returns></returns>
+        /// <returns>-1:存在しないファイルパス</returns>
         public int initMatrox(string nstrSettingPath)
         {
+            if (!File.Exists(nstrSettingPath))
+            {
+                return -1;
+            }
             readParameter(nstrSettingPath);
             int i_camera_num = m_cJsonCameraGeneral.Number;     // カメラ数
 
@@ -334,12 +338,46 @@ namespace MatroxCS
         private int readParameter(string nstrSettingPath)
         {
             string str_jsonfile_contents = File.ReadAllText(nstrSettingPath);
-
-            m_cJsonCameraGeneral = JsonConvert.DeserializeObject<CJsonCameraGeneral>(str_jsonfile_contents);
+            string str_jsonfile_contents_comentout = commentoutJsonSentence(str_jsonfile_contents);
+            m_cJsonCameraGeneral = JsonConvert.DeserializeObject<CJsonCameraGeneral>(str_jsonfile_contents_comentout);
 
             return 0;
         }
 
+        /// <summary>
+        /// コメントとする文"###"～"改行コード(\r\n)"を排除する
+        /// </summary>
+        /// <param name="n_strJsonfileContents">Jsonファイルから読み込んだstring型データ</param>
+        /// <returns>コメントを排除後のstring型データ</returns>
+        private string commentoutJsonSentence(string n_strJsonfileContents)
+        {
+            string str_result = "";
+            string str_contents = n_strJsonfileContents;
+            string str_front = "";
+            string str_back = "";
+            string str_sharp = "###";
+            string str_enter = "\r\n";
+            int i_num_enter;
+            int i_num_sharp;
+            while (true)
+            {
+                i_num_sharp = str_contents.IndexOf(str_sharp);
+                if (i_num_sharp == -1)
+                {
+                    break;
+                }
+                str_front = str_contents.Substring(0, i_num_sharp-1);
+                str_back = str_contents.Substring(i_num_sharp, str_contents.Length -i_num_sharp);
+
+                i_num_enter = str_back.IndexOf(str_enter);
+                str_contents = str_back.Substring(i_num_enter, str_back.Length - i_num_enter);
+
+                str_result += str_front;
+            }
+            str_result += str_contents;
+
+            return str_result;
+        }
 
     }
 
