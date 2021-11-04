@@ -337,9 +337,9 @@ namespace MatroxCS
         /// <returns></returns>
         private int readParameter(string nstrSettingPath)
         {
-            string str_jsonfile_contents = File.ReadAllText(nstrSettingPath);
-            string str_jsonfile_contents_comentout = commentoutJsonSentence(str_jsonfile_contents);
-            m_cJsonCameraGeneral = JsonConvert.DeserializeObject<CJsonCameraGeneral>(str_jsonfile_contents_comentout);
+            string str_jsonfile_sentence = File.ReadAllText(nstrSettingPath);
+            string str_jsonfile_sentence_commentout = commentoutJsonSentence(str_jsonfile_sentence);
+            m_cJsonCameraGeneral = JsonConvert.DeserializeObject<CJsonCameraGeneral>(str_jsonfile_sentence_commentout);
 
             return 0;
         }
@@ -351,31 +351,39 @@ namespace MatroxCS
         /// <returns>コメントを排除後のstring型データ</returns>
         private string commentoutJsonSentence(string n_strJsonfileContents)
         {
-            string str_result = "";
-            string str_contents = n_strJsonfileContents;
-            string str_front = "";
-            string str_back = "";
-            string str_sharp = "###";
-            string str_enter = "\r\n";
-            int i_num_enter;
-            int i_num_sharp;
+            string str_result = ""; // 返答用のstring型データ
+            string str_contents = n_strJsonfileContents; // 主となるstring型データ
+            string str_front = ""; // コメントコードより前の文章を格納するstring型データ
+            string str_back = ""; // コメントコードより後の文章を格納するstring型データ
+            string str_comment_code = "###"; // コメントコード
+            string str_enter = "\r\n"; // 改行コード
+            
+            int i_num_comment_code; // コメントコードの位置を示すint型データ
+            int i_num_enter; // 改行コードの位置を示すint型データ
+
             while (true)
             {
-                i_num_sharp = str_contents.IndexOf(str_sharp);
-                if (i_num_sharp == -1)
+                // コメントコードの位置を探す
+                i_num_comment_code = str_contents.IndexOf(str_comment_code);
+                // コメントコードがこれ以上なければ終了
+                if (i_num_comment_code == -1)
                 {
                     break;
                 }
-                str_front = str_contents.Substring(0, i_num_sharp-1);
-                str_back = str_contents.Substring(i_num_sharp, str_contents.Length -i_num_sharp);
-
+                // コメントコードよりも前の文章を抽出
+                str_front = str_contents.Substring(0, i_num_comment_code - 1);
+                // コメントコードよりも後の文章を抽出
+                str_back = str_contents.Substring(i_num_comment_code, str_contents.Length - i_num_comment_code);
+                // コメントコード直後の改行コードを探す
                 i_num_enter = str_back.IndexOf(str_enter);
+                // コメントコード直後の改行コードより後ろの文を抽出
                 str_contents = str_back.Substring(i_num_enter, str_back.Length - i_num_enter);
-
+                // コメントコードよりも前の文を返答用データに追加
                 str_result += str_front;
             }
+            // コメントコードを含まない後半データを返答用データに追加
             str_result += str_contents;
-
+            // 返答する
             return str_result;
         }
 
