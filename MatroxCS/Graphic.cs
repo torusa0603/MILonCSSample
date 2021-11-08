@@ -37,7 +37,7 @@ namespace MatroxCS
             if (m_milGraphic != MIL.M_NULL)
             {
                 //グラフィックバッファ開放
-                MIL.MdigFree(m_milGraphic);
+                MIL.MgraFree(m_milGraphic);
                 m_milGraphic = MIL.M_NULL;
             }
 

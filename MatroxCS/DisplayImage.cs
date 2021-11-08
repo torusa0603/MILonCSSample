@@ -28,6 +28,8 @@ namespace MatroxCS
 
         private double m_dMagRate = 1.0;    //  現在の画像拡大の倍率(100%=1.0)
 
+        private int? m_iConnectCameraID;
+
         private const double m_cdMinMagRate = 0.1;//    最小倍率(10%)
         private const double m_cdMaxMagRate = 8.0;//    最大倍率(800%)
         private readonly MIL_INT TRANSPARENT_COLOR = MIL.M_RGB888(1, 1, 1);      //透過色
@@ -42,13 +44,15 @@ namespace MatroxCS
         /// </summary>
         /// <param name="nhDisplayHandle"></param>
         /// <returns></returns>
-        public int OpenDisplay(IntPtr nhDisplayHandle)
+        public int OpenDisplay(IntPtr nhDisplayHandle, Size nDisplaySize)
         {
             //  既にオープンされたインスタンスならエラー
             if (m_bOpenDone == true)
             {
                 return -999;
             }
+
+            m_szImageSize = nDisplaySize;
 
             //  ディスプレイオープン
             MIL.MdispAlloc(m_smilSystem, MIL.M_DEFAULT, "M_DEFAULT", MIL.M_DEFAULT, ref m_milDisplay);
@@ -64,8 +68,11 @@ namespace MatroxCS
             MIL.MdispControl(m_milDisplay, (long)MIL.M_TRANSPARENT_COLOR, TRANSPARENT_COLOR);
 
             
-            MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_PACKED + MIL.M_BGR24, ref m_milDisplay);
-            MIL.MbufClear(m_milDisplay, 0);
+            MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR24, ref m_milDisplayImage);
+            MIL.MbufClear(m_milDisplayImage, 0);
+            //MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_PACKED + MIL.M_BGR24, ref m_milOverlay);
+            //MIL.MbufClear(m_milOverlay, 0);
+            
             //  ハンドルをコピー
             m_hDisplayHandle = nhDisplayHandle;
 
@@ -78,6 +85,8 @@ namespace MatroxCS
             {
                 m_siNextDisplayID = m_siDisplayOffsetID;
             }
+
+            
 
             //  オープンフラグを立てる
             m_bOpenDone = true;
@@ -108,16 +117,18 @@ namespace MatroxCS
             }
             //  違ければ今の画像バッファをクリアしてこの大きさで再確保
             MIL.MbufFree(m_milDisplayImage);
-            MIL.MbufAllocColor(m_smilSystem, 3, niImageSize.Width, niImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_PACKED + MIL.M_BGR24, ref m_milDisplayImage);
-            //MbufFree
-            //MbufAllocColor
+            MIL.MbufAllocColor(m_smilSystem, 3, niImageSize.Width, niImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR24, ref m_milDisplayImage);
+            //MIL.MbufFree(m_milOverlay);
+            //MIL.MbufAllocColor(m_smilSystem, 3, niImageSize.Width, niImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR24, ref m_milOverlay);
+
 
             //  ここでMdispSelectWindow( m_milDisp, m_milDisplayImage, nhDispHandle );
-            MIL.MdispSelectWindow(m_milDisplay, m_smilSystem, m_hDisplayHandle);
+            MIL.MdispSelectWindow(m_milDisplay, m_milDisplayImage, m_hDisplayHandle);
             //  MdispSelectWindowのあとはオーバーレイバッファを確保
             MIL.MdispInquire(m_milDisplay, MIL.M_OVERLAY_ID, ref m_milOverlay);
 
             m_szImageSize = niImageSize;
+            
 
             return 0;
         }
@@ -126,9 +137,22 @@ namespace MatroxCS
         /// 画面表示用バッファを取得
         /// </summary>
         /// <returns></returns>
-        public MIL_ID GetShowImage()
+        public MIL_ID GetShowImage(int niConnectCameraID)
         {
+            m_iConnectCameraID = niConnectCameraID;
             return m_milDisplayImage;
+        }
+
+        public int? GetConnectCameraID()
+        {
+            if (m_iConnectCameraID == null)
+            {
+                return null;
+            }
+            else
+            {
+                return m_iConnectCameraID;
+            }
         }
 
         /// <summary>
@@ -146,21 +170,21 @@ namespace MatroxCS
         public int CloseDisplay()
         {
             //  ディスプレイID、オーバーレイバッファ、表示用画像バッファ等を開放。nullに
-            if (m_milDisplay != MIL.M_NULL)
-            {
-                MIL.MdigFree(m_milDisplay);
-                m_milDisplay = MIL.M_NULL;
-            }
-            if (m_milOverlay != MIL.M_NULL)
-            {
-                MIL.MdigFree(m_milOverlay);
-                m_milOverlay = MIL.M_NULL;
-            }
             if (m_milDisplayImage != MIL.M_NULL)
             {
-                MIL.MdigFree(m_milDisplayImage);
+                MIL.MbufFree(m_milDisplayImage);
                 m_milDisplayImage = MIL.M_NULL;
             }
+            if (m_milDisplay != MIL.M_NULL)
+            {
+                MIL.MdispFree(m_milDisplay);
+                m_milDisplay = MIL.M_NULL;
+            }
+            //if (m_milOverlay != MIL.M_NULL)
+            //{
+            //    MIL.MbufFree(m_milOverlay);
+            //    m_milOverlay = MIL.M_NULL;
+            //}
             return 0;
         }
 
@@ -176,9 +200,9 @@ namespace MatroxCS
             if (m_milDisplay != MIL.M_NULL)
             {
                 //  もし既に画像バッファを確保していたら、一度開放してから再度確保する
-                MIL.MbufFree(m_milDisplay);
+                MIL.MbufFree(m_milDisplayImage);
                 //  画像サイズも更新
-                MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_PACKED + MIL.M_BGR24, ref m_milDisplay);
+                MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR24, ref m_milDisplayImage);
             }
             //  ここでMdispSelectWindow( m_milDisp, m_milDisplayImage, nhDispHandle );
             MIL.MdispSelectWindow(m_milDisplay, m_milDisplayImage, m_hDisplayHandle);
@@ -227,6 +251,8 @@ namespace MatroxCS
         /// <returns></returns>
         public MIL_ID GetOverlay()
         {
+            MIL.MdispSelectWindow(m_milDisplay, m_milDisplayImage, m_hDisplayHandle);
+            MIL.MdispInquire(m_milDisplay, MIL.M_OVERLAY_ID, ref m_milOverlay);
             return m_milOverlay;
         }
 

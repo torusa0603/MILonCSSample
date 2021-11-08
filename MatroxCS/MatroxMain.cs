@@ -20,6 +20,7 @@ namespace MatroxCS
 
         List<CCamera> m_lstCamera = new List<CCamera>();      //  カメラオブジェクト
         List<CDisplayImage> m_lstDisplayImage = new List<CDisplayImage>();    //  ディスプレイオブジェクト
+        CBase m_cBase = new CBase();    // ベースオブジェクト
         CGraphic m_cGraphic = new CGraphic();   //  グラフィックオブジェクト
 
         CJsonCameraGeneral m_cJsonCameraGeneral = new CJsonCameraGeneral();
@@ -36,8 +37,9 @@ namespace MatroxCS
         /// </summary>
         /// <param name="nstrSettingPath">設定ファイルパス</param>
         /// <returns>-1:存在しないファイルパス</returns>
-        public int initMatrox(string nstrSettingPath)
+        public int initMatrox(string nstrSettingPath, string nstrExePath)
         {
+            
             if (!File.Exists(nstrSettingPath))
             {
                 return -1;
@@ -45,12 +47,16 @@ namespace MatroxCS
             readParameter(nstrSettingPath);
             int i_camera_num = m_cJsonCameraGeneral.Number;     // カメラ数
 
+            m_cBase.initial(m_cJsonCameraGeneral.BoardType, nstrExePath);
+
+
             //  設定ファイル読む。この設定ファイルは人が書くので人が読み書きしやすい必要あり
             //  でも設定ファイルにはカメラ情報しかないからCCmaeraクラスでやればいいか?
             //  でもカメラ数は知らないとダメ
 
+            int i_loop;
             //  カメラ初期化
-            for (int i_loop = 0; i_loop < i_camera_num - 1; i_loop++)
+            for (i_loop = 0; i_loop < i_camera_num; i_loop++)
             {
                 // カメラクラスに各種設定値を代入
                 CCamera c_camera = new CCamera(m_cJsonCameraGeneral.CameraInformation[i_loop]);
@@ -69,7 +75,7 @@ namespace MatroxCS
         public void endMatrox()
         {
             // 全カメラクラスをクローズ
-            for (int i_loop = 0; i_loop < m_lstCamera.Count() - 1; i_loop++)
+            for (int i_loop = 0; m_lstCamera.Count() - 1 < i_loop; i_loop++)
             {
                 m_lstCamera[i_loop].CloseCamera();
             }
@@ -129,11 +135,11 @@ namespace MatroxCS
         /// </summary>
         /// <param name="nhHandle">指定ディスプレイハンドル</param>
         /// <returns>ディスプレイID</returns>
-        public int OpenDisplay(IntPtr nhHandle)
+        public int OpenDisplay(IntPtr nhHandle, Size nDisplaySize)
         {
             int i_display_id;
             CDisplayImage c_display = new CDisplayImage();
-            c_display.OpenDisplay(nhHandle);
+            c_display.OpenDisplay(nhHandle, nDisplaySize);
             m_lstDisplayImage.Add(c_display);
             i_display_id = c_display.GetID();
 
@@ -178,7 +184,7 @@ namespace MatroxCS
             //  このサイズでディスプレイの画像を作成する
             m_lstDisplayImage[i_display_index].CreateImage(sz);
             // 表示用画像バッファをカメラに渡す
-            m_lstCamera[i_camera_index].SetShowImage(m_lstDisplayImage[i_display_index].GetShowImage());
+            m_lstCamera[i_camera_index].SetShowImage(m_lstDisplayImage[i_display_index].GetShowImage(niCameraID));
 
             return 0;
         }
@@ -195,6 +201,12 @@ namespace MatroxCS
             if (i_display_index == -1)
             {
                 return -1;
+            }
+            int? i_ret = m_lstDisplayImage[i_display_index].GetConnectCameraID();
+            if (i_ret != null)
+            {
+                int i_camera_index = SearchCameraID((int)i_ret);
+                m_lstCamera[i_camera_index].InsertNullToShowImage();
             }
             //  メモリ解放
             m_lstDisplayImage[i_display_index].CloseDisplay();
@@ -349,15 +361,15 @@ namespace MatroxCS
         /// </summary>
         /// <param name="n_strJsonfileContents">Jsonファイルから読み込んだstring型データ</param>
         /// <returns>コメントを排除後のstring型データ</returns>
-        private string commentoutJsonSentence(string n_strJsonfileContents)
+        private string commentoutJsonSentence(string nstrJsonfileContents)
         {
             string str_result = ""; // 返答用のstring型データ
-            string str_contents = n_strJsonfileContents; // 主となるstring型データ
+            string str_contents = nstrJsonfileContents; // 主となるstring型データ
             string str_front = ""; // コメントコードより前の文章を格納するstring型データ
             string str_back = ""; // コメントコードより後の文章を格納するstring型データ
             string str_comment_code = "###"; // コメントコード
             string str_enter = "\r\n"; // 改行コード
-            
+
             int i_num_comment_code; // コメントコードの位置を示すint型データ
             int i_num_enter; // 改行コードの位置を示すint型データ
 
@@ -395,6 +407,7 @@ namespace MatroxCS
     class CJsonCameraGeneral
     {
         public int Number { get; set; }
+        public int BoardType { get; set; }
         public List<CJsonCameraInfo> CameraInformation { get; private set; } = new List<CJsonCameraInfo>();
     }
 

@@ -47,7 +47,7 @@ namespace MatroxCS
         public CCamera(CJsonCameraInfo ncJsonCameraInfo)
         {
             m_strIPAddress = ncJsonCameraInfo.IPAddress;
-            m_strCameraFilePath = ncJsonCameraInfo.CameraFile;
+            m_strCameraFilePath = $@"{m_strExePath}\{ncJsonCameraInfo.CameraFile}";
             m_szImageSize = new Size(ncJsonCameraInfo.Width, ncJsonCameraInfo.Height);
         }
 
@@ -80,8 +80,8 @@ namespace MatroxCS
                 }
             }
             //  グラブ専用バッファ確保
-            MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_PACKED + MIL.M_BGR24, ref m_milGrabImageArray[0]);
-            MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_PACKED + MIL.M_BGR24, ref m_milGrabImageArray[1]);
+            MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_GRAB + MIL.M_PROC, ref m_milGrabImageArray[0]);
+            MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_GRAB + MIL.M_PROC, ref m_milGrabImageArray[1]);
             //  カメラが無事オープン出来たらIDを割り当てる
             m_iCameraID = m_siNextCameraID;
             //  次のカメラで被らないようにインクリメントしておく
@@ -114,7 +114,7 @@ namespace MatroxCS
             {
                 if (GrabImageArray != MIL.M_NULL)
                 {
-                    MIL.MdigFree(GrabImageArray);
+                    MIL.MbufFree(GrabImageArray);
                     m_milDigitizer = MIL.M_NULL;
                 }
             }
@@ -175,9 +175,17 @@ namespace MatroxCS
                 m_cCamera = m_handUserData_ProcessingFunction.Target as CCamera;
                 //　変更されたバッファIDを取得する
                 MIL.MdigGetHookInfo(nEventId, MIL.M_MODIFIED_BUFFER + MIL.M_BUFFER_ID, ref mil_modified_image);
-                MIL.MbufCopy(mil_modified_image, m_cCamera.m_milShowImage);
+                if (m_cCamera.m_milShowImage != MIL.M_NULL)
+                {
+                    MIL.MbufCopy(mil_modified_image, m_cCamera.m_milShowImage);
+                }
             }
             return (0);
+        }
+
+        public void InsertNullToShowImage()
+        {
+            m_milShowImage = MIL.M_NULL;
         }
 
         /// <summary>

@@ -39,7 +39,8 @@ namespace MatroxCS
         static protected int m_siDisplayOffsetID = 20000;     //画面表示IDオフセット
         static protected int m_siNextDisplayID = 20000;     //20000～29999まで。これを循環して使用
 
-        private string m_strExePath = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
+        // private string m_strExePath = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
+        static protected string m_strExePath = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
 
         protected GCHandle hUserData_Error;
         protected MIL_APP_HOOK_FUNCTION_PTR ProcessingFunctionPtr_Error;
@@ -48,12 +49,16 @@ namespace MatroxCS
 
 
 
-        public int initial(string nstrSettingPath)
+        public int initial(int niBoardType, string nstrExePath)
         {
             ////	パラメータファイルを読み込む
             //readParameter(nstrSettingPath);
 
+            m_iBoardType = niBoardType;
+            m_strExePath = nstrExePath;
+
             //色々初期化
+
 
             //	アプリケーションID取得
             MIL.MappAlloc(MIL.M_DEFAULT, ref m_smilApplication);
