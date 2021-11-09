@@ -42,6 +42,8 @@ namespace MatroxCS
         // private string m_strExePath = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
         static protected string m_strExePath = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
 
+        static protected readonly MIL_INT m_milintTransparentColor = MIL.M_RGB888(1, 1, 1);      //透過色
+
         protected GCHandle hUserData_Error;
         protected MIL_APP_HOOK_FUNCTION_PTR ProcessingFunctionPtr_Error;
         protected bool m_bFatalErrorOccured;   //	致命的なエラー発生(ソフト再起動必須)

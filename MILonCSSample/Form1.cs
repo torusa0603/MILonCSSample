@@ -201,5 +201,10 @@ namespace MILonCSSample
             string str_picture_file_path = $@"{m_strExePath}\Picture\{date_now.ToString("yyyyMMdd_HHmmssfff")}.jpg";
             i_ret = cMatroxMain.SaveImage(str_picture_file_path, true, m_lstDisplayID[0]);
         }
+
+        private void pnl_graphic_Click(object sender, EventArgs e)
+        {
+            cMatroxMain.ClearGraph(m_lstDisplayID[3]);
+        }
     }
 }

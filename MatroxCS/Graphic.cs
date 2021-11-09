@@ -105,7 +105,9 @@ namespace MatroxCS
 
         public void clearGraphic()
         {
-
+            MIL.MgraColor(m_milGraphic, m_milintTransparentColor);
+            MIL.MgraClear(m_milGraphic, m_milTargetOverlay);
+            MIL.MgraColor(m_milGraphic, m_miliColor);
         }
 
     }

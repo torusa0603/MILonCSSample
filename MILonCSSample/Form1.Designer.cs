@@ -66,6 +66,7 @@
             this.pnl_graphic.Name = "pnl_graphic";
             this.pnl_graphic.Size = new System.Drawing.Size(360, 270);
             this.pnl_graphic.TabIndex = 1;
+            this.pnl_graphic.Click += new System.EventHandler(this.pnl_graphic_Click);
             // 
             // btn_save
             // 

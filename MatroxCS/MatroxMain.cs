@@ -274,6 +274,22 @@ namespace MatroxCS
             return 0;
         }
 
+        public int ClearGraph(int niDisplayID)
+        {
+            int i_display_index = SearchDisplayID(niDisplayID); ;
+            //  指定のIDのオブジェクトがなければエラー
+            if (i_display_index == -1)
+            {
+                return -1;
+            }
+            //  指定の画面のオーバーレイバッファを設定
+            m_cGraphic.SetOverlay(m_lstDisplayImage[i_display_index].GetOverlay());
+            //  ここに直線を描画
+            m_cGraphic.clearGraphic();
+
+            return 0;
+        }
+
         /// <summary>
         /// 画像を保存
         /// </summary>

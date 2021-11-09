@@ -32,7 +32,7 @@ namespace MatroxCS
 
         private const double m_cdMinMagRate = 0.1;//    最小倍率(10%)
         private const double m_cdMaxMagRate = 8.0;//    最大倍率(800%)
-        private readonly MIL_INT TRANSPARENT_COLOR = MIL.M_RGB888(1, 1, 1);      //透過色
+        
 
         #endregion
 
@@ -65,7 +65,7 @@ namespace MatroxCS
             MIL.MdispControl(m_milDisplay, MIL.M_INTERPOLATION_MODE, MIL.M_NEAREST_NEIGHBOR);
             MIL.MdispControl(m_milDisplay, MIL.M_OVERLAY, MIL.M_ENABLE);
             MIL.MdispControl(m_milDisplay, MIL.M_OVERLAY_SHOW, MIL.M_ENABLE);
-            MIL.MdispControl(m_milDisplay, (long)MIL.M_TRANSPARENT_COLOR, TRANSPARENT_COLOR);
+            MIL.MdispControl(m_milDisplay, (long)MIL.M_TRANSPARENT_COLOR, m_milintTransparentColor);
 
             
             MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR24, ref m_milDisplayImage);
@@ -284,7 +284,7 @@ namespace MatroxCS
                 //	一時バッファに画像をコピー
                 MIL.MbufCopy(m_milOverlay, mil_temp);
                 //	オーバーレイを検査結果画像上にコピー
-                MIL.MbufTransfer(mil_temp, mil_result_temp, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_COMPOSITION, MIL.M_DEFAULT, TRANSPARENT_COLOR, MIL.M_NULL);
+                MIL.MbufTransfer(mil_temp, mil_result_temp, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_COMPOSITION, MIL.M_DEFAULT, m_milintTransparentColor, MIL.M_NULL);
                 //	メモリ開放
                 MIL.MbufFree(mil_temp);
             }
