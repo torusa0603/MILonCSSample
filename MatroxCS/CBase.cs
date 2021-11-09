@@ -188,6 +188,7 @@ namespace MatroxCS
 
                 //	致命的なエラーかどうか判断する
                 //	MdigProcess、xxxAllocで発生するエラーは全て致命的とする
+                
                 str_function = ErrorMessageFunction.ToString();
                 if (str_function.IndexOf("Alloc") != -1)
                 {

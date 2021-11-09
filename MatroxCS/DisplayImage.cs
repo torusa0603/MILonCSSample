@@ -111,17 +111,12 @@ namespace MatroxCS
         public int CreateImage(Size niImageSize)
         {
             //  そもそも同じサイズで確定していれば何もしない
-            if (m_szImageSize == niImageSize)
+            if (m_szImageSize != niImageSize)
             {
-                return 0;
+                //  違ければ今の画像バッファをクリアしてこの大きさで再確保
+                MIL.MbufFree(m_milDisplayImage);
+                MIL.MbufAllocColor(m_smilSystem, 3, niImageSize.Width, niImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR24, ref m_milDisplayImage);
             }
-            //  違ければ今の画像バッファをクリアしてこの大きさで再確保
-            MIL.MbufFree(m_milDisplayImage);
-            MIL.MbufAllocColor(m_smilSystem, 3, niImageSize.Width, niImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR24, ref m_milDisplayImage);
-            //MIL.MbufFree(m_milOverlay);
-            //MIL.MbufAllocColor(m_smilSystem, 3, niImageSize.Width, niImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR24, ref m_milOverlay);
-
-
             //  ここでMdispSelectWindow( m_milDisp, m_milDisplayImage, nhDispHandle );
             MIL.MdispSelectWindow(m_milDisplay, m_milDisplayImage, m_hDisplayHandle);
             //  MdispSelectWindowのあとはオーバーレイバッファを確保
@@ -272,15 +267,16 @@ namespace MatroxCS
         /// <param name="nstrImageFilePath"></param>
         /// <param name="nstrExt"></param>
         /// <param name="nbIncludeGraphic"></param>
-        /// <returns></returns>
-        public int SaveImage(string nstrImageFilePath, string nstrExt, bool nbIncludeGraphic)
+        /// <returns>-1:拡張子エラー</returns>
+        public int SaveImage(string nstrImageFilePath, bool nbIncludeGraphic)
         {
             MIL_ID mil_temp = MIL.M_NULL;
             MIL_ID mil_result_temp = MIL.M_NULL;
-            int i_index;
+            int i_index_ext;
             string str_ext;
 
             MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR24, ref mil_result_temp);
+            MIL.MbufCopy(m_milDisplayImage, mil_result_temp);
             if (nbIncludeGraphic)
             {
                 //	オーバーレイバッファと検査結果画像バッファの一時バッファを用意
@@ -291,17 +287,16 @@ namespace MatroxCS
                 MIL.MbufTransfer(mil_temp, mil_result_temp, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_COMPOSITION, MIL.M_DEFAULT, TRANSPARENT_COLOR, MIL.M_NULL);
                 //	メモリ開放
                 MIL.MbufFree(mil_temp);
-                
             }
             else
             {
-                MIL.MbufCopy(mil_result_temp, mil_temp);
+                
             }
 
             //	拡張子を抽出
-            i_index = nstrImageFilePath.IndexOf(".");
+            i_index_ext = nstrImageFilePath.IndexOf(".");
             //	拡張子がない場合は仕方ないのでビットマップの拡張子をつけてビットマップで保存する
-            if (i_index < 0)
+            if (i_index_ext < 0)
             {
                 nstrImageFilePath += ".bmp";
                 str_ext = "bmp";
@@ -309,14 +304,14 @@ namespace MatroxCS
             else
             {
                 //	ファイル名の最後の文字が「.」だった場合もビットマップにしてしまう
-                if (i_index + 1 == nstrImageFilePath.Length)
+                if (i_index_ext + 1 == nstrImageFilePath.Length)
                 {
                     nstrImageFilePath += "bmp";
                     str_ext = "bmp";
                 }
                 else
                 {
-                    str_ext = nstrImageFilePath.Substring(i_index + 1);
+                    str_ext = nstrImageFilePath.Substring(i_index_ext + 1);
                 }
             }
             //	jpg
@@ -330,9 +325,14 @@ namespace MatroxCS
                 MIL.MbufExport(nstrImageFilePath, MIL.M_PNG, mil_result_temp);
             }
             //	bmp
-            else
+            else if (string.Compare(str_ext, "bmp") == 0 || string.Compare(str_ext, "BMP") == 0)
             {
                 MIL.MbufExport(nstrImageFilePath, MIL.M_BMP, mil_result_temp);
+            }
+            else
+            {
+                MIL.MbufFree(mil_result_temp);
+                return -1;
             }
 
             //	メモリ開放

@@ -17,6 +17,7 @@ namespace MILonCSSample
         int m_iCameraNumber = 0; // カメラ個数
         List<int> m_lstCameraID = new List<int>(); // カメラリストID
         List<int> m_lstDisplayID = new List<int>() { 0, 0, 0, 0 }; // カメラリストID{カメラ1, カメラ2, ロード, グラフィック}
+        string m_strExePath;
 
         public Form1()
         {
@@ -25,7 +26,8 @@ namespace MILonCSSample
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            
+            btn_save.Enabled = false;
+            btn_save.Visible = false;
         }
 
         private void Form1_Shown(object sender, EventArgs e)
@@ -33,7 +35,7 @@ namespace MILonCSSample
             cMatroxMain = new CMatroxMain();
             int i_ret = 0;
             // exeファイルのいるフォルダーパスを取得
-            string m_strExePath = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
+            m_strExePath = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
             // 設定ファイルパスを作成
             string str_setting_file_path = $@"{m_strExePath}\setting.json";
             // 設定ファイルの読み込み、カメラオープンを行う
@@ -84,11 +86,11 @@ namespace MILonCSSample
             {
                 // エラー処理
             }
-            i_ret = cMatroxMain.SelectCameraImageDisplay(m_lstCameraID[1], m_lstDisplayID[1]);
-            if (i_ret != 0)
-            {
-                // エラー処理
-            }
+            //i_ret = cMatroxMain.SelectCameraImageDisplay(m_lstCameraID[1], m_lstDisplayID[1]);
+            //if (i_ret != 0)
+            //{
+            //    // エラー処理
+            //}
             string str_img_file_path = $@"{m_strExePath}\image.jpg";
             // 画像をロードし、表示
             i_ret = cMatroxMain.LoadImage(str_img_file_path, m_lstDisplayID[2]);
@@ -99,7 +101,7 @@ namespace MILonCSSample
 
             // グラフィックを表示
             cMatroxMain.SetGraphicColor(Color.Red);
-            i_ret = cMatroxMain.DrawLine(m_lstDisplayID[3],new Point(0,0), new Point(pnl_graphic.Width, pnl_graphic.Height));
+            i_ret = cMatroxMain.DrawLine(m_lstDisplayID[3], new Point(0, 0), new Point(pnl_graphic.Width, pnl_graphic.Height));
             if (i_ret != 0)
             {
                 // エラー処理
@@ -125,6 +127,14 @@ namespace MILonCSSample
             {
                 // エラー処理
             }
+            cMatroxMain.SetGraphicColor(Color.Red);
+            i_ret = cMatroxMain.DrawLine(m_lstDisplayID[0], new Point(0, 0), new Point(pnl_graphic.Width, pnl_graphic.Height));
+            if (i_ret != 0)
+            {
+                // エラー処理
+            }
+            btn_save.Enabled = true;
+            btn_save.Visible = true;
         }
 
         private void pnl_camera2_Click(object sender, EventArgs e)
@@ -141,15 +151,17 @@ namespace MILonCSSample
 
             i_ret = cMatroxMain.OpenDisplay(f_form3.pnl_form3.Handle, new Size(f_form3.pnl_form3.Width, f_form3.pnl_form3.Height));
             m_lstDisplayID[1] = i_ret;
-            i_ret = cMatroxMain.SelectCameraImageDisplay(m_lstCameraID[1], m_lstDisplayID[1]);
-            if (i_ret != 0)
-            {
-                // エラー処理
-            }
+            //i_ret = cMatroxMain.SelectCameraImageDisplay(m_lstCameraID[1], m_lstDisplayID[1]);
+            //if (i_ret != 0)
+            //{
+            //    // エラー処理
+            //}
         }
 
         public void Form2_close()
         {
+            btn_save.Enabled = false;
+            btn_save.Visible = false;
             int i_ret;
             i_ret = cMatroxMain.DeleteDisplay(m_lstDisplayID[0]);
             if (i_ret != 0)
@@ -159,6 +171,10 @@ namespace MILonCSSample
             i_ret = cMatroxMain.OpenDisplay(pnl_camera1.Handle, new Size(pnl_camera1.Width, pnl_camera1.Height));
             m_lstDisplayID[0] = i_ret;
             i_ret = cMatroxMain.SelectCameraImageDisplay(m_lstCameraID[0], m_lstDisplayID[0]);
+            if (i_ret < 0)
+            {
+                // エラー処理
+            }
         }
 
         public void Form3_close()
@@ -171,7 +187,19 @@ namespace MILonCSSample
             }
             i_ret = cMatroxMain.OpenDisplay(pnl_camera2.Handle, new Size(pnl_camera2.Width, pnl_camera2.Height));
             m_lstDisplayID[1] = i_ret;
+            if (i_ret < 0)
+            {
+                // エラー処理
+            }
             i_ret = cMatroxMain.SelectCameraImageDisplay(m_lstCameraID[1], m_lstDisplayID[1]);
+        }
+
+        private void btn_save_Click(object sender, EventArgs e)
+        {
+            int i_ret;
+            DateTime date_now = System.DateTime.Now;
+            string str_picture_file_path = $@"{m_strExePath}\Picture\{date_now.ToString("yyyyMMdd_HHmmssfff")}.jpg";
+            i_ret = cMatroxMain.SaveImage(str_picture_file_path, true, m_lstDisplayID[0]);
         }
     }
 }

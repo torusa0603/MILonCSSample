@@ -281,16 +281,22 @@ namespace MatroxCS
         /// <param name="nstrExt"></param>
         /// <param name="nbIncludeGraphic"></param>
         /// <param name="niDisplayID">指定ディスプレイID</param>
-        /// <returns>-1:該当ディスプレイID無し</returns>
-        public int SaveImage(string nstrImageFilePath, string nstrExt, bool nbIncludeGraphic, int niDisplayID)
+        /// <returns>-1:該当ディスプレイID無し、-2:拡張子エラー</returns>
+        public int SaveImage(string nstrImageFilePath, bool nbIncludeGraphic, int niDisplayID)
         {
-            int i_display_index = SearchDisplayID(niDisplayID); ;
+            int i_display_index = SearchDisplayID(niDisplayID);
+            int i_ret;
             //  指定のIDのオブジェクトがなければエラー
             if (i_display_index == -1)
             {
                 return -1;
             }
             //  拡張子に応じたフォーマットで保存。グラフィックを含むか含まないかも設定出来るように
+            i_ret = m_lstDisplayImage[i_display_index].SaveImage(nstrImageFilePath, nbIncludeGraphic);
+            if (i_ret == 0)
+            {
+                return -2;
+            }
 
             return 0;
 
