@@ -115,13 +115,13 @@ namespace MatroxCS
             if (m_bBaseInitialFinished)
             {
                 // 全カメラクラスをクローズ
-                for (int i_loop = 0; i_loop < m_lstCamera.Count() - 1; i_loop++)
+                for (int i_loop = 0; i_loop < m_lstCamera.Count(); i_loop++)
                 {
                     m_lstCamera[i_loop].CloseCamera();
                 }
                 m_lstCamera.Clear();
                 // 全ディスプレイクラスをクローズ
-                for (int i_loop = 0; i_loop < m_lstDisplayImage.Count() - 1; i_loop++)
+                for (int i_loop = 0; i_loop < m_lstDisplayImage.Count(); i_loop++)
                 {
                     m_lstDisplayImage[i_loop].CloseDisplay();
                 }
@@ -187,7 +187,7 @@ namespace MatroxCS
         /// </summary>
         /// <param name="nhHandle">指定ディスプレイハンドル</param>
         /// <param name="nDisplaySize">ディスプレイサイズ</param>
-        /// <returns>0:正常終了、-1:異常終了、新規作成ディスプレイID</returns>
+        /// <returns>-1:異常終了、新規作成ディスプレイID</returns>
         public int OpenDisplay(IntPtr nhHandle, Size nDisplaySize)
         {
             if (m_cBase.getFatalErrorOccured())

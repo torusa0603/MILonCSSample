@@ -110,17 +110,13 @@ namespace MatroxCS
             //  スルー状態なら、フリーズにする
             if (m_bThroughFlg == true)
             {
-                Freeze();
+                Cansel();
             }
             //  グラブ専用バッファ開放
-            foreach (MIL_ID GrabImageArray in m_milGrabImageArray)
-            {
-                if (GrabImageArray != MIL.M_NULL)
-                {
-                    MIL.MbufFree(GrabImageArray);
-                    m_milDigitizer = MIL.M_NULL;
-                }
-            }
+            MIL.MbufFree(m_milGrabImageArray[0]);
+            m_milGrabImageArray[0] = MIL.M_NULL;
+            MIL.MbufFree(m_milGrabImageArray[1]);
+            m_milGrabImageArray[1] = MIL.M_NULL;
             //m_milShowImageは開放しない。これはdispクラスが開放するから。
 
             //  デジタイザ開放
@@ -196,11 +192,30 @@ namespace MatroxCS
             {
                 if (m_iBoardType != (int)MTX_TYPE.MTX_HOST)
                 {
-                    GCHandle hUserData = GCHandle.Alloc(this);
-                    MIL_DIG_HOOK_FUNCTION_PTR ProcessingFunctionPtr = new MIL_DIG_HOOK_FUNCTION_PTR(ProcessingFunction);
+                    //m_handUserData_doThrough = GCHandle.Alloc(this);
+                    //m_delProcessingFunctionPtr = new MIL_DIG_HOOK_FUNCTION_PTR(ProcessingFunction);
                     //	フック関数を中止させる
                     MIL.MdigProcess(m_milDigitizer, m_milGrabImageArray, m_milGrabImageArray.Length,
-                                MIL.M_STOP + MIL.M_WAIT, MIL.M_DEFAULT, ProcessingFunctionPtr, GCHandle.ToIntPtr(hUserData));
+                                MIL.M_STOP + MIL.M_WAIT, MIL.M_DEFAULT, m_delProcessingFunctionPtr, GCHandle.ToIntPtr(m_handUserData_doThrough));
+                    
+
+                }
+                m_bThroughFlg = false;
+            }
+        }
+
+        public void Cansel()
+        {
+            if (m_bThroughFlg == true)
+            {
+                if (m_iBoardType != (int)MTX_TYPE.MTX_HOST)
+                {
+                    //m_handUserData_doThrough = GCHandle.Alloc(this);
+                    //m_delProcessingFunctionPtr = new MIL_DIG_HOOK_FUNCTION_PTR(ProcessingFunction);
+                    //	フック関数を中止させる
+                    MIL.MdigProcess(m_milDigitizer, m_milGrabImageArray, m_milGrabImageArray.Length,
+                                MIL.M_STOP, MIL.M_DEFAULT, m_delProcessingFunctionPtr, GCHandle.ToIntPtr(m_handUserData_doThrough));
+                    m_handUserData_doThrough.Free();
                 }
                 m_bThroughFlg = false;
             }

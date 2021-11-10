@@ -16,7 +16,7 @@ namespace MILonCSSample
         CMatroxMain cMatroxMain;
         int m_iCameraNumber = 0; // カメラ個数
         List<int> m_lstCameraID = new List<int>(); // カメラリストID
-        List<int> m_lstDisplayID = new List<int>() { 0, 0, 0, 0 }; // ディスプレイID{パネル1, パネル2, パネル3, パネル4}
+        List<int> m_lstDisplayID = new List<int>(); // ディスプレイID{パネル1, パネル2, パネル3, パネル4}
         string m_strExePath;
         bool m_bPnl4GraphEnable;
 
@@ -47,7 +47,11 @@ namespace MILonCSSample
             // 設定ファイルパスを作成
             string str_setting_file_path = $@"{m_strExePath}\setting.json";
             // 設定ファイルの読み込み、カメラオープンを行う
-            cMatroxMain.initMatrox(str_setting_file_path, m_strExePath);
+            i_ret = cMatroxMain.initMatrox(str_setting_file_path, m_strExePath);
+            if (i_ret == -200)
+            {
+                return;
+            }
             // カメラ個数を取得する
             m_iCameraNumber = cMatroxMain.GetCameraNum();
             // カメラIDを取得する
@@ -75,16 +79,32 @@ namespace MILonCSSample
 
             // パネル1ディスプレイID取得
             i_ret = cMatroxMain.OpenDisplay(pnl_camera1.Handle, new Size(pnl_camera1.Width, pnl_camera1.Height));
-            m_lstDisplayID[0] = i_ret;
+            if (i_ret != -1)
+            {
+                // ディスプレイリストIDに追加
+                m_lstDisplayID.Add(i_ret);
+            }
             // パネル2ディスプレイID取得
             i_ret = cMatroxMain.OpenDisplay(pnl_camera2.Handle, new Size(pnl_camera2.Width, pnl_camera2.Height));
-            m_lstDisplayID[1] = i_ret;
+            if (i_ret != -1)
+            {
+                // ディスプレイリストIDに追加
+                m_lstDisplayID.Add(i_ret);
+            }
             // パネル3ディスプレイID取得
             i_ret = cMatroxMain.OpenDisplay(pnl_load.Handle, new Size(pnl_load.Width, pnl_load.Height));
-            m_lstDisplayID[2] = i_ret;
+            if (i_ret != -1)
+            {
+                // ディスプレイリストIDに追加
+                m_lstDisplayID.Add(i_ret);
+            }
             // パネル4ディスプレイID取得
             i_ret = cMatroxMain.OpenDisplay(pnl_graphic.Handle, new Size(pnl_graphic.Width, pnl_graphic.Height));
-            m_lstDisplayID[3] = i_ret;
+            if (i_ret != -1)
+            {
+                // ディスプレイリストIDに追加
+                m_lstDisplayID.Add(i_ret);
+            }
             i_ret = 0;
             // カメラの個数が一個以上
             if (m_lstCameraID.Count > 0)
@@ -308,6 +328,8 @@ namespace MILonCSSample
         private void disConnectToolStripMenuItem_Click(object sender, EventArgs e)
         {
             cMatroxMain.endMatrox();
+            m_lstCameraID.Clear();
+            m_lstDisplayID.Clear();
         }
     }
 }

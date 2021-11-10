@@ -222,6 +222,8 @@ namespace MatroxCS
 
         public void end()
         {
+            MIL.MsysFree(m_smilSystem);
+            MIL.MappFree(m_smilApplication);
             m_bFatalErrorOccured = false;
         }
 
