@@ -47,7 +47,7 @@ namespace MatroxCS
         protected GCHandle hUserData_Error;
         protected MIL_APP_HOOK_FUNCTION_PTR ProcessingFunctionPtr_Error;
         private bool m_bFatalErrorOccured = false;                                                              // 致命的なエラー発生(ソフト再起動必須)
-        private bool m_bMainInitialFinished = false;                                                            //初期処理完了済みかを示す
+        
         public static Action m_evFatalErrorOccured;                                                     // 致命的なエラー発生(ソフト再起動必須)
 
 
@@ -106,7 +106,6 @@ namespace MatroxCS
                 return -1;
             }
 
-            m_bMainInitialFinished = true;
 
             //  設定ファイル読んだり？
             return 0;
@@ -221,19 +220,9 @@ namespace MatroxCS
             return m_bFatalErrorOccured;
         }
 
-        /// <summary>
-        /// 初期化の有無を取得
-        /// </summary>
-        /// <returns></returns>
-        public bool getMainInitialFinished()
-        {
-            return m_bMainInitialFinished;
-        }
-
         public void end()
         {
             m_bFatalErrorOccured = false;
-            m_bMainInitialFinished = false;
         }
 
 
