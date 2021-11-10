@@ -24,6 +24,7 @@ namespace MatroxCS
         CGraphic m_cGraphic = new CGraphic();   //  グラフィックオブジェクト
 
         CJsonCameraGeneral m_cJsonCameraGeneral = new CJsonCameraGeneral();
+        public Action m_evMatroxFatalErrorOccured;   //	致命的なエラー発生(ソフト再起動必須)
 
         //  パターンマッチング
         //  フィルター
@@ -39,14 +40,14 @@ namespace MatroxCS
         /// <returns>-1:存在しないファイルパス</returns>
         public int initMatrox(string nstrSettingPath, string nstrExePath)
         {
-            
+            // 設定ファイルの存在確認後、読み込み
             if (!File.Exists(nstrSettingPath))
             {
                 return -1;
             }
             readParameter(nstrSettingPath);
             int i_camera_num = m_cJsonCameraGeneral.Number;     // カメラ数
-
+            CBase.m_evFatalErrorOccured += m_evMatroxFatalErrorOccured;
             m_cBase.initial(m_cJsonCameraGeneral.BoardType, nstrExePath);
 
 
@@ -66,6 +67,7 @@ namespace MatroxCS
                 m_lstCamera.Add(c_camera);
             }
             m_cGraphic.OpenGraphic();
+
             return 0;
         }
 
@@ -75,7 +77,7 @@ namespace MatroxCS
         public void endMatrox()
         {
             // 全カメラクラスをクローズ
-            for (int i_loop = 0; m_lstCamera.Count() - 1 < i_loop; i_loop++)
+            for (int i_loop = 0; i_loop < m_lstCamera.Count() - 1; i_loop++)
             {
                 m_lstCamera[i_loop].CloseCamera();
             }

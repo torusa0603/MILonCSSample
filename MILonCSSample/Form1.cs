@@ -35,6 +35,7 @@ namespace MILonCSSample
         private void Form1_Shown(object sender, EventArgs e)
         {
             cMatroxMain = new CMatroxMain();
+            cMatroxMain.m_evMatroxFatalErrorOccured += occuredMatroxFatalError;
             int i_ret = 0;
             // exeファイルのいるフォルダーパスを取得
             m_strExePath = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
@@ -286,6 +287,11 @@ namespace MILonCSSample
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             cMatroxMain.endMatrox();
+        }
+
+        public void occuredMatroxFatalError()
+        {
+            this.Close();
         }
     }
 }

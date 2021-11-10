@@ -27,35 +27,33 @@ namespace MatroxCS
         //  全てのMIL操作共通のものはCBaseで定義する
         static protected MIL_ID m_smilApplication = MIL.M_NULL;
         static protected MIL_ID m_smilSystem = MIL.M_NULL;
-        static protected int m_iBoardType;            //	使用ボードタイプ
+        static protected int m_iBoardType;                                                              // 使用ボードタイプ
 
         //  各インスタンスIDオフセット
 
-        static protected int m_siIDMaxLength = 10000;     //  各IDのmax個数。
+        static protected int m_siIDMaxLength = 10000;                                                   //  各IDのmax個数。
         //  カメラID
-        static protected int m_siCameraOffsetID = 10000;      //カメラIDオフセット
-        static protected int m_siNextCameraID = 10000;      //10000～19999まで。これを循環して使用
+        static protected int m_siCameraOffsetID = 10000;                                                //カメラIDオフセット
+        static protected int m_siNextCameraID = 10000;                                                  //10000～19999まで。これを循環して使用
         //  画面表示ID
-        static protected int m_siDisplayOffsetID = 20000;     //画面表示IDオフセット
-        static protected int m_siNextDisplayID = 20000;     //20000～29999まで。これを循環して使用
+        static protected int m_siDisplayOffsetID = 20000;                                               //画面表示IDオフセット
+        static protected int m_siNextDisplayID = 20000;                                                 //20000～29999まで。これを循環して使用
 
         // private string m_strExePath = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
         static protected string m_strExePath = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
 
-        static protected readonly MIL_INT m_milintTransparentColor = MIL.M_RGB888(1, 1, 1);      //透過色
+        static protected readonly MIL_INT m_milintTransparentColor = MIL.M_RGB888(1, 1, 1);             //透過色
 
         protected GCHandle hUserData_Error;
         protected MIL_APP_HOOK_FUNCTION_PTR ProcessingFunctionPtr_Error;
-        protected bool m_bFatalErrorOccured;   //	致命的なエラー発生(ソフト再起動必須)
+        bool m_bFatalErrorOccured;                                                            // 致命的なエラー発生(ソフト再起動必須)
+        public static Action m_evFatalErrorOccured;                                                     // 致命的なエラー発生(ソフト再起動必須)
 
 
 
 
         public int initial(int niBoardType, string nstrExePath)
         {
-            ////	パラメータファイルを読み込む
-            //readParameter(nstrSettingPath);
-
             m_iBoardType = niBoardType;
             m_strExePath = nstrExePath;
 
@@ -194,6 +192,7 @@ namespace MatroxCS
                 str_function = ErrorMessageFunction.ToString();
                 if (str_function.IndexOf("Alloc") != -1)
                 {
+                    CBase.m_evFatalErrorOccured();
                     p_matrox_common.m_bFatalErrorOccured = true;
                 }
 
@@ -211,7 +210,16 @@ namespace MatroxCS
         }
 
         /// <summary>
-        /// 
+        /// 致命的なエラーの有無を取得
+        /// </summary>
+        /// <returns></returns>
+        public bool getFatalErrorOccured()
+        {
+            return m_bFatalErrorOccured;
+        }
+
+        /// <summary>
+        /// エラーログを書き出す
         /// </summary>
         /// <param name="nstrErrorLog"></param>
         private void outputErrorLog(string nstrErrorLog)
