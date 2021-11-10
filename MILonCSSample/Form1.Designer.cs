@@ -30,9 +30,9 @@
         {
             this.pnl_camera2 = new System.Windows.Forms.Panel();
             this.pnl_camera1 = new System.Windows.Forms.Panel();
+            this.btn_save = new System.Windows.Forms.Button();
             this.pnl_load = new System.Windows.Forms.Panel();
             this.pnl_graphic = new System.Windows.Forms.Panel();
-            this.btn_save = new System.Windows.Forms.Button();
             this.pnl_camera1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -53,6 +53,19 @@
             this.pnl_camera1.TabIndex = 0;
             this.pnl_camera1.Click += new System.EventHandler(this.pnl_camera1_Click);
             // 
+            // btn_save
+            // 
+            this.btn_save.BackColor = System.Drawing.Color.LawnGreen;
+            this.btn_save.Font = new System.Drawing.Font("MS UI Gothic", 12F);
+            this.btn_save.ForeColor = System.Drawing.SystemColors.Desktop;
+            this.btn_save.Location = new System.Drawing.Point(120, 105);
+            this.btn_save.Name = "btn_save";
+            this.btn_save.Size = new System.Drawing.Size(120, 60);
+            this.btn_save.TabIndex = 2;
+            this.btn_save.Text = "Save";
+            this.btn_save.UseVisualStyleBackColor = false;
+            this.btn_save.Click += new System.EventHandler(this.btn_save_Click);
+            // 
             // pnl_load
             // 
             this.pnl_load.Location = new System.Drawing.Point(0, 270);
@@ -68,19 +81,6 @@
             this.pnl_graphic.TabIndex = 1;
             this.pnl_graphic.Click += new System.EventHandler(this.pnl_graphic_Click);
             // 
-            // btn_save
-            // 
-            this.btn_save.BackColor = System.Drawing.Color.LawnGreen;
-            this.btn_save.Font = new System.Drawing.Font("MS UI Gothic", 12F);
-            this.btn_save.ForeColor = System.Drawing.SystemColors.Desktop;
-            this.btn_save.Location = new System.Drawing.Point(120, 105);
-            this.btn_save.Name = "btn_save";
-            this.btn_save.Size = new System.Drawing.Size(120, 60);
-            this.btn_save.TabIndex = 2;
-            this.btn_save.Text = "Save";
-            this.btn_save.UseVisualStyleBackColor = false;
-            this.btn_save.Click += new System.EventHandler(this.btn_save_Click);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
@@ -92,6 +92,7 @@
             this.Controls.Add(this.pnl_load);
             this.Name = "Form1";
             this.Text = "Form1";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.Shown += new System.EventHandler(this.Form1_Shown);
             this.pnl_camera1.ResumeLayout(false);

@@ -15,12 +15,12 @@ namespace MatroxCS
         #region メンバー変数
 
         private MIL_ID m_milDigitizer = MIL.M_NULL;                                 //  デジタイザID
-        private MIL_ID m_milShowImage = MIL.M_NULL;                          //  カメラ映像を画面に表示するときの画像バッファ
-        private MIL_ID[] m_milGrabImageArray = { MIL.M_NULL, MIL.M_NULL };   //  グラブ専用リングバッファ 2固定
-        private MIL_DIG_HOOK_FUNCTION_PTR m_delProcessingFunctionPtr;               //  
-        private GCHandle m_handUserData_doThrough;                                  //  
-        private GCHandle m_handUserData_ProcessingFunction;                         //  
-        private CCamera m_cCamera;
+        private MIL_ID m_milShowImage = MIL.M_NULL;                                 //  カメラ映像を画面に表示するときの画像バッファ
+        private MIL_ID[] m_milGrabImageArray = { MIL.M_NULL, MIL.M_NULL };          //  グラブ専用リングバッファ 2固定
+        private MIL_DIG_HOOK_FUNCTION_PTR m_delProcessingFunctionPtr;               //  画像取得関数のポインター
+        private GCHandle m_handUserData_doThrough;                                  //  自己インスタンスのポインター
+        private GCHandle m_handUserData_ProcessingFunction;                         //  自己インスタンスのポインター(画像取得関数内で使用)
+        private CCamera m_cCamera;                                                  //  自己のインスタンスをフック関数内で保持するために使用
         private Size m_szImageSize;                                                 //  画像サイズ。カメラ画像バッファもカメラ映像用バッファも同サイズ
         private int m_iCameraID;                                                    //  カメラインスタンスID
         private string m_strCameraFilePath;                                         //	DCFファイル名
@@ -43,7 +43,10 @@ namespace MatroxCS
 
         //  カメラパラメーターはカメラ毎に文字列違うのでそれを考慮する
 
-        //public CCamera(string nstrIPAddress, string nstrCameraFilePath, Size nszImageSize)
+        /// <summary>
+        /// コンストラクタ
+        /// </summary>
+        /// <param name="ncJsonCameraInfo">カメラ情報クラスインスタンス</param>
         public CCamera(CJsonCameraInfo ncJsonCameraInfo)
         {
             m_strIPAddress = ncJsonCameraInfo.IPAddress;
@@ -54,13 +57,9 @@ namespace MatroxCS
         /// <summary>
         /// カメラオープン
         /// </summary>
-        /// <param name="niCameraIndex"></param>
-        /// <returns></returns>
-        public int OpenCamera(int niCameraIndex)
+        /// <returns>-1:異常終了、0:正常終了</returns>
+        public int OpenCamera()
         {
-            //  設定ファイルからniCameraIndexの情報を読む
-            //  カメラメーカーとか、画像サイズとか、インターフェースとか、ゲインとか、IPアドレスとか
-
             //  デジタイザオープン
             if (m_iBoardType != (int)MTX_TYPE.MTX_HOST)
             {
@@ -91,8 +90,6 @@ namespace MatroxCS
             {
                 m_siNextCameraID = m_siCameraOffsetID;
             }
-
-
             return 0;
         }
 
@@ -143,7 +140,9 @@ namespace MatroxCS
             {
                 if (m_iBoardType != (int)MTX_TYPE.MTX_HOST)
                 {
+                    // 自己のインスタンスをポインター化
                     m_handUserData_doThrough = GCHandle.Alloc(this);
+                    // 画像取得関数をポインター化
                     m_delProcessingFunctionPtr = new MIL_DIG_HOOK_FUNCTION_PTR(ProcessingFunction);
                     //	フック関数を使用する
                     MIL.MdigProcess(m_milDigitizer, m_milGrabImageArray, m_milGrabImageArray.Length,
@@ -151,13 +150,12 @@ namespace MatroxCS
                 }
                 m_bThroughFlg = true;
             }
-            //フック関数を使ってスルーを行うがm_milShowImageがNULLでなければこれにも画像をコピー
-            //結果として画面にカメラ映像が映る
-
+            // フック関数を使ってスルーを行うがm_milShowImageがNULLでなければこれにも画像をコピー
+            // 結果として画面にカメラ映像が映る
         }
 
         /// <summary>
-        /// 
+        /// 画像取得関数
         /// </summary>
         /// <param name="nlHookType"></param>
         /// <param name="nEventId"></param>
@@ -167,25 +165,20 @@ namespace MatroxCS
         {
             if (!IntPtr.Zero.Equals(npUserDataPtr))
             {
-                MIL_ID mil_modified_image = MIL.M_NULL;
-
+                MIL_ID mil_modified_image = MIL.M_NULL;　// 画像を直接受け取るバッファ
                 nlHookType = 0;
                 //　送られてきたポインタをマトロックスクラスポインタにキャスティングする
                 m_handUserData_ProcessingFunction = GCHandle.FromIntPtr(npUserDataPtr);
                 m_cCamera = m_handUserData_ProcessingFunction.Target as CCamera;
                 //　変更されたバッファIDを取得する
                 MIL.MdigGetHookInfo(nEventId, MIL.M_MODIFIED_BUFFER + MIL.M_BUFFER_ID, ref mil_modified_image);
+                // m_milShowImageが空でなければ画像をコピー
                 if (m_cCamera.m_milShowImage != MIL.M_NULL)
                 {
                     MIL.MbufCopy(mil_modified_image, m_cCamera.m_milShowImage);
                 }
             }
-            return (0);
-        }
-
-        public void InsertNullToShowImage()
-        {
-            m_milShowImage = MIL.M_NULL;
+            return 0;
         }
 
         /// <summary>
@@ -199,7 +192,7 @@ namespace MatroxCS
                 {
                     GCHandle hUserData = GCHandle.Alloc(this);
                     MIL_DIG_HOOK_FUNCTION_PTR ProcessingFunctionPtr = new MIL_DIG_HOOK_FUNCTION_PTR(ProcessingFunction);
-                    //	フック関数を使用する
+                    //	フック関数を中止させる
                     MIL.MdigProcess(m_milDigitizer, m_milGrabImageArray, m_milGrabImageArray.Length,
                                 MIL.M_STOP + MIL.M_WAIT, MIL.M_DEFAULT, ProcessingFunctionPtr, GCHandle.ToIntPtr(hUserData));
                 }
@@ -224,7 +217,6 @@ namespace MatroxCS
             m_milShowImage = nMilShowImage;
             //  ↑メモリコピーでなく、参照渡しなのでm_milShowImageとnMilShowImageは全く同じもの
             //  なのでm_milShowImageを勝手に開放とかしちゃだめ
-
             return 0;
         }
         /// <summary>
@@ -241,6 +233,7 @@ namespace MatroxCS
                 sz_ret.Width = (int)MIL.MbufInquire(nmilBaffa, MIL.M_SIZE_X, MIL.M_NULL);
                 sz_ret.Height = (int)MIL.MbufInquire(nmilBaffa, MIL.M_SIZE_Y, MIL.M_NULL);
             }
+            // サイズを返す
             return sz_ret;
         }
 
@@ -269,15 +262,6 @@ namespace MatroxCS
         {
             return m_szImageSize;
         }
-
-        public void readParameter(string nstrSettingPath)
-        {
-
-        }
-
         #endregion
-
-
-
     }
 }

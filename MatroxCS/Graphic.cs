@@ -23,8 +23,9 @@ namespace MatroxCS
         /// <returns></returns>
         public int OpenGraphic()
         {
+            // グラフィックバッファ作成
             MIL.MgraAlloc(m_smilSystem, ref m_milGraphic);
-
+            //オーバーレイバッファは作成しない
             return 0;
         }
 
@@ -40,9 +41,7 @@ namespace MatroxCS
                 MIL.MgraFree(m_milGraphic);
                 m_milGraphic = MIL.M_NULL;
             }
-
-            //オーバーレイバッファ開放は開放しない
-
+            //オーバーレイバッファは開放しない
             return 0;
         }
 
@@ -52,9 +51,9 @@ namespace MatroxCS
         /// <returns></returns>
         public int SetColor(int niRed, int niGreen, int niBlue)
         {
+            // グラフィックの色を設定
             m_miliColor = MIL.M_RGB888(niRed, niGreen, niBlue);
             MIL.MgraColor(m_milGraphic, m_miliColor);
-
             return 0;
         }
 
@@ -65,8 +64,8 @@ namespace MatroxCS
         /// <returns></returns>
         public int SetOverlay(MIL_ID nmilOverlay)
         {
+            // ディスプレイクラス内のオーバーレイバッファと接続
             m_milTargetOverlay = nmilOverlay;
-
             return 0;
         }
 
@@ -78,6 +77,7 @@ namespace MatroxCS
         /// <returns></returns>
         public int DrawLine(Point nptStartPoint, Point nptEndPoint)
         {
+            // 直線を描画
             MIL.MgraLine(m_milGraphic, m_milTargetOverlay, nptStartPoint.X, nptStartPoint.Y, nptEndPoint.X, nptEndPoint.Y);
             return 0;
         }
@@ -92,7 +92,7 @@ namespace MatroxCS
         {
             Point pt_fourth_point = new Point(0, 0);          //　平行四辺形の第4点
 
-            //　4番目の点を計算する
+            //　第4点を計算する
             pt_fourth_point.X = nptThirdPoint.X - nptSecondPoint.X + nptFirstPoint.X;
             pt_fourth_point.Y = nptThirdPoint.Y - nptSecondPoint.Y + nptFirstPoint.Y;
 
@@ -103,10 +103,16 @@ namespace MatroxCS
             DrawLine(pt_fourth_point, nptFirstPoint);	//	4→1
         }
 
+        /// <summary>
+        /// グラフィックをクリア
+        /// </summary>
         public void clearGraphic()
         {
+            // 透過色を設定
             MIL.MgraColor(m_milGraphic, m_milintTransparentColor);
+            // グラフィックをクリア
             MIL.MgraClear(m_milGraphic, m_milTargetOverlay);
+            // グラフィックの色を設定
             MIL.MgraColor(m_milGraphic, m_miliColor);
         }
 

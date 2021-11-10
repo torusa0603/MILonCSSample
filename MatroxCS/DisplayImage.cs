@@ -51,9 +51,8 @@ namespace MatroxCS
             {
                 return -999;
             }
-
+            // サイズを渡す
             m_szImageSize = nDisplaySize;
-
             //  ディスプレイオープン
             MIL.MdispAlloc(m_smilSystem, MIL.M_DEFAULT, "M_DEFAULT", MIL.M_DEFAULT, ref m_milDisplay);
             if (m_milDisplay == MIL.M_NULL)
@@ -63,16 +62,16 @@ namespace MatroxCS
 
             //  ディスプレイの各種設定。C++のImageMatrox.dllとか見ればわかる
             MIL.MdispControl(m_milDisplay, MIL.M_INTERPOLATION_MODE, MIL.M_NEAREST_NEIGHBOR);
+            // オーバーレイバッファ使用可能
             MIL.MdispControl(m_milDisplay, MIL.M_OVERLAY, MIL.M_ENABLE);
+            // オーバーレイバッファ表示可能
             MIL.MdispControl(m_milDisplay, MIL.M_OVERLAY_SHOW, MIL.M_ENABLE);
+            // 透過色の設定
             MIL.MdispControl(m_milDisplay, (long)MIL.M_TRANSPARENT_COLOR, m_milintTransparentColor);
 
-            
+            // 表示バッファを確保
             MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR24, ref m_milDisplayImage);
             MIL.MbufClear(m_milDisplayImage, 0);
-            //MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_PACKED + MIL.M_BGR24, ref m_milOverlay);
-            //MIL.MbufClear(m_milOverlay, 0);
-            
             //  ハンドルをコピー
             m_hDisplayHandle = nhDisplayHandle;
 
@@ -85,9 +84,6 @@ namespace MatroxCS
             {
                 m_siNextDisplayID = m_siDisplayOffsetID;
             }
-
-            
-
             //  オープンフラグを立てる
             m_bOpenDone = true;
 
@@ -124,20 +120,25 @@ namespace MatroxCS
 
             m_szImageSize = niImageSize;
             
-
             return 0;
         }
 
         /// <summary>
         /// 画面表示用バッファを取得
         /// </summary>
-        /// <returns></returns>
+        /// <returns>表示バッファMIL_ID</returns>
         public MIL_ID GetShowImage(int niConnectCameraID)
         {
+            // 接続先のカメラクラスIDを取得
             m_iConnectCameraID = niConnectCameraID;
+            // 表示バッファを返す
             return m_milDisplayImage;
         }
 
+        /// <summary>
+        /// 接続中のカメラID取得
+        /// </summary>
+        /// <returns>接続中の場合はカメラID、非接続の場合はnull</returns>
         public int? GetConnectCameraID()
         {
             if (m_iConnectCameraID == null)
@@ -164,7 +165,7 @@ namespace MatroxCS
         /// </summary>
         public int CloseDisplay()
         {
-            //  ディスプレイID、オーバーレイバッファ、表示用画像バッファ等を開放。nullに
+            //  ディスプレイID、表示用画像バッファ等を開放。nullに
             if (m_milDisplayImage != MIL.M_NULL)
             {
                 MIL.MbufFree(m_milDisplayImage);
@@ -175,11 +176,7 @@ namespace MatroxCS
                 MIL.MdispFree(m_milDisplay);
                 m_milDisplay = MIL.M_NULL;
             }
-            //if (m_milOverlay != MIL.M_NULL)
-            //{
-            //    MIL.MbufFree(m_milOverlay);
-            //    m_milOverlay = MIL.M_NULL;
-            //}
+            // オーバーレイバッファにおいてはディスプレイIDに紐づくために不要
             return 0;
         }
 
@@ -202,7 +199,6 @@ namespace MatroxCS
             //  ここでMdispSelectWindow( m_milDisp, m_milDisplayImage, nhDispHandle );
             MIL.MdispSelectWindow(m_milDisplay, m_milDisplayImage, m_hDisplayHandle);
             MIL.MbufImport(nstrImageFilePath, MIL.M_DEFAULT, MIL.M_LOAD, m_smilSystem, ref m_milDisplayImage);
-            //  ↑毎回やって大丈夫かな？
             //  MdispSelectWindowのあとはオーバーレイバッファを確保
             MIL.MdispInquire(m_milDisplay, MIL.M_OVERLAY_ID, ref m_milOverlay);
 
@@ -247,6 +243,7 @@ namespace MatroxCS
         public MIL_ID GetOverlay()
         {
             MIL.MdispSelectWindow(m_milDisplay, m_milDisplayImage, m_hDisplayHandle);
+            //  オーバーレイバッファを確保
             MIL.MdispInquire(m_milDisplay, MIL.M_OVERLAY_ID, ref m_milOverlay);
             return m_milOverlay;
         }

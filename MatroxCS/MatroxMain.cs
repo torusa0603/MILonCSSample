@@ -61,7 +61,7 @@ namespace MatroxCS
                 // カメラクラスに各種設定値を代入
                 CCamera c_camera = new CCamera(m_cJsonCameraGeneral.CameraInformation[i_loop]);
                 // カメラオープン
-                c_camera.OpenCamera(i_loop);
+                c_camera.OpenCamera();
                 // カメラリストに追加
                 m_lstCamera.Add(c_camera);
             }
@@ -104,6 +104,7 @@ namespace MatroxCS
         /// <returns>-1:範囲外インデックス番号、-1以外:カメラID</returns>
         public int GetCameraID(int niCameraIndex)
         {
+            // 指定されたカメラインデックがリスト数を以上の場合、エラー
             if ((m_lstCamera.Count() - 1) < niCameraIndex)
             {
                 return -1;
@@ -125,21 +126,27 @@ namespace MatroxCS
             {
                 return -1;
             }
+            // スルー状態にする
             m_lstCamera[i_camera_index].Through();
 
             return 0;
         }
 
+
         /// <summary>
-        /// ディスプレイオープン
+        /// 
         /// </summary>
         /// <param name="nhHandle">指定ディスプレイハンドル</param>
-        /// <returns>ディスプレイID</returns>
+        /// <param name="nDisplaySize">ディスプレイサイズ</param>
+        /// <returns>新規作成ディスプレイID</returns>
         public int OpenDisplay(IntPtr nhHandle, Size nDisplaySize)
         {
             int i_display_id;
+            // ディスプレイクラスのインスタンスを作成
             CDisplayImage c_display = new CDisplayImage();
+            // 新規作成したディスプレイクラスにハンドルとサイズを渡す
             c_display.OpenDisplay(nhHandle, nDisplaySize);
+            // ディスプレイクラスリストに追加
             m_lstDisplayImage.Add(c_display);
             i_display_id = c_display.GetID();
 
@@ -196,8 +203,9 @@ namespace MatroxCS
         /// <returns>-1:該当ディスプレイID無し</returns>
         public int DeleteDisplay(int niDisplayID)
         {
+            // 指定ディスプレイIDのインデックス番号を取得
             int i_display_index = SearchDisplayID(niDisplayID);
-            //  指定のIDのオブジェクトがなければエラー
+            //  指定IDのオブジェクトがなければエラー
             if (i_display_index == -1)
             {
                 return -1;
@@ -206,7 +214,7 @@ namespace MatroxCS
             if (i_ret != null)
             {
                 int i_camera_index = SearchCameraID((int)i_ret);
-                m_lstCamera[i_camera_index].InsertNullToShowImage();
+                m_lstCamera[i_camera_index].ClearShowImage();
             }
             //  メモリ解放
             m_lstDisplayImage[i_display_index].CloseDisplay();
@@ -219,12 +227,14 @@ namespace MatroxCS
         /// <summary>
         /// 画像をロードする
         /// </summary>
-        /// <param name="nstrImageFilePath"></param>
+        /// <param name="nstrImageFilePath">ロードするイメージファイルパス</param>
         /// <param name="niDisplayID">指定ディスプレイID</param>
         /// <returns>-1:存在しないファイルパス、-2:該当ディスプレイID無し</returns>
         public int LoadImage(string nstrImageFilePath, int niDisplayID)
         {
+            // 指定ディスプレイIDのインデックス番号を取得
             int i_display_index = SearchDisplayID(niDisplayID);
+            // 指定IDのオブジェクトがなければエラー
             if (!File.Exists(nstrImageFilePath))
             {
                 return -1;
@@ -242,7 +252,7 @@ namespace MatroxCS
         /// <summary>
         /// グラフィック色の設定
         /// </summary>
-        /// <param name="nGraphicColor"></param>
+        /// <param name="nGraphicColor">指定色</param>
         /// <returns></returns>
         public int SetGraphicColor(Color nGraphicColor)
         {
@@ -255,13 +265,14 @@ namespace MatroxCS
         /// 直線を描画
         /// </summary>
         /// <param name="niDisplayID">指定ディスプレイID</param>
-        /// <param name="nptStartPoint"></param>
-        /// <param name="nptEndPoint"></param>
+        /// <param name="nptStartPoint">直線の始点座標</param>
+        /// <param name="nptEndPoint">直線の終点座標</param>
         /// <returns>-1:該当ディスプレイID無し</returns>
         public int DrawLine(int niDisplayID, Point nptStartPoint, Point nptEndPoint)
         {
+            // 指定ディスプレイIDのインデックス番号を取得
             int i_display_index = SearchDisplayID(niDisplayID); ;
-            //  指定のIDのオブジェクトがなければエラー
+            //  指定IDのオブジェクトがなければエラー
             if (i_display_index == -1)
             {
                 return -1;
@@ -274,17 +285,23 @@ namespace MatroxCS
             return 0;
         }
 
+        /// <summary>
+        /// ディスプレイ内のグラフィックをクリア
+        /// </summary>
+        /// <param name="niDisplayID">指定ディスプレイID</param>
+        /// <returns></returns>
         public int ClearGraph(int niDisplayID)
         {
+            // 指定ディスプレイIDのインデックス番号を取得
             int i_display_index = SearchDisplayID(niDisplayID); ;
-            //  指定のIDのオブジェクトがなければエラー
+            //  指定IDのオブジェクトがなければエラー
             if (i_display_index == -1)
             {
                 return -1;
             }
             //  指定の画面のオーバーレイバッファを設定
             m_cGraphic.SetOverlay(m_lstDisplayImage[i_display_index].GetOverlay());
-            //  ここに直線を描画
+            //  グラフィックをクリア
             m_cGraphic.clearGraphic();
 
             return 0;
@@ -313,9 +330,7 @@ namespace MatroxCS
             {
                 return -2;
             }
-
             return 0;
-
         }
 
         /// <summary>
@@ -326,6 +341,7 @@ namespace MatroxCS
         private int SearchCameraID(int niCameraID)
         {
             int i_index = 0;
+            // リスト内の各カメラクラスからIDを取得し、指定IDとの一致するものを探す
             foreach (CCamera camera in m_lstCamera)
             {
                 if (camera.GetID() == niCameraID)
@@ -334,6 +350,7 @@ namespace MatroxCS
                 }
                 i_index++;
             }
+            // 最後までいってもIDが見つからない場合は-1を返す
             if (m_lstCamera.Count == i_index)
             {
                 return -1;
@@ -349,6 +366,7 @@ namespace MatroxCS
         private int SearchDisplayID(int niDisplayID)
         {
             int i_index = 0;
+            // リスト内の各ディスプレイクラスからIDを取得し、指定IDとの一致するものを探す
             foreach (CDisplayImage displayimage in m_lstDisplayImage)
             {
                 if (displayimage.GetID() == niDisplayID)
@@ -357,6 +375,7 @@ namespace MatroxCS
                 }
                 i_index++;
             }
+            // 最後までいってもIDが見つからない場合は-1を返す
             if (m_lstDisplayImage.Count == i_index)
             {
                 return -1;
@@ -385,15 +404,15 @@ namespace MatroxCS
         /// <returns>コメントを排除後のstring型データ</returns>
         private string commentoutJsonSentence(string nstrJsonfileContents)
         {
-            string str_result = ""; // 返答用のstring型データ
+            string str_result = "";                     // 返答用のstring型データ
             string str_contents = nstrJsonfileContents; // 主となるstring型データ
-            string str_front = ""; // コメントコードより前の文章を格納するstring型データ
-            string str_back = ""; // コメントコードより後の文章を格納するstring型データ
-            string str_comment_code = "###"; // コメントコード
-            string str_enter = "\r\n"; // 改行コード
+            string str_front = "";                      // コメントコードより前の文章を格納するstring型データ
+            string str_back = "";                       // コメントコードより後の文章を格納するstring型データ
+            string str_comment_code = "###";            // コメントコード
+            string str_enter = "\r\n";                  // 改行コード
 
-            int i_num_comment_code; // コメントコードの位置を示すint型データ
-            int i_num_enter; // 改行コードの位置を示すint型データ
+            int i_num_comment_code;                     // コメントコードの位置を示すint型データ
+            int i_num_enter;                            // 改行コードの位置を示すint型データ
 
             while (true)
             {
