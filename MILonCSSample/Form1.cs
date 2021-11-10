@@ -35,6 +35,11 @@ namespace MILonCSSample
         private void Form1_Shown(object sender, EventArgs e)
         {
             cMatroxMain = new CMatroxMain();
+            Open();
+        }
+
+        private void Open()
+        {
             cMatroxMain.m_evMatroxFatalErrorOccured += occuredMatroxFatalError;
             int i_ret = 0;
             // exeファイルのいるフォルダーパスを取得
@@ -126,6 +131,7 @@ namespace MILonCSSample
             }
             // パネル4に描画があることを示す
             m_bPnl4GraphEnable = true;
+
         }
 
         private void pnl_camera1_Click(object sender, EventArgs e)
@@ -289,9 +295,19 @@ namespace MILonCSSample
             cMatroxMain.endMatrox();
         }
 
-        public void occuredMatroxFatalError()
+        private void occuredMatroxFatalError()
         {
-            this.Close();
+            // 致命的なエラーが起きた時の処理
+        }
+
+        private void connectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Open();
+        }
+
+        private void disConnectToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            cMatroxMain.endMatrox();
         }
     }
 }

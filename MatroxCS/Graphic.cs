@@ -109,7 +109,7 @@ namespace MatroxCS
         public void clearGraphic()
         {
             // 透過色を設定
-            MIL.MgraColor(m_milGraphic, m_milintTransparentColor);
+            MIL.MgraColor(m_milGraphic, m_smilintTransparentColor);
             // グラフィックをクリア
             MIL.MgraClear(m_milGraphic, m_milTargetOverlay);
             // グラフィックの色を設定

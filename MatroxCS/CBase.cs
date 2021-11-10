@@ -42,11 +42,12 @@ namespace MatroxCS
         // private string m_strExePath = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
         static protected string m_strExePath = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
 
-        static protected readonly MIL_INT m_milintTransparentColor = MIL.M_RGB888(1, 1, 1);             //透過色
+        static protected readonly MIL_INT m_smilintTransparentColor = MIL.M_RGB888(1, 1, 1);            //透過色
 
         protected GCHandle hUserData_Error;
         protected MIL_APP_HOOK_FUNCTION_PTR ProcessingFunctionPtr_Error;
-        bool m_bFatalErrorOccured;                                                            // 致命的なエラー発生(ソフト再起動必須)
+        private bool m_bFatalErrorOccured = false;                                                              // 致命的なエラー発生(ソフト再起動必須)
+        private bool m_bMainInitialFinished = false;                                                            //初期処理完了済みかを示す
         public static Action m_evFatalErrorOccured;                                                     // 致命的なエラー発生(ソフト再起動必須)
 
 
@@ -105,12 +106,14 @@ namespace MatroxCS
                 return -1;
             }
 
+            m_bMainInitialFinished = true;
+
             //  設定ファイル読んだり？
             return 0;
         }
 
         /// <summary>
-        /// 
+        /// エラーフック関数
         /// </summary>
         /// <param name="nlHookType"></param>
         /// <param name="nEventId"></param>
@@ -217,6 +220,22 @@ namespace MatroxCS
         {
             return m_bFatalErrorOccured;
         }
+
+        /// <summary>
+        /// 初期化の有無を取得
+        /// </summary>
+        /// <returns></returns>
+        public bool getMainInitialFinished()
+        {
+            return m_bMainInitialFinished;
+        }
+
+        public void end()
+        {
+            m_bFatalErrorOccured = false;
+            m_bMainInitialFinished = false;
+        }
+
 
         /// <summary>
         /// エラーログを書き出す

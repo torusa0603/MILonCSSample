@@ -25,6 +25,7 @@ namespace MatroxCS
         private int m_iCameraID;                                                    //  カメラインスタンスID
         private string m_strCameraFilePath;                                         //	DCFファイル名
         private string m_strIPAddress;                                              //  カメラのIPアドレス
+        private bool m_bOpenDone = false;                                           //  オープンされたか否か
 
         //  差分撮ったり、カメラ画像をリアルタイムで評価しないといけないならこのクラスでやるしかない
         //  必要に応じて画像バッファとかアルゴリズムを追加する。
@@ -57,9 +58,14 @@ namespace MatroxCS
         /// <summary>
         /// カメラオープン
         /// </summary>
-        /// <returns>-1:異常終了、0:正常終了</returns>
+        /// <returns>0:正常終了、-1:異常終了、-999:既にオープンしている</returns>
         public int OpenCamera()
         {
+            //  既にオープンされたインスタンスならエラー
+            if (m_bOpenDone == true)
+            {
+                return -999;
+            }
             //  デジタイザオープン
             if (m_iBoardType != (int)MTX_TYPE.MTX_HOST)
             {

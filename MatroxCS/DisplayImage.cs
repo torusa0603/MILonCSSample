@@ -43,7 +43,7 @@ namespace MatroxCS
         /// ディスプレイのオープン
         /// </summary>
         /// <param name="nhDisplayHandle"></param>
-        /// <returns></returns>
+        /// <returns>0:正常終了、-1:異常終了、-999:既にオープンしている</returns>
         public int OpenDisplay(IntPtr nhDisplayHandle, Size nDisplaySize)
         {
             //  既にオープンされたインスタンスならエラー
@@ -67,7 +67,7 @@ namespace MatroxCS
             // オーバーレイバッファ表示可能
             MIL.MdispControl(m_milDisplay, MIL.M_OVERLAY_SHOW, MIL.M_ENABLE);
             // 透過色の設定
-            MIL.MdispControl(m_milDisplay, (long)MIL.M_TRANSPARENT_COLOR, m_milintTransparentColor);
+            MIL.MdispControl(m_milDisplay, (long)MIL.M_TRANSPARENT_COLOR, m_smilintTransparentColor);
 
             // 表示バッファを確保
             MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR24, ref m_milDisplayImage);
@@ -97,6 +97,15 @@ namespace MatroxCS
         public int GetID()
         {
             return m_iDisplayID;
+        }
+
+        /// <summary>
+        /// ディスプレイハンドル取得
+        /// </summary>
+        /// <returns></returns>
+        public IntPtr GetHandle()
+        {
+            return m_hDisplayHandle;
         }
 
         /// <summary>
@@ -281,7 +290,7 @@ namespace MatroxCS
                 //	一時バッファに画像をコピー
                 MIL.MbufCopy(m_milOverlay, mil_temp);
                 //	オーバーレイを検査結果画像上にコピー
-                MIL.MbufTransfer(mil_temp, mil_result_temp, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_COMPOSITION, MIL.M_DEFAULT, m_milintTransparentColor, MIL.M_NULL);
+                MIL.MbufTransfer(mil_temp, mil_result_temp, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_COMPOSITION, MIL.M_DEFAULT, m_smilintTransparentColor, MIL.M_NULL);
                 //	メモリ開放
                 MIL.MbufFree(mil_temp);
             }

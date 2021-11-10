@@ -40,12 +40,18 @@ namespace MatroxCS
         /// <returns>-1:存在しないファイルパス</returns>
         public int initMatrox(string nstrSettingPath, string nstrExePath)
         {
-            // 設定ファイルの存在確認後、読み込み
-            if (!File.Exists(nstrSettingPath))
+            int i_ret = 0;
+            // 設定ファイルの存在確認、JSONファイルであるかの確認
+            if (!File.Exists(nstrSettingPath) || !(nstrSettingPath.Substring(nstrSettingPath.IndexOf(".") + 1) == "json"))
             {
                 return -1;
             }
-            readParameter(nstrSettingPath);
+            // 設定ファイルの読み込み
+            i_ret = readParameter(nstrSettingPath);
+            if (i_ret != 0)
+            {
+                return -1;
+            }
             int i_camera_num = m_cJsonCameraGeneral.Number;     // カメラ数
             CBase.m_evFatalErrorOccured += m_evMatroxFatalErrorOccured;
             m_cBase.initial(m_cJsonCameraGeneral.BoardType, nstrExePath);
@@ -54,20 +60,37 @@ namespace MatroxCS
             //  設定ファイル読む。この設定ファイルは人が書くので人が読み書きしやすい必要あり
             //  でも設定ファイルにはカメラ情報しかないからCCmaeraクラスでやればいいか?
             //  でもカメラ数は知らないとダメ
-
+            
             int i_loop;
             //  カメラ初期化
             for (i_loop = 0; i_loop < i_camera_num; i_loop++)
             {
+                if (m_cBase.getFatalErrorOccured())
+                {
+                    // 致命的なエラーが起きている
+                    return -100;
+                }
                 // カメラクラスに各種設定値を代入
                 CCamera c_camera = new CCamera(m_cJsonCameraGeneral.CameraInformation[i_loop]);
                 // カメラオープン
-                c_camera.OpenCamera();
-                // カメラリストに追加
-                m_lstCamera.Add(c_camera);
+                i_ret = c_camera.OpenCamera();
+                if (i_ret == 0)
+                {
+                    // カメラリストに追加
+                    m_lstCamera.Add(c_camera);
+                }
+            }
+            if (m_cBase.getFatalErrorOccured())
+            {
+                // 致命的なエラーが起きている
+                return -100;
             }
             m_cGraphic.OpenGraphic();
-
+            if (m_cBase.getFatalErrorOccured())
+            {
+                // 致命的なエラーが起きた
+                return -100;
+            }
             return 0;
         }
 
@@ -81,13 +104,15 @@ namespace MatroxCS
             {
                 m_lstCamera[i_loop].CloseCamera();
             }
-
+            m_lstCamera.Clear();
             // 全ディスプレイクラスをクローズ
             for (int i_loop = 0; i_loop < m_lstDisplayImage.Count() - 1; i_loop++)
             {
                 m_lstDisplayImage[i_loop].CloseDisplay();
             }
+            m_lstDisplayImage.Clear();
             m_cGraphic.CloseGraphic();
+            m_cBase.end();
         }
 
         /// <summary>
@@ -123,6 +148,11 @@ namespace MatroxCS
         {
             //  このカメラIDのオブジェクトを探す
             //  探すのはカメラだけでなくディスプレイとかもあるので1行で済ませたい
+            if (m_cBase.getFatalErrorOccured())
+            {
+                // 致命的なエラーが起きている
+                return -100;
+            }
             int i_camera_index = SearchCameraID(niCameraID);
             if (i_camera_index == -1)
             {
@@ -136,22 +166,40 @@ namespace MatroxCS
 
 
         /// <summary>
-        /// 
+        /// ディスプレイオープン
         /// </summary>
         /// <param name="nhHandle">指定ディスプレイハンドル</param>
         /// <param name="nDisplaySize">ディスプレイサイズ</param>
-        /// <returns>新規作成ディスプレイID</returns>
+        /// <returns>-1:異常終了、新規作成ディスプレイID</returns>
         public int OpenDisplay(IntPtr nhHandle, Size nDisplaySize)
         {
-            int i_display_id;
+            if (m_cBase.getFatalErrorOccured())
+            {
+                // 致命的なエラーが起きている
+                return -100;
+            }
+            int i_display_id = 0;
+            int i_ret;
+            // ハンドルの二重使用のチェック
+            i_ret = checkDisplayhandle(nhHandle);
+            if (i_ret == -1)
+            {
+                return -1;
+            }
             // ディスプレイクラスのインスタンスを作成
             CDisplayImage c_display = new CDisplayImage();
             // 新規作成したディスプレイクラスにハンドルとサイズを渡す
-            c_display.OpenDisplay(nhHandle, nDisplaySize);
-            // ディスプレイクラスリストに追加
-            m_lstDisplayImage.Add(c_display);
-            i_display_id = c_display.GetID();
-
+            i_ret =c_display.OpenDisplay(nhHandle, nDisplaySize);
+            if(i_ret == 0)
+            {
+                // ディスプレイクラスリストに追加
+                m_lstDisplayImage.Add(c_display);
+                i_display_id = c_display.GetID();
+            }
+            else
+            {
+                return -1;
+            }
             return i_display_id;
         }
 
@@ -160,12 +208,17 @@ namespace MatroxCS
         /// </summary>
         /// <param name="niCameraID">指定カメラID</param>
         /// <param name="niDisplayID">指定ディスプレイID</param>
-        /// <returns>-1:該当カメラID・該当ディスプレイID無し、-2:該当カメラID無し、-3:該当ディスプレイID無し</returns>
+        /// <returns>0:正常終了、-1:該当カメラID・該当ディスプレイID無し、-2:該当カメラID無し、-3:該当ディスプレイID無し、-100:致命的エラーの発生</returns>
         public int SelectCameraImageDisplay(int niCameraID, int niDisplayID)
         {
+            if (m_cBase.getFatalErrorOccured())
+            {
+                // 致命的なエラーが起きている
+                return -100;
+            }
             int i_camera_index = 0;
             int i_display_index = 0;
-
+            int i_ret;
             //まずそれぞれのIDがあることを確認。なければエラー
             i_camera_index = SearchCameraID(niCameraID);
             i_display_index = SearchDisplayID(niDisplayID);
@@ -186,15 +239,18 @@ namespace MatroxCS
                 {
                     return -3;
                 }
-
             }
             //  カメラの画像サイズ取得
             Size sz = m_lstCamera[i_camera_index].GetImageSize();
             //  このサイズでディスプレイの画像を作成する
             m_lstDisplayImage[i_display_index].CreateImage(sz);
+            if (m_cBase.getFatalErrorOccured())
+            {
+                // 致命的なエラーが起きた
+                return -100;
+            }
             // 表示用画像バッファをカメラに渡す
-            m_lstCamera[i_camera_index].SetShowImage(m_lstDisplayImage[i_display_index].GetShowImage(niCameraID));
-
+            i_ret = m_lstCamera[i_camera_index].SetShowImage(m_lstDisplayImage[i_display_index].GetShowImage(niCameraID));
             return 0;
         }
 
@@ -213,16 +269,20 @@ namespace MatroxCS
                 return -1;
             }
             int? i_ret = m_lstDisplayImage[i_display_index].GetConnectCameraID();
+            //  メモリ解放
+            m_lstDisplayImage[i_display_index].CloseDisplay();
+            // Listから削除
+            m_lstDisplayImage.RemoveAt(i_display_index);
+            if (m_cBase.getFatalErrorOccured())
+            {
+                // 致命的なエラーが起きている
+                return -100;
+            }
             if (i_ret != null)
             {
                 int i_camera_index = SearchCameraID((int)i_ret);
                 m_lstCamera[i_camera_index].ClearShowImage();
             }
-            //  メモリ解放
-            m_lstDisplayImage[i_display_index].CloseDisplay();
-            // Listから削除
-            m_lstDisplayImage.RemoveAt(i_display_index);
-
             return 0;
         }
 
@@ -234,6 +294,11 @@ namespace MatroxCS
         /// <returns>-1:存在しないファイルパス、-2:該当ディスプレイID無し</returns>
         public int LoadImage(string nstrImageFilePath, int niDisplayID)
         {
+            if (m_cBase.getFatalErrorOccured())
+            {
+                // 致命的なエラーが起きている
+                return -100;
+            }
             // 指定ディスプレイIDのインデックス番号を取得
             int i_display_index = SearchDisplayID(niDisplayID);
             // 指定IDのオブジェクトがなければエラー
@@ -247,7 +312,11 @@ namespace MatroxCS
                 return -2;
             }
             m_lstDisplayImage[i_display_index].LoadImage(nstrImageFilePath);
-
+            if (m_cBase.getFatalErrorOccured())
+            {
+                // 致命的なエラーが起きた
+                return -100;
+            }
             return 0;
         }
 
@@ -258,6 +327,11 @@ namespace MatroxCS
         /// <returns></returns>
         public int SetGraphicColor(Color nGraphicColor)
         {
+            if (m_cBase.getFatalErrorOccured())
+            {
+                // 致命的なエラーが起きている
+                return -100;
+            }
             //  RGBの値に分割して設定
             m_cGraphic.SetColor(nGraphicColor.R, nGraphicColor.G, nGraphicColor.B);
             return 0;
@@ -272,6 +346,11 @@ namespace MatroxCS
         /// <returns>-1:該当ディスプレイID無し</returns>
         public int DrawLine(int niDisplayID, Point nptStartPoint, Point nptEndPoint)
         {
+            if (m_cBase.getFatalErrorOccured())
+            {
+                // 致命的なエラーが起きている
+                return -100;
+            }
             // 指定ディスプレイIDのインデックス番号を取得
             int i_display_index = SearchDisplayID(niDisplayID); ;
             //  指定IDのオブジェクトがなければエラー
@@ -283,7 +362,6 @@ namespace MatroxCS
             m_cGraphic.SetOverlay(m_lstDisplayImage[i_display_index].GetOverlay());
             //  ここに直線を描画
             m_cGraphic.DrawLine(nptStartPoint, nptEndPoint);
-
             return 0;
         }
 
@@ -294,6 +372,11 @@ namespace MatroxCS
         /// <returns></returns>
         public int ClearGraph(int niDisplayID)
         {
+            if (m_cBase.getFatalErrorOccured())
+            {
+                // 致命的なエラーが起きている
+                return -100;
+            }
             // 指定ディスプレイIDのインデックス番号を取得
             int i_display_index = SearchDisplayID(niDisplayID); ;
             //  指定IDのオブジェクトがなければエラー
@@ -305,7 +388,6 @@ namespace MatroxCS
             m_cGraphic.SetOverlay(m_lstDisplayImage[i_display_index].GetOverlay());
             //  グラフィックをクリア
             m_cGraphic.clearGraphic();
-
             return 0;
         }
 
@@ -319,6 +401,11 @@ namespace MatroxCS
         /// <returns>-1:該当ディスプレイID無し、-2:拡張子エラー</returns>
         public int SaveImage(string nstrImageFilePath, bool nbIncludeGraphic, int niDisplayID)
         {
+            if (m_cBase.getFatalErrorOccured())
+            {
+                // 致命的なエラーが起きている
+                return -100;
+            }
             int i_display_index = SearchDisplayID(niDisplayID);
             int i_ret;
             //  指定のIDのオブジェクトがなければエラー
@@ -386,16 +473,43 @@ namespace MatroxCS
         }
 
         /// <summary>
+        /// ディスプレイ作成時のハンドルの重複を確認
+        /// </summary>
+        /// <param name="nhHandle"></param>
+        /// <returns>-1:重複あり、0:重複無し</returns>
+        private int checkDisplayhandle(IntPtr nhHandle)
+        {
+            int i_ret = 0;
+            // リスト内の各ディスプレイクラスからIDを取得し、指定IDとの一致するものを探す
+            foreach (CDisplayImage displayimage in m_lstDisplayImage)
+            {
+                if (displayimage.GetHandle() == nhHandle)
+                {
+                    i_ret = -1;
+                    break;
+                }
+            }
+            return i_ret;
+        }
+        
+
+        /// <summary>
         /// 設定ファイルの内容を設定用クラスに格納
         /// </summary>
         /// <param name="nstrSettingPath">設定ファイルパス</param>
         /// <returns></returns>
         private int readParameter(string nstrSettingPath)
         {
-            string str_jsonfile_sentence = File.ReadAllText(nstrSettingPath);
-            string str_jsonfile_sentence_commentout = commentoutJsonSentence(str_jsonfile_sentence);
-            m_cJsonCameraGeneral = JsonConvert.DeserializeObject<CJsonCameraGeneral>(str_jsonfile_sentence_commentout);
-
+            try
+            {
+                string str_jsonfile_sentence = File.ReadAllText(nstrSettingPath);
+                string str_jsonfile_sentence_commentout = commentoutJsonSentence(str_jsonfile_sentence);
+                m_cJsonCameraGeneral = JsonConvert.DeserializeObject<CJsonCameraGeneral>(str_jsonfile_sentence_commentout);
+            }
+            catch
+            {
+                return -1;
+            }
             return 0;
         }
 
