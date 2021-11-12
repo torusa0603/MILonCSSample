@@ -106,7 +106,7 @@ namespace MatroxCS
         /// <summary>
         /// グラフィックをクリア
         /// </summary>
-        public void clearGraphic()
+        public void ClearGraphic()
         {
             // 透過色を設定
             MIL.MgraColor(m_milGraphic, m_smilintTransparentColor);

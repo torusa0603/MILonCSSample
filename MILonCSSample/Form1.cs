@@ -49,7 +49,7 @@ namespace MILonCSSample
             // 設定ファイルパスを作成
             string str_setting_file_path = $@"{m_strExePath}\setting.json";
             // 設定ファイルの読み込み、カメラオープンを行う
-            i_ret = cMatroxMain.initMatrox(str_setting_file_path, m_strExePath);
+            i_ret = cMatroxMain.InitMatrox(str_setting_file_path, m_strExePath);
             if (i_ret == -200)
             {
                 return;
@@ -334,7 +334,7 @@ namespace MILonCSSample
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             // マトロックスクラスの終了処理実行
-            cMatroxMain.endMatrox();
+            cMatroxMain.EndMatrox();
         }
 
         private void occuredMatroxFatalError()
@@ -351,7 +351,7 @@ namespace MILonCSSample
         private void disConnectToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // マトロックスクラスの終了処理を実行
-            cMatroxMain.endMatrox();
+            cMatroxMain.EndMatrox();
             // 保持していたカメラ・ディスプレイIDをクリア
             m_lstCameraID.Clear();
             m_lstDisplayID.Clear();

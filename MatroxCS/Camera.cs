@@ -50,8 +50,11 @@ namespace MatroxCS
         /// <param name="ncJsonCameraInfo">カメラ情報</param>
         public CCamera(CJsonCameraInfo ncJsonCameraInfo)
         {
+            // カメラIPアドレスの指定
             m_strIPAddress = ncJsonCameraInfo.IPAddress;
+            // DCFファイルの指定
             m_strCameraFilePath = $@"{m_strExePath}\{ncJsonCameraInfo.CameraFile}";
+            // 画像サイスの指定
             m_szImageSize = new Size(ncJsonCameraInfo.Width, ncJsonCameraInfo.Height);
         }
 

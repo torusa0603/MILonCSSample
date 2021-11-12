@@ -39,7 +39,7 @@ namespace MatroxCS
         /// </summary>
         /// <param name="nstrSettingPath">設定ファイルパス</param>
         /// <returns>0:正常終了、-1:異常終了、-200:重複して初期化を行った</returns>
-        public int initMatrox(string nstrSettingPath, string nstrExePath)
+        public int InitMatrox(string nstrSettingPath, string nstrExePath)
         {
             // 初期化処理を既に行っていた場合は行わない
             if (m_bBaseInitialFinished)
@@ -56,7 +56,7 @@ namespace MatroxCS
                     return -1;
                 }
                 // 設定ファイルの読み込み
-                i_ret = readParameter(nstrSettingPath);
+                i_ret = ReadParameter(nstrSettingPath);
                 if (i_ret != 0)
                 {
                     return -1;
@@ -65,7 +65,7 @@ namespace MatroxCS
                 // 致命的なエラー発生時に起動するイベントハンドラを渡す
                 CBase.m_evFatalErrorOccured += m_evMatroxFatalErrorOccured;     
                 // ベースオブジェクトを初期化
-                m_cBase.initial(m_cJsonCameraGeneral.BoardType, nstrExePath);   
+                m_cBase.Initial(m_cJsonCameraGeneral.BoardType, nstrExePath);   
 
 
                 //  設定ファイル読む。この設定ファイルは人が書くので人が読み書きしやすい必要あり
@@ -76,7 +76,7 @@ namespace MatroxCS
                 //  カメラ初期化
                 for (i_loop = 0; i_loop < i_camera_num; i_loop++)
                 {
-                    if (m_cBase.getFatalErrorOccured())
+                    if (m_cBase.GetFatalErrorOccured())
                     {
                         // 致命的なエラーが起きている
                         return -100;
@@ -91,13 +91,13 @@ namespace MatroxCS
                         m_lstCamera.Add(c_camera);
                     }
                 }
-                if (m_cBase.getFatalErrorOccured())
+                if (m_cBase.GetFatalErrorOccured())
                 {
                     // 致命的なエラーが起きている
                     return -100;
                 }
                 m_cGraphic.OpenGraphic();
-                if (m_cBase.getFatalErrorOccured())
+                if (m_cBase.GetFatalErrorOccured())
                 {
                     // 致命的なエラーが起きた
                     return -100;
@@ -111,7 +111,7 @@ namespace MatroxCS
         /// <summary>
         /// Matrox制御の終了
         /// </summary>
-        public void endMatrox()
+        public void EndMatrox()
         {
             // 初期化処理が済んでいる場合に行う
             if (m_bBaseInitialFinished)
@@ -174,7 +174,7 @@ namespace MatroxCS
         {
             //  このカメラIDのオブジェクトを探す
             //  探すのはカメラだけでなくディスプレイとかもあるので1行で済ませたい
-            if (m_cBase.getFatalErrorOccured())
+            if (m_cBase.GetFatalErrorOccured())
             {
                 // 致命的なエラーが起きている
                 return -100;
@@ -201,7 +201,7 @@ namespace MatroxCS
         /// <returns>-1:異常終了、新規作成ディスプレイID</returns>
         public int OpenDisplay(IntPtr nhHandle, Size nDisplaySize)
         {
-            if (m_cBase.getFatalErrorOccured())
+            if (m_cBase.GetFatalErrorOccured())
             {
                 // 致命的なエラーが起きている
                 return -100;
@@ -209,7 +209,7 @@ namespace MatroxCS
             int i_display_id = 0;
             int i_ret;
             // ハンドルの二重使用のチェック
-            i_ret = checkDisplayhandle(nhHandle);
+            i_ret = CheckDisplayhandle(nhHandle);
             if (i_ret == -1)
             {
                 // ハンドルの重複あり
@@ -244,7 +244,7 @@ namespace MatroxCS
             // 初期化処理が済んでいる場合に行う
             if (m_bBaseInitialFinished)
             {
-                if (m_cBase.getFatalErrorOccured())
+                if (m_cBase.GetFatalErrorOccured())
                 {
                     // 致命的なエラーが起きている
                     return -100;
@@ -280,7 +280,7 @@ namespace MatroxCS
                 Size sz = m_lstCamera[i_camera_index].GetImageSize();
                 //  このサイズでディスプレイの画像を作成する
                 m_lstDisplayImage[i_display_index].CreateImage(sz);
-                if (m_cBase.getFatalErrorOccured())
+                if (m_cBase.GetFatalErrorOccured())
                 {
                     // 致命的なエラーが起きた
                     return -100;
@@ -315,7 +315,7 @@ namespace MatroxCS
             m_lstDisplayImage[i_display_index].CloseDisplay();
             // Listから削除
             m_lstDisplayImage.RemoveAt(i_display_index);
-            if (m_cBase.getFatalErrorOccured())
+            if (m_cBase.GetFatalErrorOccured())
             {
                 // 致命的なエラーが起きている
                 return -100;
@@ -343,7 +343,7 @@ namespace MatroxCS
         /// <returns>0:正常終了、-1:存在しないファイルパス、-2:該当ディスプレイID無し、-100:致命的エラーの発生</returns>
         public int LoadImage(string nstrImageFilePath, int niDisplayID)
         {
-            if (m_cBase.getFatalErrorOccured())
+            if (m_cBase.GetFatalErrorOccured())
             {
                 // 致命的なエラーが起きている
                 return -100;
@@ -361,7 +361,7 @@ namespace MatroxCS
                 return -2;
             }
             m_lstDisplayImage[i_display_index].LoadImage(nstrImageFilePath);
-            if (m_cBase.getFatalErrorOccured())
+            if (m_cBase.GetFatalErrorOccured())
             {
                 // 致命的なエラーが起きた
                 return -100;
@@ -379,7 +379,7 @@ namespace MatroxCS
             // 初期化処理が済んでいる場合に行う
             if (m_bBaseInitialFinished)
             {
-                if (m_cBase.getFatalErrorOccured())
+                if (m_cBase.GetFatalErrorOccured())
                 {
                     // 致命的なエラーが起きている
                     return -100;
@@ -406,7 +406,7 @@ namespace MatroxCS
             // 初期化処理が済んでいる場合に行う
             if (m_bBaseInitialFinished)
             {
-                if (m_cBase.getFatalErrorOccured())
+                if (m_cBase.GetFatalErrorOccured())
                 {
                     // 致命的なエラーが起きている
                     return -100;
@@ -440,7 +440,7 @@ namespace MatroxCS
             // 初期化処理が済んでいる場合に行う
             if (m_bBaseInitialFinished)
             {
-                if (m_cBase.getFatalErrorOccured())
+                if (m_cBase.GetFatalErrorOccured())
                 {
                     // 致命的なエラーが起きている
                     return -100;
@@ -455,7 +455,7 @@ namespace MatroxCS
                 //  指定の画面のオーバーレイバッファを設定
                 m_cGraphic.SetOverlay(m_lstDisplayImage[i_display_index].GetOverlay());
                 //  グラフィックをクリア
-                m_cGraphic.clearGraphic();
+                m_cGraphic.ClearGraphic();
                 return 0;
             }
             else
@@ -474,7 +474,7 @@ namespace MatroxCS
         /// <returns>0:正常終了、-1:該当ディスプレイID無し、-2:拡張子エラー、-100:致命的エラーの発生</returns>
         public int SaveImage(string nstrImageFilePath, bool nbIncludeGraphic, int niDisplayID)
         {
-            if (m_cBase.getFatalErrorOccured())
+            if (m_cBase.GetFatalErrorOccured())
             {
                 // 致命的なエラーが起きている
                 return -100;
@@ -550,18 +550,20 @@ namespace MatroxCS
         /// </summary>
         /// <param name="nhHandle"></param>
         /// <returns>-1:重複あり、0:重複無し</returns>
-        private int checkDisplayhandle(IntPtr nhHandle)
+        private int CheckDisplayhandle(IntPtr nhHandle)
         {
             int i_ret = 0;
-            // リスト内の各ディスプレイから所有しているハンドルを取得し、指定IDのものと一致するものを探す
+            // リスト内の各ディスプレイから所有しているハンドルを取得
             foreach (CDisplayImage displayimage in m_lstDisplayImage)
             {
                 if (displayimage.GetHandle() == nhHandle)
                 {
+                    // 一致するものがある場合は-1を返す
                     i_ret = -1;
                     break;
                 }
             }
+            // 重複無しなら0が返る
             return i_ret;
         }
         
@@ -571,12 +573,15 @@ namespace MatroxCS
         /// </summary>
         /// <param name="nstrSettingPath">設定ファイルパス</param>
         /// <returns></returns>
-        private int readParameter(string nstrSettingPath)
+        private int ReadParameter(string nstrSettingPath)
         {
             try
             {
+                // ファイルから文字列を丸ごと抜き出す
                 string str_jsonfile_sentence = File.ReadAllText(nstrSettingPath);
-                string str_jsonfile_sentence_commentout = commentoutJsonSentence(str_jsonfile_sentence);
+                // 文章内のコメントコード～改行コード間にある文とコメントコードを削除する
+                string str_jsonfile_sentence_commentout = CommentoutJsonSentence(str_jsonfile_sentence);
+                // コメントアウトの箇所を削除した文字列をデシリアライズする
                 m_cJsonCameraGeneral = JsonConvert.DeserializeObject<CJsonCameraGeneral>(str_jsonfile_sentence_commentout);
             }
             catch
@@ -590,8 +595,8 @@ namespace MatroxCS
         /// コメントとする文"###"～"改行コード(\r\n)"を排除する
         /// </summary>
         /// <param name="n_strJsonfileContents">Jsonファイルから読み込んだstring型データ</param>
-        /// <returns>コメントを排除後のstring型データ</returns>
-        private string commentoutJsonSentence(string nstrJsonfileContents)
+        /// <returns>コメントを削除結果</returns>
+        private string CommentoutJsonSentence(string nstrJsonfileContents)
         {
             string str_result = "";                     // 返答用のstring型データ
             string str_contents = nstrJsonfileContents; // 主となるstring型データ
@@ -636,9 +641,9 @@ namespace MatroxCS
     /// </summary>
     class CJsonCameraGeneral
     {
-        public int Number { get; set; }
-        public int BoardType { get; set; }
-        public List<CJsonCameraInfo> CameraInformation { get; private set; } = new List<CJsonCameraInfo>();
+        public int Number { get; set; }     // カメラ個数
+        public int BoardType { get; set; }  // ボード種類 
+        public List<CJsonCameraInfo> CameraInformation { get; private set; } = new List<CJsonCameraInfo>(); // カメラの詳細情報
     }
 
     /// <summary>
@@ -646,15 +651,15 @@ namespace MatroxCS
     /// </summary>
     class CJsonCameraInfo
     {
-        public string IdentifyName { get; set; }
-        public int CameraType { get; set; }
-        public string CameraFile { get; set; }
-        public int Width { get; set; }
-        public int Height { get; set; }
-        public int Color { get; set; }
-        public int ImagePose { get; set; }
-        public int UseSerialComm { get; set; }
-        public int COMNo { get; set; }
-        public string IPAddress { get; set; }
+        public string IdentifyName { get; set; }    // 識別ネーム
+        public int CameraType { get; set; }         // カメラのタイプ(例:USB,gige)
+        public string CameraFile { get; set; }      // DCFファイルパス
+        public int Width { get; set; }              // 取得画像幅
+        public int Height { get; set; }             // 取得画像高さ
+        public int Color { get; set; }              // 
+        public int ImagePose { get; set; }          // 
+        public int UseSerialComm { get; set; }      // 
+        public int COMNo { get; set; }              // 
+        public string IPAddress { get; set; }       // gigeカメラのIPアドレス
     }
 }

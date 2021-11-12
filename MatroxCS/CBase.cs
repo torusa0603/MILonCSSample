@@ -56,7 +56,7 @@ namespace MatroxCS
         /// <param name="niBoardType">ボードの種類</param>
         /// <param name="nstrExePath">アプリケーション実行パス</param>
         /// <returns>0:正常終了、-1:異常終了</returns>
-        public int initial(int niBoardType, string nstrExePath)
+        public int Initial(int niBoardType, string nstrExePath)
         {
             m_iBoardType = niBoardType;
             m_strExePath = nstrExePath;
@@ -73,7 +73,7 @@ namespace MatroxCS
             // 本クラスのポインターを設定
             hUserData_Error = GCHandle.Alloc(this);
             // フック関数のポインタを設定
-            ProcessingFunctionPtr_Error = new MIL_APP_HOOK_FUNCTION_PTR(hookErrorHandler);
+            ProcessingFunctionPtr_Error = new MIL_APP_HOOK_FUNCTION_PTR(HookErrorHandler);
             // MILのフック関数に設定
             MIL.MappHookFunction(MIL.M_ERROR_CURRENT, ProcessingFunctionPtr_Error, GCHandle.ToIntPtr(hUserData_Error));
 
@@ -115,7 +115,7 @@ namespace MatroxCS
         /// <param name="nEventId"></param>
         /// <param name="npUserDataPtr"></param>
         /// <returns>MIL.M_NULL</returns>
-        protected MIL_INT hookErrorHandler(MIL_INT nlHookType, MIL_ID nEventId, IntPtr npUserDataPtr)
+        protected MIL_INT HookErrorHandler(MIL_INT nlHookType, MIL_ID nEventId, IntPtr npUserDataPtr)
         {
             StringBuilder ErrorMessageFunction = new StringBuilder(MIL.M_ERROR_MESSAGE_SIZE);   //	エラー発生関数名バッファ
             StringBuilder ErrorMessage = new StringBuilder(MIL.M_ERROR_MESSAGE_SIZE);           //	エラー内容バッファ
@@ -182,7 +182,7 @@ namespace MatroxCS
                     str_error += " ";
                 }
                 //	エラーログ内容を出力する
-                p_matrox_common.outputErrorLog(str_error);
+                p_matrox_common.OutputErrorLog(str_error);
 
                 //	致命的なエラーかどうか判断する
                 //	MdigProcess、xxxAllocで発生するエラーは全て致命的とする
@@ -203,7 +203,7 @@ namespace MatroxCS
                 //	エラーフックの例外エラー
                 str_error = "Unknown Error";
                 //	エラーをログ出力する
-                p_matrox_common.outputErrorLog(str_error);
+                p_matrox_common.OutputErrorLog(str_error);
 
                 return (MIL.M_NULL);
             }
@@ -213,7 +213,7 @@ namespace MatroxCS
         /// 致命的なエラーの有無を取得
         /// </summary>
         /// <returns>true:あり、false:なし</returns>
-        public bool getFatalErrorOccured()
+        public bool GetFatalErrorOccured()
         {
             return m_bFatalErrorOccured;
         }
@@ -236,12 +236,12 @@ namespace MatroxCS
         /// エラーログを書き出す
         /// </summary>
         /// <param name="nstrErrorLog">エラー内容</param>
-        private void outputErrorLog(string nstrErrorLog)
+        private void OutputErrorLog(string nstrErrorLog)
         {
             //  ログの文字コードはShift-JISとする
             Encoding m_Encoding = Encoding.GetEncoding("Shift_JIS");
             string str_file_name = "MILErrorLog.log";                                       //	ログファイル名
-            string str_file_path = $"{setFolderName(m_strExePath, "Log")}{str_file_name}";  // ログファイルパス
+            string str_file_path = $"{SetFolderName(m_strExePath, "Log")}{str_file_name}";  // ログファイルパス
             string str_log_data;                                                            // ログ内容
             DateTime time_now = System.DateTime.Now;                                        // 現在日時
 
@@ -261,7 +261,7 @@ namespace MatroxCS
         /// <param name="nstrExecFolderName">アプリケーション実行パス</param>
         /// <param name="nstrFolderName">指定フォルダーパス</param>
         /// <returns>作成絶対フォルダーパス(末尾は\とする)</returns>
-        private string setFolderName(string nstrExecFolderName, string nstrFolderName)
+        private string SetFolderName(string nstrExecFolderName, string nstrFolderName)
         {
             string str_folder_name; // フォルダー名
             // フォルダーパスを作成
