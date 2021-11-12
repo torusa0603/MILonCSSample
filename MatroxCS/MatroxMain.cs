@@ -18,14 +18,14 @@ namespace MatroxCS
     {
         #region メンバー変数
 
-        List<CCamera> m_lstCamera = new List<CCamera>();      //  カメラオブジェクト
-        List<CDisplayImage> m_lstDisplayImage = new List<CDisplayImage>();    //  ディスプレイオブジェクト
-        CBase m_cBase = new CBase();    // ベースオブジェクト
-        CGraphic m_cGraphic = new CGraphic();   //  グラフィックオブジェクト
+        List<CCamera> m_lstCamera = new List<CCamera>();                        //  カメラオブジェクト
+        List<CDisplayImage> m_lstDisplayImage = new List<CDisplayImage>();      //  ディスプレイオブジェクト
+        CBase m_cBase = new CBase();                                            // ベースオブジェクト
+        CGraphic m_cGraphic = new CGraphic();                                   //  グラフィックオブジェクト
 
-        CJsonCameraGeneral m_cJsonCameraGeneral = new CJsonCameraGeneral();
-        public Action m_evMatroxFatalErrorOccured;   //	致命的なエラー発生(ソフト再起動必須)
-        private bool m_bBaseInitialFinished = false;                                                            //初期処理完了済みかを示す
+        CJsonCameraGeneral m_cJsonCameraGeneral = new CJsonCameraGeneral();     // カメラ情報
+        public Action m_evMatroxFatalErrorOccured;                              // 致命的なエラー発生(ソフト再起動必須)
+        private bool m_bBaseInitialFinished = false;                            // 初期処理完了済みかを示す
 
         //  パターンマッチング
         //  フィルター
@@ -61,9 +61,11 @@ namespace MatroxCS
                 {
                     return -1;
                 }
-                int i_camera_num = m_cJsonCameraGeneral.Number;     // カメラ数
-                CBase.m_evFatalErrorOccured += m_evMatroxFatalErrorOccured;
-                m_cBase.initial(m_cJsonCameraGeneral.BoardType, nstrExePath);
+                int i_camera_num = m_cJsonCameraGeneral.Number;                 // カメラ数
+                // 致命的なエラー発生時に起動するイベントハンドラを渡す
+                CBase.m_evFatalErrorOccured += m_evMatroxFatalErrorOccured;     
+                // ベースオブジェクトを初期化
+                m_cBase.initial(m_cJsonCameraGeneral.BoardType, nstrExePath);   
 
 
                 //  設定ファイル読む。この設定ファイルは人が書くので人が読み書きしやすい必要あり
@@ -79,7 +81,7 @@ namespace MatroxCS
                         // 致命的なエラーが起きている
                         return -100;
                     }
-                    // カメラクラスに各種設定値を代入
+                    // カメラオブジェクトに各種設定値を代入
                     CCamera c_camera = new CCamera(m_cJsonCameraGeneral.CameraInformation[i_loop]);
                     // カメラオープン
                     i_ret = c_camera.OpenCamera();
@@ -114,20 +116,25 @@ namespace MatroxCS
             // 初期化処理が済んでいる場合に行う
             if (m_bBaseInitialFinished)
             {
-                // 全カメラクラスをクローズ
+                // 全カメラオブジェクトをクローズ
                 for (int i_loop = 0; i_loop < m_lstCamera.Count(); i_loop++)
                 {
                     m_lstCamera[i_loop].CloseCamera();
                 }
+                // カメラオブジェクトリストをクリア
                 m_lstCamera.Clear();
-                // 全ディスプレイクラスをクローズ
+                // 全ディスプレイオブジェクトをクローズ
                 for (int i_loop = 0; i_loop < m_lstDisplayImage.Count(); i_loop++)
                 {
                     m_lstDisplayImage[i_loop].CloseDisplay();
                 }
+                // ディスプレイオブジェクトリストをクリア
                 m_lstDisplayImage.Clear();
+                // グラフィックオブジェクトをクリア
                 m_cGraphic.CloseGraphic();
+                // ベースオブジェクトの終了処理
                 m_cBase.end();
+                // 初期化済みフラグをオフにする
                 m_bBaseInitialFinished = false;
             }
         }
@@ -138,6 +145,7 @@ namespace MatroxCS
         /// <returns></returns>
         public int GetCameraNum()
         {
+            // カメラオブジェクトリストの個数を返す
             return m_lstCamera.Count();
         }
 
@@ -153,6 +161,7 @@ namespace MatroxCS
             {
                 return -1;
             }
+            // 指定されたインデックスのカメラIDを返す
             return m_lstCamera[niCameraIndex].GetID();
         }
 
@@ -170,9 +179,11 @@ namespace MatroxCS
                 // 致命的なエラーが起きている
                 return -100;
             }
+            // 指定カメラIDのインデックスを探す
             int i_camera_index = SearchCameraID(niCameraID);
             if (i_camera_index == -1)
             {
+                // 該当オブジェクトなし
                 return -1;
             }
             // スルー状態にする
@@ -201,20 +212,22 @@ namespace MatroxCS
             i_ret = checkDisplayhandle(nhHandle);
             if (i_ret == -1)
             {
+                // ハンドルの重複あり
                 return -1;
             }
             // ディスプレイクラスのインスタンスを作成
             CDisplayImage c_display = new CDisplayImage();
-            // 新規作成したディスプレイクラスにハンドルとサイズを渡す
+            // 新規作成したディスプレイオブジェクトにハンドルとサイズを渡す
             i_ret =c_display.OpenDisplay(nhHandle, nDisplaySize);
             if(i_ret == 0)
             {
-                // ディスプレイクラスリストに追加
+                // ディスプレイオブジェクトリストに追加
                 m_lstDisplayImage.Add(c_display);
                 i_display_id = c_display.GetID();
             }
             else
             {
+                // 新規作成失敗
                 return -1;
             }
             return i_display_id;
@@ -248,15 +261,18 @@ namespace MatroxCS
                     {
                         if (i_display_index == -1)
                         {
+                            // ディスプレイオブジェクトなし
                             return -1;
                         }
                         else
                         {
+                            // カメラオブジェクトなし
                             return -2;
                         }
                     }
                     else
                     {
+                        // ディスプレイオブジェクト、カメラオブジェクト両方なし
                         return -3;
                     }
                 }
@@ -269,7 +285,7 @@ namespace MatroxCS
                     // 致命的なエラーが起きた
                     return -100;
                 }
-                // 表示用画像バッファをカメラに渡す
+                // ディスプレイ表示用画像バッファをカメラに渡す
                 i_ret = m_lstCamera[i_camera_index].SetShowImage(m_lstDisplayImage[i_display_index].GetShowImage(niCameraID));
                 return 0;
             }
@@ -288,11 +304,12 @@ namespace MatroxCS
         {
             // 指定ディスプレイIDのインデックス番号を取得
             int i_display_index = SearchDisplayID(niDisplayID);
-            //  指定IDのオブジェクトがなければエラー
             if (i_display_index == -1)
             {
+                // オブジェクトなし
                 return -1;
             }
+            // ディスプレイオブジェクトに接続しているカメラIDを取得、なければnullが入る
             int? i_ret = m_lstDisplayImage[i_display_index].GetConnectCameraID();
             //  メモリ解放
             m_lstDisplayImage[i_display_index].CloseDisplay();
@@ -305,7 +322,14 @@ namespace MatroxCS
             }
             if (i_ret != null)
             {
+                // 接続してたカメラオブジェクトのインデックスを取得
                 int i_camera_index = SearchCameraID((int)i_ret);
+                if (i_camera_index == -1)
+                {
+                    // オブジェクトなし
+                    return -1;
+                }
+                // 接続してたカメラオブジェクトの表示用バッファにnullを入れる
                 m_lstCamera[i_camera_index].ClearShowImage();
             }
             return 0;
@@ -479,7 +503,7 @@ namespace MatroxCS
         private int SearchCameraID(int niCameraID)
         {
             int i_index = 0;
-            // リスト内の各カメラクラスからIDを取得し、指定IDとの一致するものを探す
+            // リスト内の各カメラオブジェクトからIDを取得し、指定IDとの一致するものを探す
             foreach (CCamera camera in m_lstCamera)
             {
                 if (camera.GetID() == niCameraID)
@@ -504,7 +528,7 @@ namespace MatroxCS
         private int SearchDisplayID(int niDisplayID)
         {
             int i_index = 0;
-            // リスト内の各ディスプレイクラスからIDを取得し、指定IDとの一致するものを探す
+            // リスト内の各ディスプレイオブジェクトからIDを取得し、指定IDとの一致するものを探す
             foreach (CDisplayImage displayimage in m_lstDisplayImage)
             {
                 if (displayimage.GetID() == niDisplayID)
@@ -529,7 +553,7 @@ namespace MatroxCS
         private int checkDisplayhandle(IntPtr nhHandle)
         {
             int i_ret = 0;
-            // リスト内の各ディスプレイクラスからIDを取得し、指定IDとの一致するものを探す
+            // リスト内の各ディスプレイから所有しているハンドルを取得し、指定IDのものと一致するものを探す
             foreach (CDisplayImage displayimage in m_lstDisplayImage)
             {
                 if (displayimage.GetHandle() == nhHandle)
@@ -543,7 +567,7 @@ namespace MatroxCS
         
 
         /// <summary>
-        /// 設定ファイルの内容を設定用クラスに格納
+        /// 設定ファイルの内容を設定用オブジェクトに格納
         /// </summary>
         /// <param name="nstrSettingPath">設定ファイルパス</param>
         /// <returns></returns>

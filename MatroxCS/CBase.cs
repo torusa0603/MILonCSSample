@@ -6,14 +6,13 @@ using System.Threading.Tasks;
 using Matrox.MatroxImagingLibrary;
 using System.Runtime.InteropServices;
 using System.IO;
-//using System.Text.Json;
-//using System.Text.Json.Serialization;
 
 
 namespace MatroxCS
 {
     public enum MTX_TYPE
     {
+        // ボードの種類毎に割り振られた整数値
         MTX_MORPHIS = 0,
         MTX_SOLIOSXCL,
         MTX_SOLIOSXA,
@@ -25,8 +24,8 @@ namespace MatroxCS
     {
 
         //  全てのMIL操作共通のものはCBaseで定義する
-        static protected MIL_ID m_smilApplication = MIL.M_NULL;
-        static protected MIL_ID m_smilSystem = MIL.M_NULL;
+        static protected MIL_ID m_smilApplication = MIL.M_NULL;                                         // アプリケーションID
+        static protected MIL_ID m_smilSystem = MIL.M_NULL;                                              // システムID
         static protected int m_iBoardType;                                                              // 使用ボードタイプ
 
         //  各インスタンスIDオフセット
@@ -39,28 +38,29 @@ namespace MatroxCS
         static protected int m_siDisplayOffsetID = 20000;                                               //画面表示IDオフセット
         static protected int m_siNextDisplayID = 20000;                                                 //20000～29999まで。これを循環して使用
 
-        // private string m_strExePath = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
-        static protected string m_strExePath = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
+        static protected string m_strExePath;                                                           // アプリケーション実行パス 
 
         static protected readonly MIL_INT m_smilintTransparentColor = MIL.M_RGB888(1, 1, 1);            //透過色
 
-        protected GCHandle hUserData_Error;
-        protected MIL_APP_HOOK_FUNCTION_PTR ProcessingFunctionPtr_Error;
-        private bool m_bFatalErrorOccured = false;                                                              // 致命的なエラー発生(ソフト再起動必須)
+        protected GCHandle hUserData_Error;                                                             // 本クラスのポインター
+        protected MIL_APP_HOOK_FUNCTION_PTR ProcessingFunctionPtr_Error;                                // フック関数のポインター
+        private bool m_bFatalErrorOccured = false;                                                      // 致命的なエラー発生(ソフト再起動必須)
         
         public static Action m_evFatalErrorOccured;                                                     // 致命的なエラー発生(ソフト再起動必須)
 
 
 
-
+        /// <summary>
+        /// 初期化
+        /// </summary>
+        /// <param name="niBoardType">ボードの種類</param>
+        /// <param name="nstrExePath">アプリケーション実行パス</param>
+        /// <returns>0:正常終了、-1:異常終了</returns>
         public int initial(int niBoardType, string nstrExePath)
         {
             m_iBoardType = niBoardType;
             m_strExePath = nstrExePath;
-
             //色々初期化
-
-
             //	アプリケーションID取得
             MIL.MappAlloc(MIL.M_DEFAULT, ref m_smilApplication);
             if (m_smilApplication == MIL.M_NULL)
@@ -70,14 +70,14 @@ namespace MatroxCS
             //　エラーメッセージを出さないようにする
             MIL.MappControl(MIL.M_ERROR, MIL.M_PRINT_DISABLE);
             //	エラーフック関数登録
-            // 本クラスのポインター
+            // 本クラスのポインターを設定
             hUserData_Error = GCHandle.Alloc(this);
-            // フック関数のポインタ
+            // フック関数のポインタを設定
             ProcessingFunctionPtr_Error = new MIL_APP_HOOK_FUNCTION_PTR(hookErrorHandler);
-            // 設定
+            // MILのフック関数に設定
             MIL.MappHookFunction(MIL.M_ERROR_CURRENT, ProcessingFunctionPtr_Error, GCHandle.ToIntPtr(hUserData_Error));
 
-            //	システムID取得
+            //	システムID取得(ボードの種類毎に異なる)
             switch (m_iBoardType)
             {
                 case (int)MTX_TYPE.MTX_MORPHIS:
@@ -89,9 +89,7 @@ namespace MatroxCS
                     MIL.MsysAlloc(MIL.M_SYSTEM_SOLIOS, MIL.M_DEV0, MIL.M_DEFAULT, ref m_smilSystem);
                     break;
                 case (int)MTX_TYPE.MTX_METEOR2MC:
-
-                    //MIL.MsysAlloc(MIL.M_SYSTEM_METEOR_II, MIL.M_DEV0, MIL.M_DEFAULT, ref m_milSys);
-                    break;
+                    return -1;
                 case (int)MTX_TYPE.MTX_GIGE:
                     MIL.MsysAlloc(MIL.M_SYSTEM_GIGE_VISION, MIL.M_DEV0, MIL.M_DEFAULT, ref m_smilSystem);
                     break;
@@ -103,11 +101,10 @@ namespace MatroxCS
             }
             if (m_smilSystem == MIL.M_NULL)
             {
+                // システムIDが取得できていない場合はエラー
                 return -1;
             }
 
-
-            //  設定ファイル読んだり？
             return 0;
         }
 
@@ -117,36 +114,35 @@ namespace MatroxCS
         /// <param name="nlHookType"></param>
         /// <param name="nEventId"></param>
         /// <param name="npUserDataPtr"></param>
-        /// <returns></returns>
+        /// <returns>MIL.M_NULL</returns>
         protected MIL_INT hookErrorHandler(MIL_INT nlHookType, MIL_ID nEventId, IntPtr npUserDataPtr)
         {
-            StringBuilder ErrorMessageFunction = new StringBuilder(MIL.M_ERROR_MESSAGE_SIZE);
-            StringBuilder ErrorMessage = new StringBuilder(MIL.M_ERROR_MESSAGE_SIZE);
-            StringBuilder ErrorSubMessage1 = new StringBuilder(MIL.M_ERROR_MESSAGE_SIZE);
-            StringBuilder ErrorSubMessage2 = new StringBuilder(MIL.M_ERROR_MESSAGE_SIZE);
-            StringBuilder ErrorSubMessage3 = new StringBuilder(MIL.M_ERROR_MESSAGE_SIZE);
-            string str_error;
-            string str_function;
-            long NbSubCode = 0;
+            StringBuilder ErrorMessageFunction = new StringBuilder(MIL.M_ERROR_MESSAGE_SIZE);   //	エラー発生関数名バッファ
+            StringBuilder ErrorMessage = new StringBuilder(MIL.M_ERROR_MESSAGE_SIZE);           //	エラー内容バッファ
+            StringBuilder ErrorSubMessage1 = new StringBuilder(MIL.M_ERROR_MESSAGE_SIZE);       //　エラー内容詳細文字列1バッファ
+            StringBuilder ErrorSubMessage2 = new StringBuilder(MIL.M_ERROR_MESSAGE_SIZE);       //　エラー内容詳細文字列2バッファ
+            StringBuilder ErrorSubMessage3 = new StringBuilder(MIL.M_ERROR_MESSAGE_SIZE);       //　エラー内容詳細文字列3バッファ
+            string str_error;                                                                   //	エラーログ内容
+            string str_function;                                                                //	エラー発生関数名
+            long NbSubCode = 0;                                                                 //	エラー内容詳細の文字列数
 
 
-            // get the handle to the DigHookUserData object back from the IntPtr
+            //　送られてきたポインタをベースクラスポインタにキャスティングする
             GCHandle hUserData = GCHandle.FromIntPtr(npUserDataPtr);
-            // get a reference to the DigHookUserData object
             CBase p_matrox_common = hUserData.Target as CBase;
 
             try
             {
                 //	エラー文字列を取得する
 
-                //	エラー発生関数
+                //	エラー発生関数を取得
                 MIL.MappGetHookInfo(nEventId, MIL.M_MESSAGE + MIL.M_CURRENT_FCT, ErrorMessageFunction);
-                //	エラー内容
+                //	エラー内容を取得
                 MIL.MappGetHookInfo(nEventId, MIL.M_MESSAGE + MIL.M_CURRENT, ErrorMessage);
-                //	エラー内容詳細の文字列数
+                //	エラー内容詳細の文字列数を取得
                 MIL.MappGetHookInfo(nEventId, MIL.M_CURRENT_SUB_NB, ref NbSubCode);
 
-                //　エラー内容の詳細文字列を取得する
+                //　エラー内容詳細文字列を項目数に合わせて受け取る
                 if (NbSubCode > 2)
                 {
                     MIL.MappGetHookInfo(nEventId, MIL.M_CURRENT_SUB_3 + MIL.M_MESSAGE, ErrorSubMessage3);
@@ -162,14 +158,14 @@ namespace MatroxCS
 
                 //	ログに出力するエラー内容を作成する
 
-                //	まずエラー発生関数
+                //	まずエラー発生関数をエラーログ内容に追加する
                 str_error = "Function:(";
                 str_error += ErrorMessageFunction;
                 str_error += ") ";
-                //	次にエラー内容
+                //	次にエラー内容をエラーログ内容に追加する
                 str_error += ErrorMessage;
                 str_error += " ";
-                //	次に詳細内容
+                //	次に詳細内容を順次エラーログ内容に追加する
                 if (NbSubCode > 2)
                 {
                     str_error += ErrorSubMessage3;
@@ -185,7 +181,7 @@ namespace MatroxCS
                     str_error += ErrorSubMessage1;
                     str_error += " ";
                 }
-                //	エラーをログ出力する
+                //	エラーログ内容を出力する
                 p_matrox_common.outputErrorLog(str_error);
 
                 //	致命的なエラーかどうか判断する
@@ -194,7 +190,9 @@ namespace MatroxCS
                 str_function = ErrorMessageFunction.ToString();
                 if (str_function.IndexOf("Alloc") != -1)
                 {
-                    CBase.m_evFatalErrorOccured();
+                    // 致命的エラーの発生をイベントで知らせる
+                    m_evFatalErrorOccured();
+                    // 致命的エラーの発生を示すフラグを立てる
                     p_matrox_common.m_bFatalErrorOccured = true;
                 }
 
@@ -214,16 +212,22 @@ namespace MatroxCS
         /// <summary>
         /// 致命的なエラーの有無を取得
         /// </summary>
-        /// <returns></returns>
+        /// <returns>true:あり、false:なし</returns>
         public bool getFatalErrorOccured()
         {
             return m_bFatalErrorOccured;
         }
 
+        /// <summary>
+        /// ベースクラスの終了処理
+        /// </summary>
         public void end()
         {
+            // システムIDの解放
             MIL.MsysFree(m_smilSystem);
+            // アプリケーションIDの解放
             MIL.MappFree(m_smilApplication);
+            // 致命的エラーを示すフラグをオフにする
             m_bFatalErrorOccured = false;
         }
 
@@ -231,35 +235,44 @@ namespace MatroxCS
         /// <summary>
         /// エラーログを書き出す
         /// </summary>
-        /// <param name="nstrErrorLog"></param>
+        /// <param name="nstrErrorLog">エラー内容</param>
         private void outputErrorLog(string nstrErrorLog)
         {
+            //  ログの文字コードはShift-JISとする
             Encoding m_Encoding = Encoding.GetEncoding("Shift_JIS");
-            string str_file_name = "MILErrorLog.log";       //	ログファイルパス
-            string str_file_path = $"{setFolderName(m_strExePath, "Log")}{str_file_name}";
-            string str_log_data;
-            DateTime time_now = System.DateTime.Now;
-            str_log_data = $"{time_now.ToString("yyyyMMdd")}{time_now.ToString("HHmm")}{time_now.ToString("ssfff")}_error_{nstrErrorLog}";
+            string str_file_name = "MILErrorLog.log";                                       //	ログファイル名
+            string str_file_path = $"{setFolderName(m_strExePath, "Log")}{str_file_name}";  // ログファイルパス
+            string str_log_data;                                                            // ログ内容
+            DateTime time_now = System.DateTime.Now;                                        // 現在日時
+
+            // ログ内容の作成
+            str_log_data = $"{time_now.ToString("yyyy/MM/dd")} {time_now.ToString("HH:mm:ss")},{nstrErrorLog}";
+            // ファイルオープン
             var writer = new StreamWriter(str_file_path, true, m_Encoding);
+            // ログの書き出し
             writer.WriteLine(str_log_data);
+            // ファイルクローズ
             writer.Close();
         }
 
         /// <summary>
         /// フォルダーパスを作成する
         /// </summary>
-        /// <param name="nstrExecFolderName"></param>
-        /// <param name="nstrFolderName"></param>
-        /// <returns></returns>
+        /// <param name="nstrExecFolderName">アプリケーション実行パス</param>
+        /// <param name="nstrFolderName">指定フォルダーパス</param>
+        /// <returns>作成絶対フォルダーパス(末尾は\とする)</returns>
         private string setFolderName(string nstrExecFolderName, string nstrFolderName)
         {
-            string str_folder_name;
+            string str_folder_name; // フォルダー名
+            // フォルダーパスを作成
             str_folder_name = $"{nstrExecFolderName}\\{nstrFolderName}";
-            if (false == System.IO.File.Exists(str_folder_name))
+            // 該当フォルダーパスが存在しない場合は作成する
+            if (false == System.IO.File.Exists(str_folder_name))    
             {
                 System.IO.Directory.CreateDirectory(str_folder_name);
             }
-            str_folder_name = $"{str_folder_name}\\";
+            // フォルダーパスに\を付ける
+            str_folder_name = $"{str_folder_name}\\";　
             return str_folder_name;
         }
     }

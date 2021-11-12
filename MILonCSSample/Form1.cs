@@ -13,12 +13,12 @@ namespace MILonCSSample
 {
     public partial class Form1 : Form
     {
-        CMatroxMain cMatroxMain;
-        int m_iCameraNumber = 0; // カメラ個数
-        List<int> m_lstCameraID = new List<int>(); // カメラリストID
+        CMatroxMain cMatroxMain;                    // マトロックスオブジェクト
+        int m_iCameraNumber = 0;                    // カメラ個数
+        List<int> m_lstCameraID = new List<int>();  // カメラリストID
         List<int> m_lstDisplayID = new List<int>(); // ディスプレイID{パネル1, パネル2, パネル3, パネル4}
-        string m_strExePath;
-        bool m_bPnl4GraphEnable;
+        string m_strExePath;                        // アプリケーションの実行パス
+        bool m_bPnl4GraphEnable;                    // パネル4のグラフィック描画の有無
 
         public Form1()
         {
@@ -34,7 +34,9 @@ namespace MILonCSSample
 
         private void Form1_Shown(object sender, EventArgs e)
         {
+            // マトロックスオブジェクトを作成
             cMatroxMain = new CMatroxMain();
+            // オープン処理
             Open();
         }
 
@@ -160,14 +162,15 @@ namespace MILonCSSample
             if (m_lstCameraID.Count > 0)
             {
                 int i_ret;
-                // パネル1ディスプレイIDを破棄
+                // パネル1のディスプレイIDを破棄
                 i_ret = cMatroxMain.DeleteDisplay(m_lstDisplayID[0]);
                 if (i_ret != 0)
                 {
                     // エラー処理
                 }
-                // フォーム2を作成、表示
+                // フォーム2作成
                 Form2 f_form2 = new Form2(this);
+                // フォーム2をモーダレス表示
                 f_form2.Show();
                 // フォーム2上のパネルにディスプレイIDを取得
                 i_ret = cMatroxMain.OpenDisplay(f_form2.pnl_form2.Handle, new Size(f_form2.pnl_form2.Width, f_form2.pnl_form2.Height));
@@ -200,17 +203,20 @@ namespace MILonCSSample
             if (m_lstCameraID.Count > 1)
             {
                 int i_ret;
+                // パネル2のディスプレイIDを破棄
                 i_ret = cMatroxMain.DeleteDisplay(m_lstDisplayID[1]);
                 if (i_ret != 0)
                 {
                     // エラー処理
                 }
-
+                // フォーム3作成
                 Form3 f_form3 = new Form3(this);
+                // フォーム3をモーダレス表示
                 f_form3.Show();
-
+                // フォーム3上のパネルにディスプレイIDを取得
                 i_ret = cMatroxMain.OpenDisplay(f_form3.pnl_form3.Handle, new Size(f_form3.pnl_form3.Width, f_form3.pnl_form3.Height));
                 m_lstDisplayID[1] = i_ret;
+                // フォーム3上パネルのパネルとカメラ2を接続
                 i_ret = cMatroxMain.SelectCameraImageDisplay(m_lstCameraID[1], m_lstDisplayID[1]);
                 if (i_ret != 0)
                 {
@@ -224,16 +230,20 @@ namespace MILonCSSample
         /// </summary>
         public void Form2_close()
         {
+            // saveボタンの非表示・無効化
             btn_save.Enabled = false;
             btn_save.Visible = false;
             int i_ret;
+            // フォーム2上パネルのディスプレイIDを削除
             i_ret = cMatroxMain.DeleteDisplay(m_lstDisplayID[0]);
             if (i_ret != 0)
             {
                 // エラー処理
             }
+            // パネル1にディスプレイIDを取得
             i_ret = cMatroxMain.OpenDisplay(pnl_camera1.Handle, new Size(pnl_camera1.Width, pnl_camera1.Height));
             m_lstDisplayID[0] = i_ret;
+            // パネル1とカメラ1を接続
             i_ret = cMatroxMain.SelectCameraImageDisplay(m_lstCameraID[0], m_lstDisplayID[0]);
             if (i_ret < 0)
             {
@@ -246,19 +256,30 @@ namespace MILonCSSample
         /// </summary>
         public void Form3_close()
         {
-            int i_ret;
-            i_ret = cMatroxMain.DeleteDisplay(m_lstDisplayID[1]);
-            if (i_ret != 0)
+            // カメラの個数が二個以上
+            if (m_lstCameraID.Count > 1)
             {
-                // エラー処理
+                int i_ret;
+                // フォーム3上パネルのディスプレイIDを削除
+                i_ret = cMatroxMain.DeleteDisplay(m_lstDisplayID[1]);
+                if (i_ret != 0)
+                {
+                    // エラー処理
+                }
+                // パネル2にディスプレイIDを取得
+                i_ret = cMatroxMain.OpenDisplay(pnl_camera2.Handle, new Size(pnl_camera2.Width, pnl_camera2.Height));
+                m_lstDisplayID[1] = i_ret;
+                if (i_ret < 0)
+                {
+                    // エラー処理
+                }
+                // パネル2とカメラ2を接続
+                i_ret = cMatroxMain.SelectCameraImageDisplay(m_lstCameraID[1], m_lstDisplayID[1]);
+                if (i_ret < 0)
+                {
+                    // エラー処理
+                }
             }
-            i_ret = cMatroxMain.OpenDisplay(pnl_camera2.Handle, new Size(pnl_camera2.Width, pnl_camera2.Height));
-            m_lstDisplayID[1] = i_ret;
-            if (i_ret < 0)
-            {
-                // エラー処理
-            }
-            i_ret = cMatroxMain.SelectCameraImageDisplay(m_lstCameraID[1], m_lstDisplayID[1]);
         }
 
         /// <summary>
@@ -312,6 +333,7 @@ namespace MILonCSSample
 
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
+            // マトロックスクラスの終了処理実行
             cMatroxMain.endMatrox();
         }
 
@@ -322,12 +344,15 @@ namespace MILonCSSample
 
         private void connectToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            // マトロックスクラスの初期化処理を実行
             Open();
         }
 
         private void disConnectToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            // マトロックスクラスの終了処理を実行
             cMatroxMain.endMatrox();
+            // 保持していたカメラ・ディスプレイIDをクリア
             m_lstCameraID.Clear();
             m_lstDisplayID.Clear();
         }

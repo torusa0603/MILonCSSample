@@ -11,27 +11,22 @@ namespace MatroxCS
     class CDisplayImage : CBase
     {
         #region メンバー変数
-        //  ディスプレイID
-        private MIL_ID m_milDisplay = MIL.M_NULL;
-        //  グラフィックを描画するためのオーバーレイバッファ
-        private MIL_ID m_milOverlay = MIL.M_NULL;
-        //  画面に表示するときの画像バッファ。常にカラーバッファ
-        private MIL_ID m_milDisplayImage = MIL.M_NULL;
-        //  画面に表示させる画像のサイズ
-        private Size m_szImageSize;
-        //  ウインドウハンドル
-        private IntPtr m_hDisplayHandle = IntPtr.Zero;
-        //  ディスプレイインスタンスID
-        private int m_iDisplayID;
+        
+        private MIL_ID m_milDisplay = MIL.M_NULL;       //  ディスプレイID
+        private MIL_ID m_milOverlay = MIL.M_NULL;       //  グラフィックを描画するためのオーバーレイバッファ
+        private MIL_ID m_milDisplayImage = MIL.M_NULL;  //  画面に表示するときの画像バッファ。常にカラーバッファ
+        private Size m_szImageSize;                     //  画面に表示させる画像のサイズ
+        private IntPtr m_hDisplayHandle = IntPtr.Zero;  //  ウインドウハンドル
+        private int m_iDisplayID;                       //  ディスプレイインスタンスID
 
-        private bool m_bOpenDone = false;   //  オープンされたか否か
+        private bool m_bOpenDone = false;               //  オープンされたか否か
 
-        private double m_dMagRate = 1.0;    //  現在の画像拡大の倍率(100%=1.0)
+        private double m_dMagRate = 1.0;                //  現在の画像拡大の倍率(100%=1.0)
 
         private int? m_iConnectCameraID;
 
-        private const double m_cdMinMagRate = 0.1;//    最小倍率(10%)
-        private const double m_cdMaxMagRate = 8.0;//    最大倍率(800%)
+        private const double m_cdMinMagRate = 0.1;      //    最小倍率(10%)
+        private const double m_cdMaxMagRate = 8.0;      //    最大倍率(800%)
         
 
         #endregion
@@ -60,11 +55,11 @@ namespace MatroxCS
                 return -1;
             }
 
-            //  ディスプレイの各種設定。C++のImageMatrox.dllとか見ればわかる
+            //  ディスプレイの各種設定
             MIL.MdispControl(m_milDisplay, MIL.M_INTERPOLATION_MODE, MIL.M_NEAREST_NEIGHBOR);
-            // オーバーレイバッファ使用可能
+            // オーバーレイバッファ使用可能に設定
             MIL.MdispControl(m_milDisplay, MIL.M_OVERLAY, MIL.M_ENABLE);
-            // オーバーレイバッファ表示可能
+            // オーバーレイバッファ表示可能に設定
             MIL.MdispControl(m_milDisplay, MIL.M_OVERLAY_SHOW, MIL.M_ENABLE);
             // 透過色の設定
             MIL.MdispControl(m_milDisplay, (long)MIL.M_TRANSPARENT_COLOR, m_smilintTransparentColor);
@@ -93,7 +88,7 @@ namespace MatroxCS
         /// <summary>
         /// ディスプレイID取得
         /// </summary>
-        /// <returns></returns>
+        /// <returns>ディスプレイID</returns>
         public int GetID()
         {
             return m_iDisplayID;
@@ -102,7 +97,7 @@ namespace MatroxCS
         /// <summary>
         /// ディスプレイハンドル取得
         /// </summary>
-        /// <returns></returns>
+        /// <returns>ディスプレイハンドル</returns>
         public IntPtr GetHandle()
         {
             return m_hDisplayHandle;
@@ -111,8 +106,8 @@ namespace MatroxCS
         /// <summary>
         /// 指定の画像サイズの画像バッファを作成する
         /// </summary>
-        /// <param name="niImageSize"></param>
-        /// <returns></returns>
+        /// <param name="niImageSize">指定画像サイズ</param>
+        /// <returns>0:正常終了</returns>
         public int CreateImage(Size niImageSize)
         {
             //  そもそも同じサイズで確定していれば何もしない
@@ -152,31 +147,36 @@ namespace MatroxCS
         {
             if (m_iConnectCameraID == null)
             {
+                // 非接続の場合はnullを返す
                 return null;
             }
             else
             {
+                // 接続カメラIDを返す
                 return m_iConnectCameraID;
             }
         }
 
         /// <summary>
-        /// 画像サイズ
+        /// 画像サイズを取得
         /// </summary>
-        /// <returns></returns>
+        /// <returns>画像サイズ</returns>
         public Size GetImageSize()
         {
             return m_szImageSize;
         }
 
+
         /// <summary>
-        /// ディスプレイ削除
+        /// クローズ処理
         /// </summary>
+        /// <returns>0:正常終了</returns>
         public int CloseDisplay()
         {
             //  ディスプレイID、表示用画像バッファ等を開放。nullに
             if (m_milDisplayImage != MIL.M_NULL)
             {
+                // 表示用バッファを解放
                 MIL.MbufFree(m_milDisplayImage);
                 m_milDisplayImage = MIL.M_NULL;
             }
@@ -193,7 +193,7 @@ namespace MatroxCS
         /// 画像ファイルをロードする
         /// </summary>
         /// <param name="nstrImageFilePath"></param>
-        /// <returns></returns>
+        /// <returns>0:正常終了</returns>
         public int LoadImage(string nstrImageFilePath)
         {
 
@@ -218,7 +218,7 @@ namespace MatroxCS
         /// 倍率切替
         /// </summary>
         /// <param name="ndMagRate"></param>
-        /// <returns></returns>
+        /// <returns>0:正常終了</returns>
         public int SetMagRate(double ndMagRate)
         {
             //  最大最小で丸める!
@@ -239,7 +239,7 @@ namespace MatroxCS
         /// <summary>
         /// 倍率を取得する
         /// </summary>
-        /// <returns></returns>
+        /// <returns>倍率値</returns>
         public double GetMagRate()
         {
             return m_dMagRate;
@@ -248,7 +248,7 @@ namespace MatroxCS
         /// <summary>
         /// オーバーレイバッファを取得する
         /// </summary>
-        /// <returns></returns>
+        /// <returns>オーバーレイバッファ</returns>
         public MIL_ID GetOverlay()
         {
             MIL.MdispSelectWindow(m_milDisplay, m_milDisplayImage, m_hDisplayHandle);
@@ -260,7 +260,7 @@ namespace MatroxCS
         /// <summary>
         /// グラフィックをクリアする
         /// </summary>
-        /// <returns></returns>
+        /// <returns>0:正常終了</returns>
         public int ClearGraphic()
         {
             MIL.MdispControl( m_milDisplay, MIL.M_OVERLAY_CLEAR, MIL.M_TRANSPARENT_COLOR );
@@ -270,36 +270,32 @@ namespace MatroxCS
         /// <summary>
         /// 画像を保存
         /// </summary>
-        /// <param name="nstrImageFilePath"></param>
-        /// <param name="nstrExt"></param>
-        /// <param name="nbIncludeGraphic"></param>
-        /// <returns>-1:拡張子エラー</returns>
+        /// <param name="nstrImageFilePath">保存先ファイルパス</param>
+        /// <param name="nbIncludeGraphic">保存画像にグラフィックを含めるか否か</param>
+        /// <returns>0:正常終了、-1:拡張子エラー</returns>
         public int SaveImage(string nstrImageFilePath, bool nbIncludeGraphic)
         {
-            MIL_ID mil_temp = MIL.M_NULL;
-            MIL_ID mil_result_temp = MIL.M_NULL;
+            MIL_ID mil_overlay_temp = MIL.M_NULL;   // オーバーレイバッファを一時的に保存するバッファ
+            MIL_ID mil_result_temp = MIL.M_NULL;    // 画像を一時的に保存するバッファ
             int i_index_ext;
             string str_ext;
 
+            // 一時的保存バッファを確保
             MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR24, ref mil_result_temp);
+            // 表示画像を一時的保存バッファにコピー
             MIL.MbufCopy(m_milDisplayImage, mil_result_temp);
             if (nbIncludeGraphic)
             {
-                //	オーバーレイバッファと検査結果画像バッファの一時バッファを用意
-                MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR24, ref mil_temp);
-                //	一時バッファに画像をコピー
-                MIL.MbufCopy(m_milOverlay, mil_temp);
-                //	オーバーレイを検査結果画像上にコピー
-                MIL.MbufTransfer(mil_temp, mil_result_temp, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_COMPOSITION, MIL.M_DEFAULT, m_smilintTransparentColor, MIL.M_NULL);
+                //	一時的オーバーレイバッファを確保
+                MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR24, ref mil_overlay_temp);
+                //	一時的オーバーレイバッファにオーバーレイバッファをコピー
+                MIL.MbufCopy(m_milOverlay, mil_overlay_temp);
+                //	オーバーレイを一時的保存バッファ上に適応
+                MIL.MbufTransfer(mil_overlay_temp, mil_result_temp, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_DEFAULT, MIL.M_COMPOSITION, MIL.M_DEFAULT, m_smilintTransparentColor, MIL.M_NULL);
                 //	メモリ開放
-                MIL.MbufFree(mil_temp);
+                MIL.MbufFree(mil_overlay_temp);
             }
-            else
-            {
-                
-            }
-
-            //	拡張子を抽出
+            //	拡張子の位置を探す
             i_index_ext = nstrImageFilePath.IndexOf(".");
             //	拡張子がない場合は仕方ないのでビットマップの拡張子をつけてビットマップで保存する
             if (i_index_ext < 0)
@@ -317,26 +313,29 @@ namespace MatroxCS
                 }
                 else
                 {
+                    // 拡張子を抽出
                     str_ext = nstrImageFilePath.Substring(i_index_ext + 1);
                 }
             }
-            //	jpg
+            //	拡張子がjpgの場合
             if (string.Compare(str_ext, "jpg") == 0 || string.Compare(str_ext, "JPG") == 0)
             {
                 MIL.MbufExport(nstrImageFilePath, MIL.M_JPEG_LOSSY, mil_result_temp);
             }
-            //	png
+            //	拡張子がpngの場合
             else if (string.Compare(str_ext, "png") == 0 || string.Compare(str_ext, "PNG") == 0)
             {
                 MIL.MbufExport(nstrImageFilePath, MIL.M_PNG, mil_result_temp);
             }
-            //	bmp
+            //	拡張子がbmpの場合
             else if (string.Compare(str_ext, "bmp") == 0 || string.Compare(str_ext, "BMP") == 0)
             {
                 MIL.MbufExport(nstrImageFilePath, MIL.M_BMP, mil_result_temp);
             }
+            // 該当拡張子がない場合
             else
             {
+                // エラーとして終了
                 MIL.MbufFree(mil_result_temp);
                 return -1;
             }

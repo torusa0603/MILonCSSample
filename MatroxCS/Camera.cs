@@ -47,7 +47,7 @@ namespace MatroxCS
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        /// <param name="ncJsonCameraInfo">カメラ情報クラスインスタンス</param>
+        /// <param name="ncJsonCameraInfo">カメラ情報</param>
         public CCamera(CJsonCameraInfo ncJsonCameraInfo)
         {
             m_strIPAddress = ncJsonCameraInfo.IPAddress;
@@ -104,7 +104,7 @@ namespace MatroxCS
         /// <summary>
         /// カメラクローズ
         /// </summary>
-        /// <returns></returns>
+        /// <returns>0:正常終了</returns>
         public int CloseCamera()
         {
             //  スルー状態なら、フリーズにする
@@ -137,7 +137,7 @@ namespace MatroxCS
         /// </summary>
         public void Through()
         {
-            //MdigProcess使う
+            // スルー状態でなければ実行
             if (m_bThroughFlg == false)
             {
                 if (m_iBoardType != (int)MTX_TYPE.MTX_HOST)
@@ -150,6 +150,7 @@ namespace MatroxCS
                     MIL.MdigProcess(m_milDigitizer, m_milGrabImageArray, m_milGrabImageArray.Length,
                                         MIL.M_START, MIL.M_DEFAULT, m_delProcessingFunctionPtr, GCHandle.ToIntPtr(m_handUserData_doThrough));
                 }
+                // スルー状態であるかを示すフラグをオンにする
                 m_bThroughFlg = true;
             }
             // フック関数を使ってスルーを行うがm_milShowImageがNULLでなければこれにも画像をコピー
@@ -169,7 +170,7 @@ namespace MatroxCS
             {
                 MIL_ID mil_modified_image = MIL.M_NULL;　// 画像を直接受け取るバッファ
                 nlHookType = 0;
-                //　送られてきたポインタをマトロックスクラスポインタにキャスティングする
+                //　送られてきたポインタをカメラクラスポインタにキャスティングする
                 m_handUserData_ProcessingFunction = GCHandle.FromIntPtr(npUserDataPtr);
                 m_cCamera = m_handUserData_ProcessingFunction.Target as CCamera;
                 //　変更されたバッファIDを取得する
@@ -188,35 +189,36 @@ namespace MatroxCS
         /// </summary>
         public void Freeze()
         {
+            // スルー状態ならば実行
             if (m_bThroughFlg == true)
             {
                 if (m_iBoardType != (int)MTX_TYPE.MTX_HOST)
                 {
-                    //m_handUserData_doThrough = GCHandle.Alloc(this);
-                    //m_delProcessingFunctionPtr = new MIL_DIG_HOOK_FUNCTION_PTR(ProcessingFunction);
-                    //	フック関数を中止させる
+                    //	フック関数を休止させる
                     MIL.MdigProcess(m_milDigitizer, m_milGrabImageArray, m_milGrabImageArray.Length,
                                 MIL.M_STOP + MIL.M_WAIT, MIL.M_DEFAULT, m_delProcessingFunctionPtr, GCHandle.ToIntPtr(m_handUserData_doThrough));
-                    
-
                 }
+                // スルー状態であるかを示すフラグをオフにする
                 m_bThroughFlg = false;
             }
         }
 
+        /// <summary>
+        /// スルー状態を中止させる
+        /// </summary>
         public void Cansel()
         {
+            // スルー状態ならば実行
             if (m_bThroughFlg == true)
             {
                 if (m_iBoardType != (int)MTX_TYPE.MTX_HOST)
                 {
-                    //m_handUserData_doThrough = GCHandle.Alloc(this);
-                    //m_delProcessingFunctionPtr = new MIL_DIG_HOOK_FUNCTION_PTR(ProcessingFunction);
                     //	フック関数を中止させる
                     MIL.MdigProcess(m_milDigitizer, m_milGrabImageArray, m_milGrabImageArray.Length,
                                 MIL.M_STOP, MIL.M_DEFAULT, m_delProcessingFunctionPtr, GCHandle.ToIntPtr(m_handUserData_doThrough));
                     m_handUserData_doThrough.Free();
                 }
+                // スルー状態であるかを示すフラグをオフにする
                 m_bThroughFlg = false;
             }
         }
@@ -224,7 +226,7 @@ namespace MatroxCS
         /// <summary>
         /// 画面に表示するための画像バッファを設定する
         /// </summary>
-        /// <param name="nMilShowImage"></param>
+        /// <param name="nMilShowImage">表示用画像バッファ</param>
         public int SetShowImage(MIL_ID nMilShowImage)
         {
             //  nMilShowImageの画像サイズ取得
@@ -240,11 +242,12 @@ namespace MatroxCS
             //  なのでm_milShowImageを勝手に開放とかしちゃだめ
             return 0;
         }
+
         /// <summary>
         /// 指定バッファのサイズを答える
         /// </summary>
         /// <param name="nmilBaffa"></param>
-        /// <returns></returns>
+        /// <returns>画像バッファ</returns>
         private Size InquireBaffaSize(MIL_ID nmilBaffa)
         {
             Size sz_ret = new Size(0, 0);
@@ -269,18 +272,20 @@ namespace MatroxCS
         /// <summary>
         /// カメラID取得
         /// </summary>
-        /// <returns></returns>
+        /// <returns>カメラID</returns>
         public int GetID()
         {
+            // カメラIDを返す
             return m_iCameraID;
         }
 
         /// <summary>
-        /// 画像サイズ
+        /// カメラ画像サイズ取得
         /// </summary>
-        /// <returns></returns>
+        /// <returns>画像サイズ</returns>
         public Size GetImageSize()
         {
+
             return m_szImageSize;
         }
         #endregion
