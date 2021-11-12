@@ -25,6 +25,11 @@ namespace MILonCSSample
             InitializeComponent();
         }
 
+        /// <summary>
+        /// フォームロード処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Form1_Load(object sender, EventArgs e)
         {
             // saveボタンの非表示、使用不可にする
@@ -32,6 +37,11 @@ namespace MILonCSSample
             btn_save.Visible = false;
         }
 
+        /// <summary>
+        /// フォーム表示直後処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Form1_Shown(object sender, EventArgs e)
         {
             // マトロックスオブジェクトを作成
@@ -40,9 +50,12 @@ namespace MILonCSSample
             Open();
         }
 
+        /// <summary>
+        /// オープン処理
+        /// </summary>
         private void Open()
         {
-            cMatroxMain.m_evMatroxFatalErrorOccured += occuredMatroxFatalError;
+            cMatroxMain.m_evMatroxFatalErrorOccured += OccuredMatroxFatalError;
             int i_ret = 0;
             // exeファイルのいるフォルダーパスを取得
             m_strExePath = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
@@ -156,6 +169,11 @@ namespace MILonCSSample
 
         }
 
+        /// <summary>
+        /// パネル1クリック時処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void pnl_camera1_Click(object sender, EventArgs e)
         {
             // カメラの個数が一個以上
@@ -331,24 +349,42 @@ namespace MILonCSSample
             m_bPnl4GraphEnable = !m_bPnl4GraphEnable;
         }
 
+        /// <summary>
+        /// フォーム終了時処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
             // マトロックスクラスの終了処理実行
             cMatroxMain.EndMatrox();
         }
 
-        private void occuredMatroxFatalError()
+        /// <summary>
+        /// 致命的なエラーが発生した時の処理
+        /// </summary>
+        private void OccuredMatroxFatalError()
         {
             // 致命的なエラーが起きた時の処理
         }
 
-        private void connectToolStripMenuItem_Click(object sender, EventArgs e)
+        /// <summary>
+        /// メニューバー上のConnectクリック時処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ConnectToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // マトロックスクラスの初期化処理を実行
             Open();
         }
 
-        private void disConnectToolStripMenuItem_Click(object sender, EventArgs e)
+        /// <summary>
+        /// メニューバー上のDisconnectクリック時処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void DisConnectToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // マトロックスクラスの終了処理を実行
             cMatroxMain.EndMatrox();

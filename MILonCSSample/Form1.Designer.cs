@@ -110,14 +110,14 @@
             this.connectToolStripMenuItem.Name = "connectToolStripMenuItem";
             this.connectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.connectToolStripMenuItem.Text = "Connect";
-            this.connectToolStripMenuItem.Click += new System.EventHandler(this.connectToolStripMenuItem_Click);
+            this.connectToolStripMenuItem.Click += new System.EventHandler(this.ConnectToolStripMenuItem_Click);
             // 
             // disConnectToolStripMenuItem
             // 
             this.disConnectToolStripMenuItem.Name = "disConnectToolStripMenuItem";
             this.disConnectToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
             this.disConnectToolStripMenuItem.Text = "DisConnect";
-            this.disConnectToolStripMenuItem.Click += new System.EventHandler(this.disConnectToolStripMenuItem_Click);
+            this.disConnectToolStripMenuItem.Click += new System.EventHandler(this.DisConnectToolStripMenuItem_Click);
             // 
             // Form1
             // 

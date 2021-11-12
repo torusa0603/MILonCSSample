@@ -572,7 +572,7 @@ namespace MatroxCS
         /// 設定ファイルの内容を設定用オブジェクトに格納
         /// </summary>
         /// <param name="nstrSettingPath">設定ファイルパス</param>
-        /// <returns></returns>
+        /// <returns>0:正常終了、-1:異常終了</returns>
         private int ReadParameter(string nstrSettingPath)
         {
             try
