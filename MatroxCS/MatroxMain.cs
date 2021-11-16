@@ -27,11 +27,11 @@ namespace MatroxCS
         public Action m_evMatroxFatalErrorOccured;                              // 致命的なエラー発生(ソフト再起動必須)
         private bool m_bBaseInitialFinished = false;                            // 初期処理完了済みかを示す
 
-        //  パターンマッチング
-        //  フィルター
-        //  各種アルゴリズム(?)これはSPVIみたいにする？
-        //  描画
+        #endregion
 
+        #region エラー番号
+        const int FATAL_ERROR_OCCURED = -100;
+        const int ALREADY_OPENED_ERROR = -200;
         #endregion
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace MatroxCS
             // 初期化処理を既に行っていた場合は行わない
             if (m_bBaseInitialFinished)
             {
-                return -200;
+                return ALREADY_OPENED_ERROR;
                 
             }
             else
@@ -79,7 +79,7 @@ namespace MatroxCS
                     if (m_cBase.GetFatalErrorOccured())
                     {
                         // 致命的なエラーが起きている
-                        return -100;
+                        return FATAL_ERROR_OCCURED;
                     }
                     // カメラオブジェクトに各種設定値を代入
                     CCamera c_camera = new CCamera(m_cJsonCameraGeneral.CameraInformation[i_loop]);
@@ -94,13 +94,13 @@ namespace MatroxCS
                 if (m_cBase.GetFatalErrorOccured())
                 {
                     // 致命的なエラーが起きている
-                    return -100;
+                    return FATAL_ERROR_OCCURED;
                 }
                 m_cGraphic.OpenGraphic();
                 if (m_cBase.GetFatalErrorOccured())
                 {
                     // 致命的なエラーが起きた
-                    return -100;
+                    return FATAL_ERROR_OCCURED;
                 }
                 m_bBaseInitialFinished = true;
                 return 0;
@@ -133,7 +133,7 @@ namespace MatroxCS
                 // グラフィックオブジェクトをクリア
                 m_cGraphic.CloseGraphic();
                 // ベースオブジェクトの終了処理
-                m_cBase.end();
+                m_cBase.End();
                 // 初期化済みフラグをオフにする
                 m_bBaseInitialFinished = false;
             }
@@ -177,7 +177,7 @@ namespace MatroxCS
             if (m_cBase.GetFatalErrorOccured())
             {
                 // 致命的なエラーが起きている
-                return -100;
+                return FATAL_ERROR_OCCURED;
             }
             // 指定カメラIDのインデックスを探す
             int i_camera_index = SearchCameraID(niCameraID);
@@ -204,7 +204,7 @@ namespace MatroxCS
             if (m_cBase.GetFatalErrorOccured())
             {
                 // 致命的なエラーが起きている
-                return -100;
+                return FATAL_ERROR_OCCURED;
             }
             int i_display_id = 0;
             int i_ret;
@@ -247,7 +247,7 @@ namespace MatroxCS
                 if (m_cBase.GetFatalErrorOccured())
                 {
                     // 致命的なエラーが起きている
-                    return -100;
+                    return FATAL_ERROR_OCCURED;
                 }
                 int i_camera_index = 0;
                 int i_display_index = 0;
@@ -283,7 +283,7 @@ namespace MatroxCS
                 if (m_cBase.GetFatalErrorOccured())
                 {
                     // 致命的なエラーが起きた
-                    return -100;
+                    return FATAL_ERROR_OCCURED;
                 }
                 // ディスプレイ表示用画像バッファをカメラに渡す
                 i_ret = m_lstCamera[i_camera_index].SetShowImage(m_lstDisplayImage[i_display_index].GetShowImage(niCameraID));
@@ -291,7 +291,7 @@ namespace MatroxCS
             }
             else
             {
-                return -200;
+                return ALREADY_OPENED_ERROR;
             }
         }
 
@@ -318,7 +318,7 @@ namespace MatroxCS
             if (m_cBase.GetFatalErrorOccured())
             {
                 // 致命的なエラーが起きている
-                return -100;
+                return FATAL_ERROR_OCCURED;
             }
             if (i_ret != null)
             {
@@ -346,7 +346,7 @@ namespace MatroxCS
             if (m_cBase.GetFatalErrorOccured())
             {
                 // 致命的なエラーが起きている
-                return -100;
+                return FATAL_ERROR_OCCURED;
             }
             // 指定ディスプレイIDのインデックス番号を取得
             int i_display_index = SearchDisplayID(niDisplayID);
@@ -364,7 +364,7 @@ namespace MatroxCS
             if (m_cBase.GetFatalErrorOccured())
             {
                 // 致命的なエラーが起きた
-                return -100;
+                return FATAL_ERROR_OCCURED;
             }
             return 0;
         }
@@ -382,7 +382,7 @@ namespace MatroxCS
                 if (m_cBase.GetFatalErrorOccured())
                 {
                     // 致命的なエラーが起きている
-                    return -100;
+                    return FATAL_ERROR_OCCURED;
                 }
                 //  RGBの値に分割して設定
                 m_cGraphic.SetColor(nGraphicColor.R, nGraphicColor.G, nGraphicColor.B);
@@ -390,7 +390,7 @@ namespace MatroxCS
             }
             else
             {
-                return -200;
+                return ALREADY_OPENED_ERROR;
             }
         }
 
@@ -409,7 +409,7 @@ namespace MatroxCS
                 if (m_cBase.GetFatalErrorOccured())
                 {
                     // 致命的なエラーが起きている
-                    return -100;
+                    return FATAL_ERROR_OCCURED;
                 }
                 // 指定ディスプレイIDのインデックス番号を取得
                 int i_display_index = SearchDisplayID(niDisplayID); ;
@@ -426,7 +426,7 @@ namespace MatroxCS
             }
             else
             {
-                return -200;
+                return ALREADY_OPENED_ERROR;
             }
         }
 
@@ -443,7 +443,7 @@ namespace MatroxCS
                 if (m_cBase.GetFatalErrorOccured())
                 {
                     // 致命的なエラーが起きている
-                    return -100;
+                    return FATAL_ERROR_OCCURED;
                 }
                 // 指定ディスプレイIDのインデックス番号を取得
                 int i_display_index = SearchDisplayID(niDisplayID); ;
@@ -460,7 +460,7 @@ namespace MatroxCS
             }
             else
             {
-                return -200;
+                return ALREADY_OPENED_ERROR;
             }
         }
 
@@ -477,7 +477,7 @@ namespace MatroxCS
             if (m_cBase.GetFatalErrorOccured())
             {
                 // 致命的なエラーが起きている
-                return -100;
+                return FATAL_ERROR_OCCURED;
             }
             int i_display_index = SearchDisplayID(niDisplayID);
             int i_ret;

@@ -221,7 +221,7 @@ namespace MatroxCS
         /// <summary>
         /// ベースクラスの終了処理
         /// </summary>
-        public void end()
+        public void End()
         {
             // システムIDの解放
             MIL.MsysFree(m_smilSystem);
