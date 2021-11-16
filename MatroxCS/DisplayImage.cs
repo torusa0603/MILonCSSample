@@ -10,29 +10,25 @@ namespace MatroxCS
 {
     class CDisplayImage : CBase
     {
-        #region メンバー変数
+        #region ローカル変数
         
-        private MIL_ID m_milDisplay = MIL.M_NULL;       //  ディスプレイID
-        private MIL_ID m_milOverlay = MIL.M_NULL;       //  グラフィックを描画するためのオーバーレイバッファ
-        private MIL_ID m_milDisplayImage = MIL.M_NULL;  //  画面に表示するときの画像バッファ。常にカラーバッファ
-        private Size m_szImageSize;                     //  画面に表示させる画像のサイズ
-        private IntPtr m_hDisplayHandle = IntPtr.Zero;  //  ウインドウハンドル
-        private int m_iDisplayID;                       //  ディスプレイインスタンスID
+        MIL_ID m_milDisplay = MIL.M_NULL;       //  ディスプレイID
+        MIL_ID m_milOverlay = MIL.M_NULL;       //  グラフィックを描画するためのオーバーレイバッファ
+        MIL_ID m_milDisplayImage = MIL.M_NULL;  //  画面に表示するときの画像バッファ。常にカラーバッファ
+        Size m_szImageSize;                     //  画面に表示させる画像のサイズ
+        IntPtr m_hDisplayHandle = IntPtr.Zero;  //  ウインドウハンドル
+        int m_iDisplayID;                       //  ディスプレイインスタンスID
+        int? m_iConnectCameraID;                // 現在接続しているカメラID
 
-        private bool m_bOpenDone = false;               //  オープンされたか否か
+        bool m_bOpenDone = false;               //  オープンされたか否か
 
-        private double m_dMagRate = 1.0;                //  現在の画像拡大の倍率(100%=1.0)
-
-        private int? m_iConnectCameraID;
-
-        private const double m_cdMinMagRate = 0.1;      //    最小倍率(10%)
-        private const double m_cdMaxMagRate = 8.0;      //    最大倍率(800%)
+        double m_dMagRate = 1.0;                //  現在の画像拡大の倍率(100%=1.0)
+        const double m_cdMinMagRate = 0.1;      //    最小倍率(10%)
+        const double m_cdMaxMagRate = 8.0;      //    最大倍率(800%)
         
-
         #endregion
 
-
-        #region パブリック関数
+        #region メンバ関数
 
         /// <summary>
         /// ディスプレイのオープン
@@ -196,7 +192,6 @@ namespace MatroxCS
         /// <returns>0:正常終了</returns>
         public int LoadImage(string nstrImageFilePath)
         {
-
             //  MIL関数でロード
             if (m_milDisplay != MIL.M_NULL)
             {
@@ -205,6 +200,7 @@ namespace MatroxCS
                 //  画像サイズも更新
                 MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR24, ref m_milDisplayImage);
             }
+
             //  ここでMdispSelectWindow( m_milDisp, m_milDisplayImage, nhDispHandle );
             MIL.MdispSelectWindow(m_milDisplay, m_milDisplayImage, m_hDisplayHandle);
             MIL.MbufImport(nstrImageFilePath, MIL.M_DEFAULT, MIL.M_LOAD, m_smilSystem, ref m_milDisplayImage);
@@ -345,7 +341,6 @@ namespace MatroxCS
 
             return 0;
         }
-
 
         #endregion
     }

@@ -22,33 +22,41 @@ namespace MatroxCS
     };
     class CBase
     {
+        #region メンバ変数
 
-        //  全てのMIL操作共通のものはCBaseで定義する
-        static protected MIL_ID m_smilApplication = MIL.M_NULL;                                         // アプリケーションID
-        static protected MIL_ID m_smilSystem = MIL.M_NULL;                                              // システムID
-        static protected int m_iBoardType;                                                              // 使用ボードタイプ
+        public static Action m_sevFatalErrorOccured;                                            // 致命的なエラー発生時に起動するイベント
 
-        //  各インスタンスIDオフセット
+        #endregion
 
-        static protected int m_siIDMaxLength = 10000;                                                   //  各IDのmax個数。
-        //  カメラID
-        static protected int m_siCameraOffsetID = 10000;                                                //カメラIDオフセット
-        static protected int m_siNextCameraID = 10000;                                                  //10000～19999まで。これを循環して使用
-        //  画面表示ID
-        static protected int m_siDisplayOffsetID = 20000;                                               //画面表示IDオフセット
-        static protected int m_siNextDisplayID = 20000;                                                 //20000～29999まで。これを循環して使用
+        #region ローカル変数
 
-        static protected string m_strExePath;                                                           // アプリケーション実行パス 
+        static protected MIL_ID m_smilApplication = MIL.M_NULL;                                 // アプリケーションID
+        static protected MIL_ID m_smilSystem = MIL.M_NULL;                                      // システムID
+        static protected int m_iBoardType;                                                      // 使用ボードタイプ
 
-        static protected readonly MIL_INT m_smilintTransparentColor = MIL.M_RGB888(1, 1, 1);            //透過色
+        # region 各インスタンスID
 
-        protected GCHandle hUserData_Error;                                                             // 本クラスのポインター
-        protected MIL_APP_HOOK_FUNCTION_PTR ProcessingFunctionPtr_Error;                                // フック関数のポインター
-        private bool m_bFatalErrorOccured = false;                                                      // 致命的なエラー発生(ソフト再起動必須)
-        
-        public static Action m_evFatalErrorOccured;                                                     // 致命的なエラー発生(ソフト再起動必須)
+        static protected int m_siIDMaxLength = 10000;                                           // 各IDのmax個数。
 
+        static protected int m_siCameraOffsetID = 10000;                                        // カメラIDオフセット
+        static protected int m_siNextCameraID = 10000;                                          // 10000～19999まで。これを循環して使用
 
+        static protected int m_siDisplayOffsetID = 20000;                                       // 画面表示IDオフセット
+        static protected int m_siNextDisplayID = 20000;                                         // 20000～29999まで。これを循環して使用
+
+        #endregion
+
+        static protected string m_sstrExePath;                                                  // アプリケーション実行パス 
+
+        static protected readonly MIL_INT m_smilintTransparentColor = MIL.M_RGB888(1, 1, 1);    // 透過色
+
+        protected GCHandle hUserData_Error;                                                     // 本クラスのポインター
+        protected MIL_APP_HOOK_FUNCTION_PTR ProcessingFunctionPtr_Error;                        // フック関数のポインター
+        static protected bool m_sbFatalErrorOccured = false;                                    // 致命的なエラー発生を示すフラグ
+
+        #endregion
+
+        #region メンバ関数
 
         /// <summary>
         /// 初期化
@@ -59,7 +67,7 @@ namespace MatroxCS
         public int Initial(int niBoardType, string nstrExePath)
         {
             m_iBoardType = niBoardType;
-            m_strExePath = nstrExePath;
+            m_sstrExePath = nstrExePath;
             //色々初期化
             //	アプリケーションID取得
             MIL.MappAlloc(MIL.M_DEFAULT, ref m_smilApplication);
@@ -191,9 +199,9 @@ namespace MatroxCS
                 if (str_function.IndexOf("Alloc") != -1)
                 {
                     // 致命的エラーの発生をイベントで知らせる
-                    m_evFatalErrorOccured();
+                    m_sevFatalErrorOccured();
                     // 致命的エラーの発生を示すフラグを立てる
-                    p_matrox_common.m_bFatalErrorOccured = true;
+                    m_sbFatalErrorOccured = true;
                 }
 
                 return (MIL.M_NULL);
@@ -215,7 +223,7 @@ namespace MatroxCS
         /// <returns>true:あり、false:なし</returns>
         public bool GetFatalErrorOccured()
         {
-            return m_bFatalErrorOccured;
+            return m_sbFatalErrorOccured;
         }
 
         /// <summary>
@@ -228,9 +236,12 @@ namespace MatroxCS
             // アプリケーションIDの解放
             MIL.MappFree(m_smilApplication);
             // 致命的エラーを示すフラグをオフにする
-            m_bFatalErrorOccured = false;
+            m_sbFatalErrorOccured = false;
         }
 
+        #endregion
+
+        #region ローカル関数
 
         /// <summary>
         /// エラーログを書き出す
@@ -241,7 +252,7 @@ namespace MatroxCS
             //  ログの文字コードはShift-JISとする
             Encoding m_Encoding = Encoding.GetEncoding("Shift_JIS");
             string str_file_name = "MILErrorLog.log";                                       //	ログファイル名
-            string str_file_path = $"{SetFolderName(m_strExePath, "Log")}{str_file_name}";  // ログファイルパス
+            string str_file_path = $"{SetFolderName(m_sstrExePath, "Log")}{str_file_name}";  // ログファイルパス
             string str_log_data;                                                            // ログ内容
             DateTime time_now = System.DateTime.Now;                                        // 現在日時
 
@@ -275,7 +286,7 @@ namespace MatroxCS
             str_folder_name = $"{str_folder_name}\\";　
             return str_folder_name;
         }
-    }
 
-    
+        #endregion
+    }
 }

@@ -10,12 +10,15 @@ namespace MatroxCS
 {
     class CGraphic : CBase
     {
-        //  グラフィックバッファID
-        private MIL_ID m_milGraphic = MIL.M_NULL;
-        //  描画先のオーバーレイバッファ。これはCDisplayImageクラスのバッファの参照なので
-        //  このクラスでは確保とか開放とかしない
-        private MIL_ID m_milTargetOverlay = MIL.M_NULL;
-        MIL_INT m_miliColor = MIL.M_RGB888(1, 1, 1);
+        #region ローカル変数
+
+        MIL_ID m_milGraphic = MIL.M_NULL;       //  グラフィックバッファID
+        MIL_ID m_milTargetOverlay = MIL.M_NULL; //  描画先のオーバーレイバッファ
+        MIL_INT m_miliColor = MIL.M_RGB888(1, 1, 1);    //  設定色
+
+        #endregion
+
+        #region メンバ関数
 
         /// <summary>
         /// グラフィックバッファ作成
@@ -116,5 +119,6 @@ namespace MatroxCS
             MIL.MgraColor(m_milGraphic, m_miliColor);
         }
 
+        #endregion
     }
 }

@@ -10,29 +10,33 @@ using System.IO;
 
 namespace MatroxCS
 {
-
-    //  dll使う人は基本全部ここを通るからこのファイル(クラス)長くなる。
-    //  機能毎にファイル分けたほうがいいかも。
-
     public class CMatroxMain
     {
-        #region メンバー変数
+        #region メンバ変数
 
-        List<CCamera> m_lstCamera = new List<CCamera>();                        //  カメラオブジェクト
-        List<CDisplayImage> m_lstDisplayImage = new List<CDisplayImage>();      //  ディスプレイオブジェクト
-        CBase m_cBase = new CBase();                                            // ベースオブジェクト
-        CGraphic m_cGraphic = new CGraphic();                                   //  グラフィックオブジェクト
-
-        CJsonCameraGeneral m_cJsonCameraGeneral = new CJsonCameraGeneral();     // カメラ情報
         public Action m_evMatroxFatalErrorOccured;                              // 致命的なエラー発生(ソフト再起動必須)
-        private bool m_bBaseInitialFinished = false;                            // 初期処理完了済みかを示す
 
         #endregion
 
-        #region エラー番号
+        #region ローカル変数
+
+        List<CCamera> m_lstCamera = new List<CCamera>();                        // カメラオブジェクト
+        List<CDisplayImage> m_lstDisplayImage = new List<CDisplayImage>();      // ディスプレイオブジェクト
+        CBase m_cBase = new CBase();                                            // ベースオブジェクト
+        CGraphic m_cGraphic = new CGraphic();                                   // グラフィックオブジェクト
+        CJsonCameraGeneral m_cJsonCameraGeneral = new CJsonCameraGeneral();     // カメラ情報
+        bool m_bBaseInitialFinished = false;                                    // 初期処理完了済みかを示す
+
+        #endregion
+
+        #region 固有エラー番号
+
         const int FATAL_ERROR_OCCURED = -100;
         const int ALREADY_OPENED_ERROR = -200;
+
         #endregion
+
+        #region メンバ関数
 
         /// <summary>
         /// Matrox制御の初期化
@@ -45,7 +49,6 @@ namespace MatroxCS
             if (m_bBaseInitialFinished)
             {
                 return ALREADY_OPENED_ERROR;
-                
             }
             else
             {
@@ -63,14 +66,9 @@ namespace MatroxCS
                 }
                 int i_camera_num = m_cJsonCameraGeneral.Number;                 // カメラ数
                 // 致命的なエラー発生時に起動するイベントハンドラを渡す
-                CBase.m_evFatalErrorOccured += m_evMatroxFatalErrorOccured;     
+                CBase.m_sevFatalErrorOccured += m_evMatroxFatalErrorOccured;
                 // ベースオブジェクトを初期化
-                m_cBase.Initial(m_cJsonCameraGeneral.BoardType, nstrExePath);   
-
-
-                //  設定ファイル読む。この設定ファイルは人が書くので人が読み書きしやすい必要あり
-                //  でも設定ファイルにはカメラ情報しかないからCCmaeraクラスでやればいいか?
-                //  でもカメラ数は知らないとダメ
+                m_cBase.Initial(m_cJsonCameraGeneral.BoardType, nstrExePath);
 
                 int i_loop;
                 //  カメラ初期化
@@ -105,7 +103,6 @@ namespace MatroxCS
                 m_bBaseInitialFinished = true;
                 return 0;
             }
-
         }
 
         /// <summary>
@@ -142,11 +139,20 @@ namespace MatroxCS
         /// <summary>
         /// カメラ数取得
         /// </summary>
-        /// <returns></returns>
+        /// <returns>オープン済みカメラ個数</returns>
         public int GetCameraNum()
         {
-            // カメラオブジェクトリストの個数を返す
-            return m_lstCamera.Count();
+            // 初期化処理が済んでいる場合に行う
+            if (m_bBaseInitialFinished)
+            {
+                // カメラオブジェクトリストの個数を返す
+                return m_lstCamera.Count();
+            }
+            else
+            {
+                // 初期化処理が行われていないのでオープンしているカメラ個数は0個
+                return 0;
+            }
         }
 
         /// <summary>
@@ -201,36 +207,44 @@ namespace MatroxCS
         /// <returns>-1:異常終了、新規作成ディスプレイID</returns>
         public int OpenDisplay(IntPtr nhHandle, Size nDisplaySize)
         {
-            if (m_cBase.GetFatalErrorOccured())
+            // 初期化処理が済んでいる場合に行う
+            if (m_bBaseInitialFinished)
             {
-                // 致命的なエラーが起きている
-                return FATAL_ERROR_OCCURED;
-            }
-            int i_display_id = 0;
-            int i_ret;
-            // ハンドルの二重使用のチェック
-            i_ret = CheckDisplayhandle(nhHandle);
-            if (i_ret == -1)
-            {
-                // ハンドルの重複あり
-                return -1;
-            }
-            // ディスプレイクラスのインスタンスを作成
-            CDisplayImage c_display = new CDisplayImage();
-            // 新規作成したディスプレイオブジェクトにハンドルとサイズを渡す
-            i_ret =c_display.OpenDisplay(nhHandle, nDisplaySize);
-            if(i_ret == 0)
-            {
-                // ディスプレイオブジェクトリストに追加
-                m_lstDisplayImage.Add(c_display);
-                i_display_id = c_display.GetID();
+                if (m_cBase.GetFatalErrorOccured())
+                {
+                    // 致命的なエラーが起きている
+                    return FATAL_ERROR_OCCURED;
+                }
+                int i_display_id = 0;
+                int i_ret;
+                // ハンドルの二重使用のチェック
+                i_ret = CheckDisplayhandle(nhHandle);
+                if (i_ret == -1)
+                {
+                    // ハンドルの重複あり
+                    return -1;
+                }
+                // ディスプレイクラスのインスタンスを作成
+                CDisplayImage c_display = new CDisplayImage();
+                // 新規作成したディスプレイオブジェクトにハンドルとサイズを渡す
+                i_ret = c_display.OpenDisplay(nhHandle, nDisplaySize);
+                if (i_ret == 0)
+                {
+                    // ディスプレイオブジェクトリストに追加
+                    m_lstDisplayImage.Add(c_display);
+                    i_display_id = c_display.GetID();
+                }
+                else
+                {
+                    // 新規作成失敗
+                    return -1;
+                }
+                return i_display_id;
             }
             else
             {
-                // 新規作成失敗
-                return -1;
+                return ALREADY_OPENED_ERROR;
             }
-            return i_display_id;
         }
 
         /// <summary>
@@ -495,6 +509,10 @@ namespace MatroxCS
             return 0;
         }
 
+        #endregion
+
+        #region ローカル関数
+
         /// <summary>
         /// カメラIDに対応するインデックス番号を探す
         /// </summary>
@@ -566,7 +584,7 @@ namespace MatroxCS
             // 重複無しなら0が返る
             return i_ret;
         }
-        
+
 
         /// <summary>
         /// 設定ファイルの内容を設定用オブジェクトに格納
@@ -634,8 +652,10 @@ namespace MatroxCS
             return str_result;
         }
 
+        #endregion 
     }
 
+    #region カメラパラメータクラス
     /// <summary>
     /// 一般設定項目
     /// </summary>
@@ -662,4 +682,6 @@ namespace MatroxCS
         public int COMNo { get; set; }              // 
         public string IPAddress { get; set; }       // gigeカメラのIPアドレス
     }
+
+    #endregion
 }

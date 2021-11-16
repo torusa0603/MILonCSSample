@@ -12,37 +12,30 @@ namespace MatroxCS
 {
     class CCamera : CBase
     {
-        #region メンバー変数
+        #region ローカル変数
 
-        private MIL_ID m_milDigitizer = MIL.M_NULL;                                 //  デジタイザID
-        private MIL_ID m_milShowImage = MIL.M_NULL;                                 //  カメラ映像を画面に表示するときの画像バッファ
-        private MIL_ID[] m_milGrabImageArray = { MIL.M_NULL, MIL.M_NULL };          //  グラブ専用リングバッファ 2固定
-        private MIL_DIG_HOOK_FUNCTION_PTR m_delProcessingFunctionPtr;               //  画像取得関数のポインター
-        private GCHandle m_handUserData_doThrough;                                  //  自己インスタンスのポインター
-        private GCHandle m_handUserData_ProcessingFunction;                         //  自己インスタンスのポインター(画像取得関数内で使用)
-        private CCamera m_cCamera;                                                  //  自己のインスタンスをフック関数内で保持するために使用
-        private Size m_szImageSize;                                                 //  画像サイズ。カメラ画像バッファもカメラ映像用バッファも同サイズ
-        private int m_iCameraID;                                                    //  カメラインスタンスID
-        private string m_strCameraFilePath;                                         //	DCFファイル名
-        private string m_strIPAddress;                                              //  カメラのIPアドレス
-        private bool m_bOpenDone = false;                                           //  オープンされたか否か
+        MIL_ID m_milDigitizer = MIL.M_NULL;                         // デジタイザID
+        MIL_ID m_milShowImage = MIL.M_NULL;                         // カメラ映像を画面に表示するときの画像バッファ
+        MIL_ID[] m_milGrabImageArray = { MIL.M_NULL, MIL.M_NULL };  // グラブ専用リングバッファ 2固定
 
-        //  差分撮ったり、カメラ画像をリアルタイムで評価しないといけないならこのクラスでやるしかない
-        //  必要に応じて画像バッファとかアルゴリズムを追加する。
-        //  ただ不要なときは画像バッファを確保したりしないようにしたい
+        MIL_DIG_HOOK_FUNCTION_PTR m_delProcessingFunctionPtr;       // 画像取得関数のポインター
+        GCHandle m_handUserData_doThrough;                          // 自己インスタンスのポインター
+        GCHandle m_handUserData_ProcessingFunction;                 // 自己インスタンスのポインター(画像取得関数内で使用)
+        CCamera m_cCamera;                                          // 自己のインスタンスをフック関数内で保持するために使用
+        
+        int m_iCameraID;                                            // カメラインスタンスID
+        bool m_bOpenDone = false;                                   // オープンされたか否か
+        bool m_bThroughFlg = false;                                 // スルー状態であるか否か
 
-        //  以下各カメラパラメーター
-        private double m_dGain;                                             //  ゲイン
-        private long m_lShtterSpeed;                                        //  露光時間(単位：μs)
-        //  他いろいろ
-        private bool m_bThroughFlg = false;
+        string m_strIPAddress;                                      // カメラのIPアドレス
+        Size m_szImageSize;                                         // 画像サイズ。カメラ画像バッファもカメラ映像用バッファも同サイズ
+        string m_strCameraFilePath;                                 // DCFファイル名
+        double m_dGain;                                             // ゲイン
+        long m_lShtterSpeed;                                        // 露光時間(単位：μs)
 
         #endregion
 
-
-        #region パブリック関数
-
-        //  カメラパラメーターはカメラ毎に文字列違うのでそれを考慮する
+        #region メンバ関数
 
         /// <summary>
         /// コンストラクタ
@@ -53,7 +46,7 @@ namespace MatroxCS
             // カメラIPアドレスの指定
             m_strIPAddress = ncJsonCameraInfo.IPAddress;
             // DCFファイルの指定
-            m_strCameraFilePath = $@"{m_strExePath}\{ncJsonCameraInfo.CameraFile}";
+            m_strCameraFilePath = $@"{m_sstrExePath}\{ncJsonCameraInfo.CameraFile}";
             // 画像サイスの指定
             m_szImageSize = new Size(ncJsonCameraInfo.Width, ncJsonCameraInfo.Height);
         }
@@ -156,35 +149,6 @@ namespace MatroxCS
                 // スルー状態であるかを示すフラグをオンにする
                 m_bThroughFlg = true;
             }
-            // フック関数を使ってスルーを行うがm_milShowImageがNULLでなければこれにも画像をコピー
-            // 結果として画面にカメラ映像が映る
-        }
-
-        /// <summary>
-        /// 画像取得関数
-        /// </summary>
-        /// <param name="nlHookType"></param>
-        /// <param name="nEventId"></param>
-        /// <param name="npUserDataPtr"></param>
-        /// <returns></returns>
-        protected MIL_INT ProcessingFunction(MIL_INT nlHookType, MIL_ID nEventId, IntPtr npUserDataPtr)
-        {
-            if (!IntPtr.Zero.Equals(npUserDataPtr))
-            {
-                MIL_ID mil_modified_image = MIL.M_NULL;　// 画像を直接受け取るバッファ
-                nlHookType = 0;
-                //　送られてきたポインタをカメラクラスポインタにキャスティングする
-                m_handUserData_ProcessingFunction = GCHandle.FromIntPtr(npUserDataPtr);
-                m_cCamera = m_handUserData_ProcessingFunction.Target as CCamera;
-                //　変更されたバッファIDを取得する
-                MIL.MdigGetHookInfo(nEventId, MIL.M_MODIFIED_BUFFER + MIL.M_BUFFER_ID, ref mil_modified_image);
-                // m_milShowImageが空でなければ画像をコピー
-                if (m_cCamera.m_milShowImage != MIL.M_NULL)
-                {
-                    MIL.MbufCopy(mil_modified_image, m_cCamera.m_milShowImage);
-                }
-            }
-            return 0;
         }
 
         /// <summary>
@@ -239,10 +203,8 @@ namespace MatroxCS
             {
                 return -1;
             }
-            //  サイズが一致していた
+            //  サイズが一致していたら、参照渡しする
             m_milShowImage = nMilShowImage;
-            //  ↑メモリコピーでなく、参照渡しなのでm_milShowImageとnMilShowImageは全く同じもの
-            //  なのでm_milShowImageを勝手に開放とかしちゃだめ
             return 0;
         }
 
@@ -288,9 +250,41 @@ namespace MatroxCS
         /// <returns>画像サイズ</returns>
         public Size GetImageSize()
         {
-
+            // カメラ画像サイズを返す
             return m_szImageSize;
         }
         #endregion
+
+        #region ローカル関数
+
+        /// <summary>
+        /// 画像取得関数
+        /// </summary>
+        /// <param name="nlHookType"></param>
+        /// <param name="nEventId"></param>
+        /// <param name="npUserDataPtr"></param>
+        /// <returns></returns>
+        private MIL_INT ProcessingFunction(MIL_INT nlHookType, MIL_ID nEventId, IntPtr npUserDataPtr)
+        {
+            if (!IntPtr.Zero.Equals(npUserDataPtr))
+            {
+                MIL_ID mil_modified_image = MIL.M_NULL;　// 画像を直接受け取るバッファ
+                nlHookType = 0;
+                //　送られてきたポインタをカメラクラスポインタにキャスティングする
+                m_handUserData_ProcessingFunction = GCHandle.FromIntPtr(npUserDataPtr);
+                m_cCamera = m_handUserData_ProcessingFunction.Target as CCamera;
+                //　変更されたバッファIDを取得する
+                MIL.MdigGetHookInfo(nEventId, MIL.M_MODIFIED_BUFFER + MIL.M_BUFFER_ID, ref mil_modified_image);
+                // m_milShowImageが空でなければ画像をコピー
+                if (m_cCamera.m_milShowImage != MIL.M_NULL)
+                {
+                    MIL.MbufCopy(mil_modified_image, m_cCamera.m_milShowImage);
+                }
+            }
+            return 0;
+        }
+
+        #endregion
+
     }
 }
