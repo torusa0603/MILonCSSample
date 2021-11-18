@@ -11,21 +11,21 @@ namespace MatroxCS
     class CDisplayImage : CBase
     {
         #region ローカル変数
-        
-        MIL_ID m_milDisplay = MIL.M_NULL;       //  ディスプレイID
-        MIL_ID m_milOverlay = MIL.M_NULL;       //  グラフィックを描画するためのオーバーレイバッファ
-        MIL_ID m_milDisplayImage = MIL.M_NULL;  //  画面に表示するときの画像バッファ。常にカラーバッファ
-        Size m_szImageSize;                     //  画面に表示させる画像のサイズ
-        IntPtr m_hDisplayHandle = IntPtr.Zero;  //  ウインドウハンドル
-        int m_iDisplayID;                       //  ディスプレイインスタンスID
+
+        MIL_ID m_milDisplay = MIL.M_NULL;       // ディスプレイID
+        MIL_ID m_milOverlay = MIL.M_NULL;       // グラフィックを描画するためのオーバーレイバッファ
+        MIL_ID m_milDisplayImage = MIL.M_NULL;  // 画面に表示するときの画像バッファ。常にカラーバッファ
+        Size m_szImageSize;                     // 画面に表示させる画像のサイズ
+        IntPtr m_hDisplayHandle = IntPtr.Zero;  // ウインドウハンドル
+        int m_iDisplayID;                       // ディスプレイインスタンスID
         int? m_iConnectCameraID;                // 現在接続しているカメラID
 
-        bool m_bOpenDone = false;               //  オープンされたか否か
+        bool m_bOpenDone = false;               // オープンされたか否か
 
-        double m_dMagRate = 1.0;                //  現在の画像拡大の倍率(100%=1.0)
-        const double m_cdMinMagRate = 0.1;      //    最小倍率(10%)
-        const double m_cdMaxMagRate = 8.0;      //    最大倍率(800%)
-        
+        double m_dMagRate = 1.0;                // 現在の画像拡大の倍率(100%=1.0)
+        const double m_cdMinMagRate = 0.1;      // 最小倍率(10%)
+        const double m_cdMaxMagRate = 8.0;      // 最大倍率(800%)
+
         #endregion
 
         #region メンバ関数
@@ -33,8 +33,9 @@ namespace MatroxCS
         /// <summary>
         /// ディスプレイのオープン
         /// </summary>
-        /// <param name="nhDisplayHandle"></param>
-        /// <returns>0:正常終了、-1:異常終了、-999:既にオープンしている</returns>
+        /// <param name="nhDisplayHandle">表示用ハンドル</param>
+        /// <param name="nDisplaySize">ディスプレイサイズ</param>
+        /// <returns>0:正常終了、-1:ディスプレイID取得失敗、-2:画像バッファ取得失敗、-999:既にオープンしている</returns>
         public int OpenDisplay(IntPtr nhDisplayHandle, Size nDisplaySize)
         {
             //  既にオープンされたインスタンスならエラー
@@ -62,6 +63,10 @@ namespace MatroxCS
 
             // 表示バッファを確保
             MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR24, ref m_milDisplayImage);
+            if (m_milDisplayImage == MIL.M_NULL)
+            {
+                return -2;
+            }
             MIL.MbufClear(m_milDisplayImage, 0);
             //  ハンドルをコピー
             m_hDisplayHandle = nhDisplayHandle;
@@ -103,7 +108,7 @@ namespace MatroxCS
         /// 指定の画像サイズの画像バッファを作成する
         /// </summary>
         /// <param name="niImageSize">指定画像サイズ</param>
-        /// <returns>0:正常終了</returns>
+        /// <returns>0:正常終了、-1:オーバレイバッファ取得失敗</returns>
         public int CreateImage(Size niImageSize)
         {
             //  そもそも同じサイズで確定していれば何もしない
@@ -112,14 +117,17 @@ namespace MatroxCS
                 //  違ければ今の画像バッファをクリアしてこの大きさで再確保
                 MIL.MbufFree(m_milDisplayImage);
                 MIL.MbufAllocColor(m_smilSystem, 3, niImageSize.Width, niImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR24, ref m_milDisplayImage);
+                // 画像バッファサイズを更新
+                m_szImageSize = niImageSize;
             }
-            //  ここでMdispSelectWindow( m_milDisp, m_milDisplayImage, nhDispHandle );
+            //  ディスプレイIDにハンドルを渡す
             MIL.MdispSelectWindow(m_milDisplay, m_milDisplayImage, m_hDisplayHandle);
-            //  MdispSelectWindowのあとはオーバーレイバッファを確保
+            //  オーバーレイバッファを確保
             MIL.MdispInquire(m_milDisplay, MIL.M_OVERLAY_ID, ref m_milOverlay);
-
-            m_szImageSize = niImageSize;
-            
+            if (m_milOverlay == MIL.M_NULL)
+            {
+                return -1;
+            }
             return 0;
         }
 
@@ -141,16 +149,8 @@ namespace MatroxCS
         /// <returns>接続中の場合はカメラID、非接続の場合はnull</returns>
         public int? GetConnectCameraID()
         {
-            if (m_iConnectCameraID == null)
-            {
-                // 非接続の場合はnullを返す
-                return null;
-            }
-            else
-            {
-                // 接続カメラIDを返す
-                return m_iConnectCameraID;
-            }
+            // 非接続の場合はnull、接続済みなら接続カメラIDを返す
+            return m_iConnectCameraID;
         }
 
         /// <summary>
@@ -162,14 +162,13 @@ namespace MatroxCS
             return m_szImageSize;
         }
 
-
         /// <summary>
-        /// クローズ処理
+        /// 
         /// </summary>
+        /// <param name="nmilShowImage">接続カメラの表示用バッファ、未接続ならばM_NULL</param>
         /// <returns>0:正常終了</returns>
         public int CloseDisplay()
         {
-            //  ディスプレイID、表示用画像バッファ等を開放。nullに
             if (m_milDisplayImage != MIL.M_NULL)
             {
                 // 表示用バッファを解放
@@ -178,10 +177,11 @@ namespace MatroxCS
             }
             if (m_milDisplay != MIL.M_NULL)
             {
+                // ディスプレイIDを解放
                 MIL.MdispFree(m_milDisplay);
                 m_milDisplay = MIL.M_NULL;
             }
-            // オーバーレイバッファにおいてはディスプレイIDに紐づくために不要
+            // オーバーレイバッファについてはディスプレイIDに紐づくために解放は不要
             return 0;
         }
 
@@ -189,7 +189,7 @@ namespace MatroxCS
         /// 画像ファイルをロードする
         /// </summary>
         /// <param name="nstrImageFilePath"></param>
-        /// <returns>0:正常終了</returns>
+        /// <returns>0:正常終了、-1:画像バッファ取得失敗、-2:オーバレイバッファ取得失敗</returns>
         public int LoadImage(string nstrImageFilePath)
         {
             //  MIL関数でロード
@@ -199,14 +199,21 @@ namespace MatroxCS
                 MIL.MbufFree(m_milDisplayImage);
                 //  画像サイズも更新
                 MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR24, ref m_milDisplayImage);
+                if (m_milDisplayImage == MIL.M_NULL)
+                {
+                    return -1;
+                }
             }
-
-            //  ここでMdispSelectWindow( m_milDisp, m_milDisplayImage, nhDispHandle );
+            //  ディスプレイIDにハンドルを渡す
             MIL.MdispSelectWindow(m_milDisplay, m_milDisplayImage, m_hDisplayHandle);
+            // 画像をインポートする
             MIL.MbufImport(nstrImageFilePath, MIL.M_DEFAULT, MIL.M_LOAD, m_smilSystem, ref m_milDisplayImage);
-            //  MdispSelectWindowのあとはオーバーレイバッファを確保
+            // オーバーレイバッファを確保
             MIL.MdispInquire(m_milDisplay, MIL.M_OVERLAY_ID, ref m_milOverlay);
-
+            if (m_milOverlay == MIL.M_NULL)
+            {
+                return -2;
+            }
             return 0;
         }
 
@@ -244,12 +251,17 @@ namespace MatroxCS
         /// <summary>
         /// オーバーレイバッファを取得する
         /// </summary>
-        /// <returns>オーバーレイバッファ</returns>
+        /// <returns>-1:オーバーレイバッファ取得失敗、-1以外:オーバーレイバッファID</returns>
         public MIL_ID GetOverlay()
         {
+            //  ディスプレイIDにハンドルを渡す
             MIL.MdispSelectWindow(m_milDisplay, m_milDisplayImage, m_hDisplayHandle);
             //  オーバーレイバッファを確保
             MIL.MdispInquire(m_milDisplay, MIL.M_OVERLAY_ID, ref m_milOverlay);
+            if (m_milOverlay == MIL.M_NULL)
+            {
+                return -1;
+            }
             return m_milOverlay;
         }
 
@@ -259,7 +271,8 @@ namespace MatroxCS
         /// <returns>0:正常終了</returns>
         public int ClearGraphic()
         {
-            MIL.MdispControl( m_milDisplay, MIL.M_OVERLAY_CLEAR, MIL.M_TRANSPARENT_COLOR );
+            // グラフィックを透過色でクリアする
+            MIL.MdispControl(m_milDisplay, MIL.M_OVERLAY_CLEAR, MIL.M_TRANSPARENT_COLOR);
             return 0;
         }
 
@@ -268,22 +281,30 @@ namespace MatroxCS
         /// </summary>
         /// <param name="nstrImageFilePath">保存先ファイルパス</param>
         /// <param name="nbIncludeGraphic">保存画像にグラフィックを含めるか否か</param>
-        /// <returns>0:正常終了、-1:拡張子エラー</returns>
+        /// <returns>0:正常終了、-1:拡張子エラー、-2:画像バッファ取得失敗</returns>
         public int SaveImage(string nstrImageFilePath, bool nbIncludeGraphic)
         {
             MIL_ID mil_overlay_temp = MIL.M_NULL;   // オーバーレイバッファを一時的に保存するバッファ
             MIL_ID mil_result_temp = MIL.M_NULL;    // 画像を一時的に保存するバッファ
-            int i_index_ext;
-            string str_ext;
+            int i_index_ext;                        // パス内の拡張子の位置
+            string str_ext;                         // 拡張子
 
             // 一時的保存バッファを確保
             MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR24, ref mil_result_temp);
+            if (m_milDisplayImage == MIL.M_NULL)
+            {
+                return -2;
+            }
             // 表示画像を一時的保存バッファにコピー
             MIL.MbufCopy(m_milDisplayImage, mil_result_temp);
             if (nbIncludeGraphic)
             {
                 //	一時的オーバーレイバッファを確保
                 MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR24, ref mil_overlay_temp);
+                if (m_milDisplayImage == MIL.M_NULL)
+                {
+                    return -2;
+                }
                 //	一時的オーバーレイバッファにオーバーレイバッファをコピー
                 MIL.MbufCopy(m_milOverlay, mil_overlay_temp);
                 //	オーバーレイを一時的保存バッファ上に適応

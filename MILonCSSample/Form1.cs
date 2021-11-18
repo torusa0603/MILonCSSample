@@ -13,12 +13,12 @@ namespace MILonCSSample
 {
     public partial class Form1 : Form
     {
-        CMatroxMain cMatroxMain;                    // マトロックスオブジェクト
-        int m_iCameraNumber = 0;                    // カメラ個数
-        List<int> m_lstCameraID = new List<int>();  // カメラリストID
-        List<int> m_lstDisplayID = new List<int>(); // ディスプレイID{パネル1, パネル2, パネル3, パネル4}
-        string m_strExePath;                        // アプリケーションの実行パス
-        bool m_bPnl4GraphEnable;                    // パネル4のグラフィック描画の有無
+        CMatroxMain cMatroxMain;                                                    // マトロックスオブジェクト
+        int m_iCameraNumber = 0;                                                    // カメラ個数
+        List<int> m_lstCameraID = new List<int>();                                  // カメラリストID
+        List<int> m_lstDisplayID = new List<int>() { 0, 0, 0, 0 };    // ディスプレイID{パネル1, パネル2, パネル3, パネル4}
+        string m_strExePath;                                                        // アプリケーションの実行パス
+        bool m_bPnl4GraphEnable;                                                    // パネル4のグラフィック描画の有無
 
         public Form1()
         {
@@ -63,9 +63,9 @@ namespace MILonCSSample
             string str_setting_file_path = $@"{m_strExePath}\setting.json";
             // 設定ファイルの読み込み、カメラオープンを行う
             i_ret = cMatroxMain.InitMatrox(str_setting_file_path, m_strExePath);
-            if (i_ret == -200)
+            if (i_ret != 0)
             {
-                return;
+                // エラー処理
             }
             // カメラ個数を取得する
             m_iCameraNumber = cMatroxMain.GetCameraNum();
@@ -94,31 +94,31 @@ namespace MILonCSSample
 
             // パネル1ディスプレイID取得
             i_ret = cMatroxMain.OpenDisplay(pnl_camera1.Handle, new Size(pnl_camera1.Width, pnl_camera1.Height));
-            if (i_ret != -1)
+            if (i_ret > 0)
             {
                 // ディスプレイリストIDに追加
-                m_lstDisplayID.Add(i_ret);
+                m_lstDisplayID[0]=i_ret;
             }
             // パネル2ディスプレイID取得
             i_ret = cMatroxMain.OpenDisplay(pnl_camera2.Handle, new Size(pnl_camera2.Width, pnl_camera2.Height));
-            if (i_ret != -1)
+            if (i_ret > 0)
             {
                 // ディスプレイリストIDに追加
-                m_lstDisplayID.Add(i_ret);
+                m_lstDisplayID[1] = i_ret;
             }
             // パネル3ディスプレイID取得
             i_ret = cMatroxMain.OpenDisplay(pnl_load.Handle, new Size(pnl_load.Width, pnl_load.Height));
-            if (i_ret != -1)
+            if (i_ret > 0)
             {
                 // ディスプレイリストIDに追加
-                m_lstDisplayID.Add(i_ret);
+                m_lstDisplayID[2] = i_ret;
             }
             // パネル4ディスプレイID取得
             i_ret = cMatroxMain.OpenDisplay(pnl_graphic.Handle, new Size(pnl_graphic.Width, pnl_graphic.Height));
-            if (i_ret != -1)
+            if (i_ret > 0)
             {
                 // ディスプレイリストIDに追加
-                m_lstDisplayID.Add(i_ret);
+                m_lstDisplayID[3] = i_ret;
             }
             i_ret = 0;
             // カメラの個数が一個以上

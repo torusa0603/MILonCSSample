@@ -23,11 +23,15 @@ namespace MatroxCS
         /// <summary>
         /// グラフィックバッファ作成
         /// </summary>
-        /// <returns></returns>
+        /// <returns>0:正常終了、-1:グラフィックバッファID取得失敗</returns>
         public int OpenGraphic()
         {
-            // グラフィックバッファ作成
+            // グラフィックバッファID取得
             MIL.MgraAlloc(m_smilSystem, ref m_milGraphic);
+            if (m_milGraphic == MIL.M_NULL)
+            {
+                return -1;
+            }
             //オーバーレイバッファは作成しない
             return 0;
         }

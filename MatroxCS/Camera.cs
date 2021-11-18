@@ -19,12 +19,12 @@ namespace MatroxCS
         MIL_ID[] m_milGrabImageArray = { MIL.M_NULL, MIL.M_NULL };  // グラブ専用リングバッファ 2固定
 
         MIL_DIG_HOOK_FUNCTION_PTR m_delProcessingFunctionPtr;       // 画像取得関数のポインター
+        //MIL_DIG_HOOK_FUNCTION_PTR m_delProcessingErrorFunctionPtr;
         GCHandle m_handUserData_doThrough;                          // 自己インスタンスのポインター
         GCHandle m_handUserData_ProcessingFunction;                 // 自己インスタンスのポインター(画像取得関数内で使用)
         CCamera m_cCamera;                                          // 自己のインスタンスをフック関数内で保持するために使用
-        
+
         int m_iCameraID;                                            // カメラインスタンスID
-        bool m_bOpenDone = false;                                   // オープンされたか否か
         bool m_bThroughFlg = false;                                 // スルー状態であるか否か
 
         string m_strIPAddress;                                      // カメラのIPアドレス
@@ -54,14 +54,9 @@ namespace MatroxCS
         /// <summary>
         /// カメラオープン
         /// </summary>
-        /// <returns>0:正常終了、-1:異常終了、-999:既にオープンしている</returns>
+        /// <returns>0:正常終了、-1:デジタイザー取得失敗、-2:グラブ専用バッファ取得失敗</returns>
         public int OpenCamera()
         {
-            //  既にオープンされたインスタンスならエラー
-            if (m_bOpenDone == true)
-            {
-                return -999;
-            }
             //  デジタイザオープン
             if (m_iBoardType != (int)MTX_TYPE.MTX_HOST)
             {
@@ -82,7 +77,15 @@ namespace MatroxCS
             }
             //  グラブ専用バッファ確保
             MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_GRAB + MIL.M_PROC, ref m_milGrabImageArray[0]);
+            if (m_milGrabImageArray[0] == MIL.M_NULL)
+            {
+                return -2;
+            }
             MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_GRAB + MIL.M_PROC, ref m_milGrabImageArray[1]);
+            if (m_milGrabImageArray[1] == MIL.M_NULL)
+            {
+                return -2;
+            }
             //  カメラが無事オープン出来たらIDを割り当てる
             m_iCameraID = m_siNextCameraID;
             //  次のカメラで被らないようにインクリメントしておく
@@ -95,7 +98,7 @@ namespace MatroxCS
             return 0;
         }
 
-        
+
 
         /// <summary>
         /// カメラクローズ
@@ -106,13 +109,19 @@ namespace MatroxCS
             //  スルー状態なら、フリーズにする
             if (m_bThroughFlg == true)
             {
-                Cansel();
+                Freeze();
             }
             //  グラブ専用バッファ開放
-            MIL.MbufFree(m_milGrabImageArray[0]);
-            m_milGrabImageArray[0] = MIL.M_NULL;
-            MIL.MbufFree(m_milGrabImageArray[1]);
-            m_milGrabImageArray[1] = MIL.M_NULL;
+            if (m_milGrabImageArray[0] != MIL.M_NULL)
+            {
+                MIL.MbufFree(m_milGrabImageArray[0]);
+                m_milGrabImageArray[0] = MIL.M_NULL;
+            }
+            if (m_milGrabImageArray[1] != MIL.M_NULL)
+            {
+                MIL.MbufFree(m_milGrabImageArray[1]);
+                m_milGrabImageArray[1] = MIL.M_NULL;
+            }
             //m_milShowImageは開放しない。これはdispクラスが開放するから。
 
             //  デジタイザ開放
@@ -142,13 +151,21 @@ namespace MatroxCS
                     m_handUserData_doThrough = GCHandle.Alloc(this);
                     // 画像取得関数をポインター化
                     m_delProcessingFunctionPtr = new MIL_DIG_HOOK_FUNCTION_PTR(ProcessingFunction);
+                    //m_delProcessingErrorFunctionPtr = new MIL_DIG_HOOK_FUNCTION_PTR(HookErrorHandler_camera);
                     //	フック関数を使用する
                     MIL.MdigProcess(m_milDigitizer, m_milGrabImageArray, m_milGrabImageArray.Length,
                                         MIL.M_START, MIL.M_DEFAULT, m_delProcessingFunctionPtr, GCHandle.ToIntPtr(m_handUserData_doThrough));
+                    //MIL.MdigHookFunction(m_milDigitizer, MIL.M_GC_EVENT + MIL.M_ACQUISITION_ERROR, m_delProcessingErrorFunctionPtr, GCHandle.ToIntPtr(m_handUserData_doThrough));
                 }
                 // スルー状態であるかを示すフラグをオンにする
                 m_bThroughFlg = true;
             }
+        }
+
+
+        private MIL_INT HookErrorHandler_camera(MIL_INT nlHookType, MIL_ID nEventId, IntPtr npUserDataPtr)
+        {
+            return -1;
         }
 
         /// <summary>
@@ -193,23 +210,27 @@ namespace MatroxCS
         /// <summary>
         /// 画面に表示するための画像バッファを設定する
         /// </summary>
-        /// <param name="nMilShowImage">表示用画像バッファ</param>
-        public int SetShowImage(MIL_ID nMilShowImage)
+        /// <param name="nmilShowImage">表示用画像バッファ</param>
+        /// <returns>0:正常終了、-1:画像バッファのサイズエラー</returns>
+        public int SetShowImage(MIL_ID nmilShowImage)
         {
             //  nMilShowImageの画像サイズ取得
-            Size sz_show_image = InquireBaffaSize(nMilShowImage);
+            Size sz_show_image = InquireBaffaSize(nmilShowImage);
             //  カメラ画像とこのサイズが一致してなければ表示出来ないのでエラー
             if (m_szImageSize != sz_show_image)
             {
                 return -1;
             }
-            //  サイズが一致していたら、参照渡しする
-            m_milShowImage = nMilShowImage;
+            lock (m_lockObject)
+            {
+                //  サイズが一致していたら、参照渡しする
+                m_milShowImage = nmilShowImage;
+            }
             return 0;
         }
 
         /// <summary>
-        /// 指定バッファのサイズを答える
+        /// 指定画像バッファのサイズを回答する
         /// </summary>
         /// <param name="nmilBaffa"></param>
         /// <returns>画像バッファ</returns>
@@ -231,7 +252,10 @@ namespace MatroxCS
         /// </summary>
         public void ClearShowImage()
         {
-            m_milShowImage = MIL.M_NULL;
+            lock (m_lockObject)
+            {
+                m_milShowImage = MIL.M_NULL;
+            }
         }
 
         /// <summary>
@@ -247,7 +271,7 @@ namespace MatroxCS
         /// <summary>
         /// カメラ画像サイズ取得
         /// </summary>
-        /// <returns>画像サイズ</returns>
+        /// <returns>カメラ画像サイズ</returns>
         public Size GetImageSize()
         {
             // カメラ画像サイズを返す
@@ -266,22 +290,32 @@ namespace MatroxCS
         /// <returns></returns>
         private MIL_INT ProcessingFunction(MIL_INT nlHookType, MIL_ID nEventId, IntPtr npUserDataPtr)
         {
-            if (!IntPtr.Zero.Equals(npUserDataPtr))
+            try
             {
-                MIL_ID mil_modified_image = MIL.M_NULL;　// 画像を直接受け取るバッファ
-                nlHookType = 0;
-                //　送られてきたポインタをカメラクラスポインタにキャスティングする
-                m_handUserData_ProcessingFunction = GCHandle.FromIntPtr(npUserDataPtr);
-                m_cCamera = m_handUserData_ProcessingFunction.Target as CCamera;
-                //　変更されたバッファIDを取得する
-                MIL.MdigGetHookInfo(nEventId, MIL.M_MODIFIED_BUFFER + MIL.M_BUFFER_ID, ref mil_modified_image);
-                // m_milShowImageが空でなければ画像をコピー
-                if (m_cCamera.m_milShowImage != MIL.M_NULL)
+                if (!IntPtr.Zero.Equals(npUserDataPtr))
                 {
-                    MIL.MbufCopy(mil_modified_image, m_cCamera.m_milShowImage);
+                    MIL_ID mil_modified_image = MIL.M_NULL; // 画像を直接受け取るバッファ
+                    nlHookType = 0;
+                    //　送られてきたポインタをカメラクラスポインタにキャスティングする
+                    m_handUserData_ProcessingFunction = GCHandle.FromIntPtr(npUserDataPtr);
+                    m_cCamera = m_handUserData_ProcessingFunction.Target as CCamera;
+                    //　変更されたバッファIDを取得する
+                    MIL.MdigGetHookInfo(nEventId, MIL.M_MODIFIED_BUFFER + MIL.M_BUFFER_ID, ref mil_modified_image);
+                    lock (m_lockObject)
+                    {
+                        // m_milShowImageが空でなければ画像をコピー
+                        if (m_cCamera.m_milShowImage != MIL.M_NULL)
+                        {
+                            MIL.MbufCopy(mil_modified_image, m_cCamera.m_milShowImage);
+                        }
+                    }
                 }
+                return 0;
             }
-            return 0;
+            catch
+            {
+                return -1;
+            }
         }
 
         #endregion
