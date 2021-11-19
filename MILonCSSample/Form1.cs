@@ -14,7 +14,6 @@ namespace MILonCSSample
     public partial class Form1 : Form
     {
         CMatroxMain cMatroxMain;                                                    // マトロックスオブジェクト
-        int m_iCameraNumber = 0;                                                    // カメラ個数
         List<int> m_lstCameraID = new List<int>();                                  // カメラリストID
         List<int> m_lstDisplayID = new List<int>() { 0, 0, 0, 0 };    // ディスプレイID{パネル1, パネル2, パネル3, パネル4}
         string m_strExePath;                                                        // アプリケーションの実行パス
@@ -55,6 +54,7 @@ namespace MILonCSSample
         /// </summary>
         private void Open()
         {
+            int? m_iCameraNumber = 0;                                                    // カメラ個数
             cMatroxMain.m_evMatroxFatalErrorOccured += OccuredMatroxFatalError;
             int i_ret = 0;
             // exeファイルのいるフォルダーパスを取得
@@ -69,6 +69,12 @@ namespace MILonCSSample
             }
             // カメラ個数を取得する
             m_iCameraNumber = cMatroxMain.GetCameraNum();
+            if (m_iCameraNumber == null)
+            {
+                // エラー処理
+
+                m_iCameraNumber = 0;
+            }
             // カメラIDを取得する
             for (int i_loop = 0; i_loop < m_iCameraNumber; i_loop++)
             {

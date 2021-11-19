@@ -312,21 +312,69 @@ namespace MatroxCS
                 //	メモリ開放
                 MIL.MbufFree(mil_overlay_temp);
             }
+
+            bool b_exist_ext = ExtrctExtention(nstrImageFilePath, out str_ext);
+            if (!b_exist_ext)
+            {
+                if(str_ext == "")
+                {
+                    // 画像ファイル用の拡張子ではない
+                    MIL.MbufFree(mil_result_temp);
+                    return -1;
+                }
+                else
+                {
+                    // 拡張子がない為、bmp拡張子を追加する
+                    nstrImageFilePath += str_ext;
+                    str_ext = str_ext.Replace(".","");
+                }
+            }
+            switch (str_ext)
+            {
+                case "jpg":
+                    // jpgで保存する
+                    MIL.MbufExport(nstrImageFilePath, MIL.M_JPEG_LOSSY, mil_result_temp);
+                    break;
+                case "png":
+                    // pngで保存する
+                    MIL.MbufExport(nstrImageFilePath, MIL.M_PNG, mil_result_temp);
+                    break;
+                case "bmp":
+                    // bmpで保存する
+                    MIL.MbufExport(nstrImageFilePath, MIL.M_BMP, mil_result_temp);
+                    break;
+            }
+            //	メモリ開放
+            MIL.MbufFree(mil_result_temp);
+
+            return 0;
+        }
+
+        /// <summary>
+        /// ファイルパスから拡張子を抽出する
+        /// </summary>
+        /// <param name="nstrImageFilePath">ファイルパス</param>
+        /// <param name="nstrExt">拡張子を返す</param>
+        /// <returns>拡張子の有無</returns>
+        private bool ExtrctExtention(string nstrImageFilePath, out string nstrExt)
+        {
+            int i_index_ext;                        // パス内の拡張子の位置
+            string str_ext;                         // 拡張子
             //	拡張子の位置を探す
             i_index_ext = nstrImageFilePath.IndexOf(".");
-            //	拡張子がない場合は仕方ないのでビットマップの拡張子をつけてビットマップで保存する
+            //	拡張子がない場合は仕方ないのでビットマップの拡張子を返す
             if (i_index_ext < 0)
             {
-                nstrImageFilePath += ".bmp";
-                str_ext = "bmp";
+                nstrExt = ".bmp";
+                return false;
             }
             else
             {
                 //	ファイル名の最後の文字が「.」だった場合もビットマップにしてしまう
                 if (i_index_ext + 1 == nstrImageFilePath.Length)
                 {
-                    nstrImageFilePath += "bmp";
-                    str_ext = "bmp";
+                    nstrExt = "bmp";
+                    return false;
                 }
                 else
                 {
@@ -335,33 +383,30 @@ namespace MatroxCS
                 }
             }
             //	拡張子がjpgの場合
-            if (string.Compare(str_ext, "jpg") == 0 || string.Compare(str_ext, "JPG") == 0)
+            if (string.Compare(str_ext, "jpg") == 0 || string.Compare(str_ext, "JPG") == 0 || string.Compare(str_ext, "jpeg") == 0 || string.Compare(str_ext, "JPEG") == 0)
             {
-                MIL.MbufExport(nstrImageFilePath, MIL.M_JPEG_LOSSY, mil_result_temp);
+                nstrExt = "jpg";
+                return true;
             }
             //	拡張子がpngの場合
             else if (string.Compare(str_ext, "png") == 0 || string.Compare(str_ext, "PNG") == 0)
             {
-                MIL.MbufExport(nstrImageFilePath, MIL.M_PNG, mil_result_temp);
+                nstrExt = "png";
+                return true;
             }
             //	拡張子がbmpの場合
             else if (string.Compare(str_ext, "bmp") == 0 || string.Compare(str_ext, "BMP") == 0)
             {
-                MIL.MbufExport(nstrImageFilePath, MIL.M_BMP, mil_result_temp);
+                nstrExt = "bmp";
+                return true;
             }
             // 該当拡張子がない場合
             else
             {
-                // エラーとして終了
-                MIL.MbufFree(mil_result_temp);
-                return -1;
+                nstrExt = "";
+                return false;
             }
-
-            //	メモリ開放
-            MIL.MbufFree(mil_result_temp);
-
-            return 0;
-        }
+        } 
 
         #endregion
     }

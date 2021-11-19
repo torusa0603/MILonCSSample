@@ -263,7 +263,7 @@ namespace MatroxCS
         private void OutputErrorLog(string nstrErrorLog)
         {
             //  ログの文字コードはShift-JISとする
-            Encoding m_Encoding = Encoding.GetEncoding("Shift_JIS");
+            Encoding encod_shift_jis = Encoding.GetEncoding("Shift_JIS");
             string str_file_name = "MILErrorLog.log";                                       // ログファイル名
             string str_file_path = $"{SetFolderName(m_sstrExePath, "Log")}{str_file_name}"; // ログファイルパス
             string str_log_data;                                                            // ログ内容
@@ -272,7 +272,7 @@ namespace MatroxCS
             // ログ内容の作成
             str_log_data = $"{time_now.ToString("yyyy/MM/dd")} {time_now.ToString("HH:mm:ss")},{nstrErrorLog}";
             // ファイルオープン
-            var writer = new StreamWriter(str_file_path, true, m_Encoding);
+            var writer = new StreamWriter(str_file_path, true, encod_shift_jis);
             // ログの書き出し
             writer.WriteLine(str_log_data);
             // ファイルクローズ

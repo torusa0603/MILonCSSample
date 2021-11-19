@@ -12,8 +12,8 @@ namespace MatroxCS
     {
         #region ローカル変数
 
-        MIL_ID m_milGraphic = MIL.M_NULL;       //  グラフィックバッファID
-        MIL_ID m_milTargetOverlay = MIL.M_NULL; //  描画先のオーバーレイバッファ
+        MIL_ID m_milGraphic = MIL.M_NULL;               //  グラフィックバッファID
+        MIL_ID m_milTargetOverlay = MIL.M_NULL;         //  描画先のオーバーレイバッファ
         MIL_INT m_miliColor = MIL.M_RGB888(1, 1, 1);    //  設定色
 
         #endregion
@@ -55,7 +55,7 @@ namespace MatroxCS
         /// <summary>
         /// 色の設定
         /// </summary>
-        /// <returns></returns>
+        /// <returns>0:正常終了</returns>
         public int SetColor(int niRed, int niGreen, int niBlue)
         {
             // グラフィックの色を設定
@@ -68,7 +68,7 @@ namespace MatroxCS
         /// 描画するオーバーレイバッファを設定する
         /// </summary>
         /// <param name="nmilOverlay"></param>
-        /// <returns></returns>
+        /// <returns>0:正常終了</returns>
         public int SetOverlay(MIL_ID nmilOverlay)
         {
             // ディスプレイクラス内のオーバーレイバッファと接続
@@ -81,7 +81,7 @@ namespace MatroxCS
         /// </summary>
         /// <param name="nptStartPoint">始点座標</param>
         /// <param name="nptEndPoint">終点座標</param>
-        /// <returns></returns>
+        /// <returns>0:正常終了</returns>
         public int DrawLine(Point nptStartPoint, Point nptEndPoint)
         {
             // 直線を描画
@@ -90,12 +90,13 @@ namespace MatroxCS
         }
 
         /// <summary>
-        /// 平行四辺形を描画
+        /// 平行四辺形を描写
         /// </summary>
-        /// <param name="nptFirstPoint"></param>
-        /// <param name="nptSecondPoint"></param>
-        /// <param name="nptThirdPoint"></param>
-        public void DrawParallelogram(Point nptFirstPoint, Point nptSecondPoint, Point nptThirdPoint)
+        /// <param name="nptFirstPoint">一点目の座標</param>
+        /// <param name="nptSecondPoint">二点目の座標</param>
+        /// <param name="nptThirdPoint">三点目の座標</param>
+        /// <returns>0:正常終了</returns>
+        public int DrawParallelogram(Point nptFirstPoint, Point nptSecondPoint, Point nptThirdPoint)
         {
             Point pt_fourth_point = new Point(0, 0);          //　平行四辺形の第4点
 
@@ -103,11 +104,12 @@ namespace MatroxCS
             pt_fourth_point.X = nptThirdPoint.X - nptSecondPoint.X + nptFirstPoint.X;
             pt_fourth_point.Y = nptThirdPoint.Y - nptSecondPoint.Y + nptFirstPoint.Y;
 
-            //	平行四辺形は4本の直線から求める
+            //	平行四辺形を描写
             DrawLine(nptFirstPoint, nptSecondPoint);        //	1→2
             DrawLine(nptSecondPoint, nptThirdPoint);        //	2→3
             DrawLine(nptThirdPoint, pt_fourth_point);   //	3→4
             DrawLine(pt_fourth_point, nptFirstPoint);	//	4→1
+            return 0;
         }
 
         /// <summary>
