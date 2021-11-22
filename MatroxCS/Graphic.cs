@@ -39,7 +39,7 @@ namespace MatroxCS
         /// <summary>
         /// グラフィックバッファ開放
         /// </summary>
-        /// <returns></returns>
+        /// <returns>0:正常終了</returns>
         public int CloseGraphic()
         {
             if (m_milGraphic != MIL.M_NULL)

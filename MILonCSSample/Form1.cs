@@ -321,6 +321,10 @@ namespace MILonCSSample
                 string str_picture_file_path = $@"{m_strExePath}\Picture\{date_now.ToString("yyyyMMdd_HHmmssfff")}.jpg";
                 // パネル1の画像を保存する
                 i_ret = cMatroxMain.SaveImage(str_picture_file_path, true, m_lstDisplayID[0]);
+                if (i_ret != 0)
+                {
+                    // エラー処理
+                }
             }
         }
 

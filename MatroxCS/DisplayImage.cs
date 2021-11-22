@@ -189,9 +189,16 @@ namespace MatroxCS
         /// 画像ファイルをロードする
         /// </summary>
         /// <param name="nstrImageFilePath"></param>
-        /// <returns>0:正常終了、-1:画像バッファ取得失敗、-2:オーバレイバッファ取得失敗</returns>
+        /// <returns>0:正常終了、-1:画像バッファ取得失敗、-2:オーバレイバッファ取得失敗、-3:画像拡張子無し</returns>
         public int LoadImage(string nstrImageFilePath)
         {
+            string str_ext;
+            bool b_exist_ext = ExtrctExtention(nstrImageFilePath, out str_ext);
+            if (!b_exist_ext)
+            {
+                // 画像拡張子(bmp,jpg,jpeg,png)がついていない
+                return -3;
+            }
             //  MIL関数でロード
             if (m_milDisplay != MIL.M_NULL)
             {
@@ -224,11 +231,12 @@ namespace MatroxCS
         /// <returns>0:正常終了</returns>
         public int SetMagRate(double ndMagRate)
         {
-            //  最大最小で丸める!
+            // 設定最小値よりも小さい値を指定された場合は、設定最小値を使用する
             if (ndMagRate < m_cdMinMagRate)
             {
                 ndMagRate = m_cdMinMagRate;
             }
+            // 設定最大値よりも大きい値を指定された場合は、設定最大値を使用する
             if (ndMagRate > m_cdMaxMagRate)
             {
                 ndMagRate = m_cdMaxMagRate;
@@ -281,12 +289,11 @@ namespace MatroxCS
         /// </summary>
         /// <param name="nstrImageFilePath">保存先ファイルパス</param>
         /// <param name="nbIncludeGraphic">保存画像にグラフィックを含めるか否か</param>
-        /// <returns>0:正常終了、-1:拡張子エラー、-2:画像バッファ取得失敗</returns>
+        /// <returns>0:正常終了、-1:拡張子エラー、-2:画像バッファ取得失敗、-3:パス内にファイル名無し</returns>
         public int SaveImage(string nstrImageFilePath, bool nbIncludeGraphic)
         {
             MIL_ID mil_overlay_temp = MIL.M_NULL;   // オーバーレイバッファを一時的に保存するバッファ
             MIL_ID mil_result_temp = MIL.M_NULL;    // 画像を一時的に保存するバッファ
-            int i_index_ext;                        // パス内の拡張子の位置
             string str_ext;                         // 拡張子
 
             // 一時的保存バッファを確保
@@ -316,7 +323,7 @@ namespace MatroxCS
             bool b_exist_ext = ExtrctExtention(nstrImageFilePath, out str_ext);
             if (!b_exist_ext)
             {
-                if(str_ext == "")
+                if (str_ext == "")
                 {
                     // 画像ファイル用の拡張子ではない
                     MIL.MbufFree(mil_result_temp);
@@ -328,6 +335,12 @@ namespace MatroxCS
                     nstrImageFilePath += str_ext;
                     str_ext = str_ext.Replace(".","");
                 }
+            }
+            if (System.IO.Path.GetFileNameWithoutExtension(nstrImageFilePath) == "")
+            {
+                // 拡張子無しのファイル名を取得し、空ならエラー
+                MIL.MbufFree(mil_result_temp);
+                return -3;
             }
             switch (str_ext)
             {
@@ -343,6 +356,9 @@ namespace MatroxCS
                     // bmpで保存する
                     MIL.MbufExport(nstrImageFilePath, MIL.M_BMP, mil_result_temp);
                     break;
+                case "tiff":
+                    MIL.MbufExport(nstrImageFilePath, MIL.M_TIFF, mil_result_temp);
+                    break;
             }
             //	メモリ開放
             MIL.MbufFree(mil_result_temp);
@@ -355,7 +371,7 @@ namespace MatroxCS
         /// </summary>
         /// <param name="nstrImageFilePath">ファイルパス</param>
         /// <param name="nstrExt">拡張子を返す</param>
-        /// <returns>拡張子の有無</returns>
+        /// <returns>画像拡張子(bmp,jpg,jpeg,png,tiff)の有無</returns>
         private bool ExtrctExtention(string nstrImageFilePath, out string nstrExt)
         {
             int i_index_ext;                        // パス内の拡張子の位置
@@ -398,6 +414,12 @@ namespace MatroxCS
             else if (string.Compare(str_ext, "bmp") == 0 || string.Compare(str_ext, "BMP") == 0)
             {
                 nstrExt = "bmp";
+                return true;
+            }
+            // 拡張子がtiffの場合
+            else if (string.Compare(str_ext, "tiff") == 0 || string.Compare(str_ext, "TIFF") == 0)
+            {
+                nstrExt = "tiff";
                 return true;
             }
             // 該当拡張子がない場合

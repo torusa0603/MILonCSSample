@@ -387,7 +387,8 @@ namespace MatroxCS
         /// </summary>
         /// <param name="nstrImageFilePath">ロードするイメージファイルパス</param>
         /// <param name="niDisplayID">指定ディスプレイID</param>
-        /// <returns>0:正常終了、-1:存在しないファイルパス、-2:該当ディスプレイID無し、-3:画像バッファ取得失敗、-4:オーバーレイバッファ取得失敗、-100:致命的エラー発生中</returns>
+        /// <returns>0:正常終了、-1:存在しないファイルパス、-2:該当ディスプレイID無し、-3:画像バッファ取得失敗、-4:オーバーレイバッファ取得失敗<br />
+        /// -5:画像拡張子(bmp,jpg,jpeg,png)なし、-100:致命的エラー発生中</returns>
         public int LoadImage(string nstrImageFilePath, int niDisplayID)
         {
             int i_ret;
@@ -419,6 +420,9 @@ namespace MatroxCS
                 case -2:
                     // オーバーレイバッファ取得失敗
                     return -4;
+                case -3:
+                    // 画像拡張子なし
+                    return -5;
                 default:
                     // エラーなし
                     break;
@@ -519,7 +523,7 @@ namespace MatroxCS
         /// <param name="nstrExt"></param>
         /// <param name="nbIncludeGraphic"></param>
         /// <param name="niDisplayID">指定ディスプレイID</param>
-        /// <returns>0:正常終了、-1:該当ディスプレイID無し、-2:拡張子エラー、-3:画像バッファ取得失敗、-100:致命的エラー発生中</returns>
+        /// <returns>0:正常終了、-1:該当ディスプレイID無し、-2:拡張子エラー、-3:画像バッファ取得失敗、-4:パス内にファイル名無し、-100:致命的エラー発生中</returns>
         public int SaveImage(string nstrImageFilePath, bool nbIncludeGraphic, int niDisplayID)
         {
             if (m_cBase.GetFatalErrorOccured())
@@ -544,6 +548,9 @@ namespace MatroxCS
                 case -2:
                     // 画像バッファ取得失敗
                     return -3;
+                case -3:
+                    // パス内にファイル名無し
+                    return -4;
                 default:
                     // エラーなし
                     break;

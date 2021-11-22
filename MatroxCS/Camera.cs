@@ -14,24 +14,24 @@ namespace MatroxCS
     {
         #region ローカル変数
 
-        MIL_ID m_milDigitizer = MIL.M_NULL;                         // デジタイザID
-        MIL_ID m_milShowImage = MIL.M_NULL;                         // カメラ映像を画面に表示するときの画像バッファ
-        MIL_ID[] m_milGrabImageArray = { MIL.M_NULL, MIL.M_NULL };  // グラブ専用リングバッファ 2固定
+        MIL_ID m_milDigitizer = MIL.M_NULL;                             // デジタイザID
+        MIL_ID m_milShowImage = MIL.M_NULL;                             // カメラ映像を画面に表示するときの画像バッファ
+        MIL_ID[] m_milGrabImageArray = { MIL.M_NULL, MIL.M_NULL };      // グラブ専用リングバッファ 2固定
 
-        MIL_DIG_HOOK_FUNCTION_PTR m_delProcessingFunctionPtr;       // 画像取得関数のポインター
-        //MIL_DIG_HOOK_FUNCTION_PTR m_delProcessingErrorFunctionPtr;
-        GCHandle m_handUserData_doThrough;                          // 自己インスタンスのポインター
-        GCHandle m_handUserData_ProcessingFunction;                 // 自己インスタンスのポインター(画像取得関数内で使用)
-        CCamera m_cCamera;                                          // 自己のインスタンスをフック関数内で保持するために使用
+        MIL_DIG_HOOK_FUNCTION_PTR m_delProcessingFunctionPtr;           // 画像取得関数のポインター
+        //MIL_DIG_HOOK_FUNCTION_PTR m_delProcessingErrorFunctionPtr;    
+        GCHandle m_handUserData_doThrough;                              // 自己インスタンスのポインター
+        GCHandle m_handUserData_ProcessingFunction;                     // 自己インスタンスのポインター(画像取得関数内で使用)
+        CCamera m_cCamera;                                              // 自己のインスタンスをフック関数内で保持するために使用
 
-        int m_iCameraID;                                            // カメラインスタンスID
-        bool m_bThroughFlg = false;                                 // スルー状態であるか否か
+        int m_iCameraID;                                                // カメラインスタンスID
+        bool m_bThroughFlg = false;                                     // スルー状態であるか否か
 
-        string m_strIPAddress;                                      // カメラのIPアドレス
-        Size m_szImageSize;                                         // 画像サイズ。カメラ画像バッファもカメラ映像用バッファも同サイズ
-        string m_strCameraFilePath;                                 // DCFファイル名
-        double m_dGain;                                             // ゲイン
-        long m_lShtterSpeed;                                        // 露光時間(単位：μs)
+        string m_strIPAddress;                                          // カメラのIPアドレス
+        Size m_szImageSize;                                             // 画像サイズ。カメラ画像バッファもカメラ映像用バッファも同サイズ
+        string m_strCameraFilePath;                                     // DCFファイル名
+        double m_dGain;                                                 // ゲイン
+        long m_lShtterSpeed;                                            // 露光時間(単位：μs)
 
         #endregion
 
@@ -163,10 +163,10 @@ namespace MatroxCS
         }
 
 
-        private MIL_INT HookErrorHandler_camera(MIL_INT nlHookType, MIL_ID nEventId, IntPtr npUserDataPtr)
-        {
-            return -1;
-        }
+        //private MIL_INT HookErrorHandler_camera(MIL_INT nlHookType, MIL_ID nEventId, IntPtr npUserDataPtr)
+        //{
+        //    return -1;
+        //}
 
         /// <summary>
         /// フリーズを行う
