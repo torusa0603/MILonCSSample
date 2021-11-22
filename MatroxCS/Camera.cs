@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Matrox.MatroxImagingLibrary;
 using System.Runtime.InteropServices;
+using System.Reflection;
 
 namespace MatroxCS
 {
@@ -54,48 +55,57 @@ namespace MatroxCS
         /// <summary>
         /// カメラオープン
         /// </summary>
-        /// <returns>0:正常終了、-1:デジタイザー取得失敗、-2:グラブ専用バッファ取得失敗</returns>
+        /// <returns>0:正常終了、-1:デジタイザー取得失敗、-2:グラブ専用バッファ取得失敗、-999:異常終了</returns>
         public int OpenCamera()
         {
-            //  デジタイザオープン
-            if (m_iBoardType != (int)MTX_TYPE.MTX_HOST)
+            try
             {
-                //	デジタイザID取得
-                if (m_strIPAddress != "")
+                //  デジタイザオープン
+                if (m_siBoardType != (int)MTX_TYPE.MTX_HOST)
                 {
-                    MIL.MdigAlloc(m_smilSystem, MIL.M_GC_CAMERA_ID(m_strIPAddress), m_strCameraFilePath, MIL.M_GC_DEVICE_IP_ADDRESS, ref m_milDigitizer);
-                }
-                else
-                {
-                    MIL.MdigAlloc(m_smilSystem, MIL.M_DEV0, m_strCameraFilePath, MIL.M_DEFAULT, ref m_milDigitizer);
-                }
+                    //	デジタイザID取得
+                    if (m_strIPAddress != "")
+                    {
+                        MIL.MdigAlloc(m_smilSystem, MIL.M_GC_CAMERA_ID(m_strIPAddress), m_strCameraFilePath, MIL.M_GC_DEVICE_IP_ADDRESS, ref m_milDigitizer);
+                    }
+                    else
+                    {
+                        MIL.MdigAlloc(m_smilSystem, MIL.M_DEV0, m_strCameraFilePath, MIL.M_DEFAULT, ref m_milDigitizer);
+                    }
 
-                if (m_milDigitizer == MIL.M_NULL)
-                {
-                    return -1;
+                    if (m_milDigitizer == MIL.M_NULL)
+                    {
+                        return -1;
+                    }
                 }
+                //  グラブ専用バッファ確保
+                MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_GRAB + MIL.M_PROC, ref m_milGrabImageArray[0]);
+                if (m_milGrabImageArray[0] == MIL.M_NULL)
+                {
+                    return -2;
+                }
+                MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_GRAB + MIL.M_PROC, ref m_milGrabImageArray[1]);
+                if (m_milGrabImageArray[1] == MIL.M_NULL)
+                {
+                    return -2;
+                }
+                //  カメラが無事オープン出来たらIDを割り当てる
+                m_iCameraID = m_siNextCameraID;
+                //  次のカメラで被らないようにインクリメントしておく
+                m_siNextCameraID++;
+                //  IDが最大値まで行ったらリセットする
+                if (m_siNextCameraID >= m_siCameraOffsetID + m_siIDMaxLength)
+                {
+                    m_siNextCameraID = m_siCameraOffsetID;
+                }
+                return 0;
             }
-            //  グラブ専用バッファ確保
-            MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_GRAB + MIL.M_PROC, ref m_milGrabImageArray[0]);
-            if (m_milGrabImageArray[0] == MIL.M_NULL)
+            catch (Exception ex)
             {
-                return -2;
+                //  エラーログ出力
+                m_sdicLogInstance["DLLError"].OutputLog($"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                return EXCPTIOERROR;
             }
-            MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_GRAB + MIL.M_PROC, ref m_milGrabImageArray[1]);
-            if (m_milGrabImageArray[1] == MIL.M_NULL)
-            {
-                return -2;
-            }
-            //  カメラが無事オープン出来たらIDを割り当てる
-            m_iCameraID = m_siNextCameraID;
-            //  次のカメラで被らないようにインクリメントしておく
-            m_siNextCameraID++;
-            //  IDが最大値まで行ったらリセットする
-            if (m_siNextCameraID >= m_siCameraOffsetID + m_siIDMaxLength)
-            {
-                m_siNextCameraID = m_siCameraOffsetID;
-            }
-            return 0;
         }
 
 
@@ -103,62 +113,83 @@ namespace MatroxCS
         /// <summary>
         /// カメラクローズ
         /// </summary>
-        /// <returns>0:正常終了</returns>
+        /// <returns>0:正常終了、-999:異常終了</returns>
         public int CloseCamera()
         {
-            //  スルー状態なら、フリーズにする
-            if (m_bThroughFlg == true)
+            try
             {
-                Freeze();
-            }
-            //  グラブ専用バッファ開放
-            if (m_milGrabImageArray[0] != MIL.M_NULL)
-            {
-                MIL.MbufFree(m_milGrabImageArray[0]);
-                m_milGrabImageArray[0] = MIL.M_NULL;
-            }
-            if (m_milGrabImageArray[1] != MIL.M_NULL)
-            {
-                MIL.MbufFree(m_milGrabImageArray[1]);
-                m_milGrabImageArray[1] = MIL.M_NULL;
-            }
-            //m_milShowImageは開放しない。これはdispクラスが開放するから。
-
-            //  デジタイザ開放
-            if (m_iBoardType != (int)MTX_TYPE.MTX_HOST)
-            {
-                if (m_milDigitizer != MIL.M_NULL)
+                //  スルー状態なら、フリーズにする
+                if (m_bThroughFlg == true)
                 {
-                    MIL.MdigFree(m_milDigitizer);
-                    m_milDigitizer = MIL.M_NULL;
+                    Freeze();
                 }
-            }
+                //  グラブ専用バッファ開放
+                if (m_milGrabImageArray[0] != MIL.M_NULL)
+                {
+                    MIL.MbufFree(m_milGrabImageArray[0]);
+                    m_milGrabImageArray[0] = MIL.M_NULL;
+                }
+                if (m_milGrabImageArray[1] != MIL.M_NULL)
+                {
+                    MIL.MbufFree(m_milGrabImageArray[1]);
+                    m_milGrabImageArray[1] = MIL.M_NULL;
+                }
+                //m_milShowImageは開放しない。これはdispクラスが開放するから。
 
-            return 0;
+                //  デジタイザ開放
+                if (m_siBoardType != (int)MTX_TYPE.MTX_HOST)
+                {
+                    if (m_milDigitizer != MIL.M_NULL)
+                    {
+                        MIL.MdigFree(m_milDigitizer);
+                        m_milDigitizer = MIL.M_NULL;
+                    }
+                }
+
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                //  エラーログ出力
+                m_sdicLogInstance["DLLError"].OutputLog($"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                return EXCPTIOERROR;
+            }
         }
 
         /// <summary>
         /// スルーを行う
         /// </summary>
-        public void Through()
+        /// <returns>0:正常終了、-999:異常終了</returns>
+        public int Through()
         {
-            // スルー状態でなければ実行
-            if (m_bThroughFlg == false)
+            try
             {
-                if (m_iBoardType != (int)MTX_TYPE.MTX_HOST)
+                // スルー状態でなければ実行
+                if (m_bThroughFlg == false)
                 {
-                    // 自己のインスタンスをポインター化
-                    m_handUserData_doThrough = GCHandle.Alloc(this);
-                    // 画像取得関数をポインター化
-                    m_delProcessingFunctionPtr = new MIL_DIG_HOOK_FUNCTION_PTR(ProcessingFunction);
-                    //m_delProcessingErrorFunctionPtr = new MIL_DIG_HOOK_FUNCTION_PTR(HookErrorHandler_camera);
-                    //	フック関数を使用する
-                    MIL.MdigProcess(m_milDigitizer, m_milGrabImageArray, m_milGrabImageArray.Length,
-                                        MIL.M_START, MIL.M_DEFAULT, m_delProcessingFunctionPtr, GCHandle.ToIntPtr(m_handUserData_doThrough));
-                    //MIL.MdigHookFunction(m_milDigitizer, MIL.M_GC_EVENT + MIL.M_ACQUISITION_ERROR, m_delProcessingErrorFunctionPtr, GCHandle.ToIntPtr(m_handUserData_doThrough));
+                    if (m_siBoardType != (int)MTX_TYPE.MTX_HOST)
+                    {
+                        // 自己のインスタンスをポインター化
+                        m_handUserData_doThrough = GCHandle.Alloc(this);
+                        // 画像取得関数をポインター化
+                        m_delProcessingFunctionPtr = new MIL_DIG_HOOK_FUNCTION_PTR(ProcessingFunction);
+                        //m_delProcessingErrorFunctionPtr = new MIL_DIG_HOOK_FUNCTION_PTR(HookErrorHandler_camera);
+                        //	フック関数を使用する
+                        MIL.MdigProcess(m_milDigitizer, m_milGrabImageArray, m_milGrabImageArray.Length,
+                                            MIL.M_START, MIL.M_DEFAULT, m_delProcessingFunctionPtr, GCHandle.ToIntPtr(m_handUserData_doThrough));
+                        //MIL.MdigHookFunction(m_milDigitizer, MIL.M_GC_EVENT + MIL.M_ACQUISITION_ERROR, m_delProcessingErrorFunctionPtr, GCHandle.ToIntPtr(m_handUserData_doThrough));
+                    }
+                    // スルー状態であるかを示すフラグをオンにする
+                    m_bThroughFlg = true;
+
                 }
-                // スルー状態であるかを示すフラグをオンにする
-                m_bThroughFlg = true;
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                //  エラーログ出力
+                m_sdicLogInstance["DLLError"].OutputLog($"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                return EXCPTIOERROR;
             }
         }
 
@@ -171,39 +202,30 @@ namespace MatroxCS
         /// <summary>
         /// フリーズを行う
         /// </summary>
-        public void Freeze()
+        /// <returns>0:正常終了、-999:異常終了</returns>
+        public int Freeze()
         {
-            // スルー状態ならば実行
-            if (m_bThroughFlg == true)
+            try
             {
-                if (m_iBoardType != (int)MTX_TYPE.MTX_HOST)
+                // スルー状態ならば実行
+                if (m_bThroughFlg == true)
                 {
-                    //	フック関数を休止させる
-                    MIL.MdigProcess(m_milDigitizer, m_milGrabImageArray, m_milGrabImageArray.Length,
-                                MIL.M_STOP + MIL.M_WAIT, MIL.M_DEFAULT, m_delProcessingFunctionPtr, GCHandle.ToIntPtr(m_handUserData_doThrough));
+                    if (m_siBoardType != (int)MTX_TYPE.MTX_HOST)
+                    {
+                        //	フック関数を休止させる
+                        MIL.MdigProcess(m_milDigitizer, m_milGrabImageArray, m_milGrabImageArray.Length,
+                                    MIL.M_STOP + MIL.M_WAIT, MIL.M_DEFAULT, m_delProcessingFunctionPtr, GCHandle.ToIntPtr(m_handUserData_doThrough));
+                    }
+                    // スルー状態であるかを示すフラグをオフにする
+                    m_bThroughFlg = false;
                 }
-                // スルー状態であるかを示すフラグをオフにする
-                m_bThroughFlg = false;
+                return 0;
             }
-        }
-
-        /// <summary>
-        /// スルー状態を中止させる
-        /// </summary>
-        public void Cansel()
-        {
-            // スルー状態ならば実行
-            if (m_bThroughFlg == true)
+            catch (Exception ex)
             {
-                if (m_iBoardType != (int)MTX_TYPE.MTX_HOST)
-                {
-                    //	フック関数を中止させる
-                    MIL.MdigProcess(m_milDigitizer, m_milGrabImageArray, m_milGrabImageArray.Length,
-                                MIL.M_STOP, MIL.M_DEFAULT, m_delProcessingFunctionPtr, GCHandle.ToIntPtr(m_handUserData_doThrough));
-                    m_handUserData_doThrough.Free();
-                }
-                // スルー状態であるかを示すフラグをオフにする
-                m_bThroughFlg = false;
+                //  エラーログ出力
+                m_sdicLogInstance["DLLError"].OutputLog($"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                return EXCPTIOERROR;
             }
         }
 
@@ -211,29 +233,38 @@ namespace MatroxCS
         /// 画面に表示するための画像バッファを設定する
         /// </summary>
         /// <param name="nmilShowImage">表示用画像バッファ</param>
-        /// <returns>0:正常終了、-1:画像バッファのサイズエラー</returns>
+        /// <returns>0:正常終了、-1:画像バッファのサイズエラー、-999:異常終了</returns>
         public int SetShowImage(MIL_ID nmilShowImage)
         {
-            //  nMilShowImageの画像サイズ取得
-            Size sz_show_image = InquireBaffaSize(nmilShowImage);
-            //  カメラ画像とこのサイズが一致してなければ表示出来ないのでエラー
-            if (m_szImageSize != sz_show_image)
+            try
             {
-                return -1;
+                //  nMilShowImageの画像サイズ取得
+                Size sz_show_image = InquireBaffaSize(nmilShowImage);
+                //  カメラ画像とこのサイズが一致してなければ表示出来ないのでエラー
+                if (m_szImageSize != sz_show_image)
+                {
+                    return -1;
+                }
+                lock (m_slockObject)
+                {
+                    //  サイズが一致していたら、参照渡しする
+                    m_milShowImage = nmilShowImage;
+                }
+                return 0;
             }
-            lock (m_lockObject)
+            catch (Exception ex)
             {
-                //  サイズが一致していたら、参照渡しする
-                m_milShowImage = nmilShowImage;
+                //  エラーログ出力
+                m_sdicLogInstance["DLLError"].OutputLog($"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                return EXCPTIOERROR;
             }
-            return 0;
         }
 
         /// <summary>
         /// 指定画像バッファのサイズを回答する
         /// </summary>
-        /// <param name="nmilBaffa"></param>
-        /// <returns>画像バッファ</returns>
+        /// <param name="nmilBaffa">指定画像バッファ</param>
+        /// <returns>画像バッファサイズ</returns>
         private Size InquireBaffaSize(MIL_ID nmilBaffa)
         {
             Size sz_ret = new Size(0, 0);
@@ -252,7 +283,7 @@ namespace MatroxCS
         /// </summary>
         public void ClearShowImage()
         {
-            lock (m_lockObject)
+            lock (m_slockObject)
             {
                 m_milShowImage = MIL.M_NULL;
             }
@@ -301,7 +332,7 @@ namespace MatroxCS
                     m_cCamera = m_handUserData_ProcessingFunction.Target as CCamera;
                     //　変更されたバッファIDを取得する
                     MIL.MdigGetHookInfo(nEventId, MIL.M_MODIFIED_BUFFER + MIL.M_BUFFER_ID, ref mil_modified_image);
-                    lock (m_lockObject)
+                    lock (m_slockObject)
                     {
                         // m_milShowImageが空でなければ画像をコピー
                         if (m_cCamera.m_milShowImage != MIL.M_NULL)

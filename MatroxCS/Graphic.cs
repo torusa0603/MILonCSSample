@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection;
 
 namespace MatroxCS
 {
@@ -23,45 +24,71 @@ namespace MatroxCS
         /// <summary>
         /// グラフィックバッファ作成
         /// </summary>
-        /// <returns>0:正常終了、-1:グラフィックバッファID取得失敗</returns>
+        /// <returns>0:正常終了、-1:グラフィックバッファID取得失敗、-999:異常終了</returns>
         public int OpenGraphic()
         {
-            // グラフィックバッファID取得
-            MIL.MgraAlloc(m_smilSystem, ref m_milGraphic);
-            if (m_milGraphic == MIL.M_NULL)
-            {
-                return -1;
+            try
+            {             // グラフィックバッファID取得
+                MIL.MgraAlloc(m_smilSystem, ref m_milGraphic);
+                if (m_milGraphic == MIL.M_NULL)
+                {
+                    return -1;
+                }
+                //オーバーレイバッファは作成しない
+                return 0;
             }
-            //オーバーレイバッファは作成しない
-            return 0;
+            catch (Exception ex)
+            {
+                //  エラーログ出力
+                m_sdicLogInstance["DLLError"].OutputLog($"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                return EXCPTIOERROR;
+            }
         }
 
         /// <summary>
         /// グラフィックバッファ開放
         /// </summary>
-        /// <returns>0:正常終了</returns>
+        /// <returns>0:正常終了、-999:異常終了</returns>
         public int CloseGraphic()
         {
-            if (m_milGraphic != MIL.M_NULL)
+            try
             {
-                //グラフィックバッファ開放
-                MIL.MgraFree(m_milGraphic);
-                m_milGraphic = MIL.M_NULL;
+                if (m_milGraphic != MIL.M_NULL)
+                {
+                    //グラフィックバッファ開放
+                    MIL.MgraFree(m_milGraphic);
+                    m_milGraphic = MIL.M_NULL;
+                }
+                //オーバーレイバッファは開放しない
+                return 0;
             }
-            //オーバーレイバッファは開放しない
-            return 0;
+            catch (Exception ex)
+            {
+                //  エラーログ出力
+                m_sdicLogInstance["DLLError"].OutputLog($"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                return EXCPTIOERROR;
+            }
         }
 
         /// <summary>
         /// 色の設定
         /// </summary>
-        /// <returns>0:正常終了</returns>
+        /// <returns>0:正常終了、-999:異常終了</returns>
         public int SetColor(int niRed, int niGreen, int niBlue)
         {
-            // グラフィックの色を設定
-            m_miliColor = MIL.M_RGB888(niRed, niGreen, niBlue);
-            MIL.MgraColor(m_milGraphic, m_miliColor);
-            return 0;
+            try
+            {
+                // グラフィックの色を設定
+                m_miliColor = MIL.M_RGB888(niRed, niGreen, niBlue);
+                MIL.MgraColor(m_milGraphic, m_miliColor);
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                //  エラーログ出力
+                m_sdicLogInstance["DLLError"].OutputLog($"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                return EXCPTIOERROR;
+            }
         }
 
         /// <summary>
@@ -81,12 +108,21 @@ namespace MatroxCS
         /// </summary>
         /// <param name="nptStartPoint">始点座標</param>
         /// <param name="nptEndPoint">終点座標</param>
-        /// <returns>0:正常終了</returns>
+        /// <returns>0:正常終了、-999:異常終了</returns>
         public int DrawLine(Point nptStartPoint, Point nptEndPoint)
         {
-            // 直線を描画
-            MIL.MgraLine(m_milGraphic, m_milTargetOverlay, nptStartPoint.X, nptStartPoint.Y, nptEndPoint.X, nptEndPoint.Y);
-            return 0;
+            try
+            {
+                // 直線を描画
+                MIL.MgraLine(m_milGraphic, m_milTargetOverlay, nptStartPoint.X, nptStartPoint.Y, nptEndPoint.X, nptEndPoint.Y);
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                //  エラーログ出力
+                m_sdicLogInstance["DLLError"].OutputLog($"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                return EXCPTIOERROR;
+            }
         }
 
         /// <summary>
@@ -115,14 +151,25 @@ namespace MatroxCS
         /// <summary>
         /// グラフィックをクリア
         /// </summary>
-        public void ClearGraphic()
+        /// <returns>0:正常終了、-999:異常終了</returns>
+        public int ClearGraphic()
         {
-            // 透過色を設定
-            MIL.MgraColor(m_milGraphic, m_smilintTransparentColor);
-            // グラフィックをクリア
-            MIL.MgraClear(m_milGraphic, m_milTargetOverlay);
-            // グラフィックの色を設定
-            MIL.MgraColor(m_milGraphic, m_miliColor);
+            try
+            {
+                // 透過色を設定
+                MIL.MgraColor(m_milGraphic, m_smilintTransparentColor);
+                // グラフィックをクリア
+                MIL.MgraClear(m_milGraphic, m_milTargetOverlay);
+                // グラフィックの色を設定
+                MIL.MgraColor(m_milGraphic, m_miliColor);
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                //  エラーログ出力
+                m_sdicLogInstance["DLLError"].OutputLog($"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                return EXCPTIOERROR;
+            }
         }
 
         #endregion
