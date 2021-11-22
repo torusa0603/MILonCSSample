@@ -33,7 +33,9 @@ namespace MatroxCS
         static protected MIL_ID m_smilApplication = MIL.M_NULL;                                 // アプリケーションID
         static protected MIL_ID m_smilSystem = MIL.M_NULL;                                      // システムID
         static protected int m_iBoardType;                                                      // 使用ボードタイプ
-        public static object m_lockObject = new object();                                       //  排他制御に使用
+        static protected object m_lockObject = new object();                                    // 排他制御に使用
+        public static Dictionary<string, CLog> m_dicLogInstance;                                // ログインスタンス
+
 
         # region 各インスタンスID
 
@@ -69,6 +71,12 @@ namespace MatroxCS
         {
             m_iBoardType = niBoardType;
             m_sstrExePath = nstrExePath;
+
+            // ログインスタンスを登録
+            m_dicLogInstance = new Dictionary<string, CLog>(); 
+            m_dicLogInstance.Add("MILError", new CLog(nstrExePath, "MILErrorLog.log"));
+            m_dicLogInstance.Add("DLLError", new CLog(nstrExePath, "DLLErrorLog.log"));
+            m_dicLogInstance.Add("Operate", new CLog(nstrExePath, "OperateLog.log"));
 
             // アプリケーションID取得
             MIL.MappAlloc(MIL.M_DEFAULT, ref m_smilApplication);
@@ -228,7 +236,7 @@ namespace MatroxCS
                     str_error += " ";
                 }
                 //	エラーログ内容を出力する
-                p_matrox_common.OutputErrorLog(str_error);
+                m_dicLogInstance["MILError"].OutputLog(str_error);
 
                 //	致命的なエラーかどうか判断する
                 //	MdigProcess、xxxAllocで発生するエラーは全て致命的とする
@@ -249,55 +257,10 @@ namespace MatroxCS
                 //	エラーフックの例外エラー
                 str_error = "Unknown Error";
                 //	エラーをログ出力する
-                p_matrox_common.OutputErrorLog(str_error);
+                m_dicLogInstance["MILError"].OutputLog(str_error);
 
                 return (MIL.M_NULL);
             }
-        }
-
-
-        /// <summary>
-        /// エラーログを書き出す
-        /// </summary>
-        /// <param name="nstrErrorLog">エラー内容</param>
-        private void OutputErrorLog(string nstrErrorLog)
-        {
-            //  ログの文字コードはShift-JISとする
-            Encoding encod_shift_jis = Encoding.GetEncoding("Shift_JIS");
-            string str_file_name = "MILErrorLog.log";                                       // ログファイル名
-            string str_file_path = $"{SetFolderName(m_sstrExePath, "Log")}{str_file_name}"; // ログファイルパス
-            string str_log_data;                                                            // ログ内容
-            DateTime time_now = System.DateTime.Now;                                        // 現在日時
-
-            // ログ内容の作成
-            str_log_data = $"{time_now.ToString("yyyy/MM/dd")} {time_now.ToString("HH:mm:ss")},{nstrErrorLog}";
-            // ファイルオープン
-            var writer = new StreamWriter(str_file_path, true, encod_shift_jis);
-            // ログの書き出し
-            writer.WriteLine(str_log_data);
-            // ファイルクローズ
-            writer.Close();
-        }
-
-        /// <summary>
-        /// フォルダーパスを作成する
-        /// </summary>
-        /// <param name="nstrExecFolderName">アプリケーション実行パス</param>
-        /// <param name="nstrFolderName">指定フォルダーパス</param>
-        /// <returns>作成絶対フォルダーパス(末尾は\とする)</returns>
-        private string SetFolderName(string nstrExecFolderName, string nstrFolderName)
-        {
-            string str_folder_name; // フォルダー名
-            // フォルダーパスを作成
-            str_folder_name = $"{nstrExecFolderName}\\{nstrFolderName}";
-            // 該当フォルダーパスが存在しない場合は作成する
-            if (false == System.IO.File.Exists(str_folder_name))    
-            {
-                System.IO.Directory.CreateDirectory(str_folder_name);
-            }
-            // フォルダーパスに\を付ける
-            str_folder_name = $"{str_folder_name}\\";　
-            return str_folder_name;
         }
 
         #endregion
