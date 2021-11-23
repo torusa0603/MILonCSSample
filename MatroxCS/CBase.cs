@@ -78,9 +78,9 @@ namespace MatroxCS
 
             // ログオブジェクトを作成
             m_sdicLogInstance = new Dictionary<string, CLog>();
-            m_sdicLogInstance.Add("MILError", new CLog(nstrExePath, "MILErrorLog.log"));
-            m_sdicLogInstance.Add("DLLError", new CLog(nstrExePath, "DLLErrorLog.log"));
-            m_sdicLogInstance.Add("Operate", new CLog(nstrExePath, "OperateLog.log"));
+            m_sdicLogInstance.Add("MILError", new CLog(nstrExePath, "MILError.log"));
+            m_sdicLogInstance.Add("DLLError", new CLog(nstrExePath, "DLLError.log"));
+            m_sdicLogInstance.Add("Operate", new CLog(nstrExePath, "Operate.log"));
 
             try
             {
