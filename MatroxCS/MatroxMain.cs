@@ -269,6 +269,78 @@ namespace MatroxCS
             return 0;
         }
 
+        /// <summary>
+        /// 画像差分モードをオンにする
+        /// </summary>
+        /// <param name="niCameraID">指定カメラID</param>
+        /// <param name="nbShowDiffPic">差分画像を表示するか</param>
+        /// <returns>0:正常終了、-1:該当カメラID無し、-2:差分元画像バッファ取得失敗、-3:差分結果画像バッファ取得失敗、-999:異常終了(内容に関してはDLLError.log参照)</returns>
+        public int SetDiffPicDiscriminationMode(int niCameraID, bool nbShowDiffPic)
+        {
+            int i_ret;
+            if (m_cBase.GetFatalErrorOccured())
+            {
+                // 致命的なエラーが起きている
+                return FATAL_ERROR_OCCURED;
+            }
+            // 指定カメラIDのインデックスを探す
+            int i_camera_index = SearchCameraID(niCameraID);
+            if (i_camera_index == -1)
+            {
+                // 該当オブジェクトなし
+                return -1;
+            }
+            // 画像差分モードをオンにする
+            i_ret = m_lstCamera[i_camera_index].SetDiffPicDiscriminationMode(nbShowDiffPic);
+            switch (i_ret)
+            {
+                case -1:
+                    // グラフィックバッファID取得失敗
+                    return -2;
+                case -2:
+                    // グラフィックバッファID取得失敗
+                    return -3;
+                default:
+                    break;
+            }
+            if (m_cBase.GetFatalErrorOccured())
+            {
+                // 致命的なエラーが起きている
+                return FATAL_ERROR_OCCURED;
+            }
+
+            return 0;
+        }
+
+        /// 画像差分モードをオフにする
+        /// </summary>
+        /// <param name="niCameraID">指定カメラID</param>
+        /// <returns>0:正常終了</returns>
+        public int ResetDiffPicDiscriminationMode(int niCameraID)
+        {
+            if (m_cBase.GetFatalErrorOccured())
+            {
+                // 致命的なエラーが起きている
+                return FATAL_ERROR_OCCURED;
+            }
+            // 指定カメラIDのインデックスを探す
+            int i_camera_index = SearchCameraID(niCameraID);
+            if (i_camera_index == -1)
+            {
+                // 該当オブジェクトなし
+                return -1;
+            }
+            // 画像差分モードをオフにする
+            m_lstCamera[i_camera_index].ResetDiffPicDiscriminationMode();
+            if (m_cBase.GetFatalErrorOccured())
+            {
+                // 致命的なエラーが起きている
+                return FATAL_ERROR_OCCURED;
+            }
+
+            return 0;
+        }
+
 
         /// <summary>
         /// ディスプレイオープン
