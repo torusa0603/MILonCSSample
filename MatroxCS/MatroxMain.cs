@@ -103,7 +103,7 @@ namespace MatroxCS
                 for (i_loop = 0; i_loop < i_camera_num; i_loop++)
                 {
                     // カメラオブジェクトに各種設定値を代入
-                    CCamera c_camera = new CCamera(m_cJsonCameraGeneral.CameraInformation[i_loop]);
+                    CCamera c_camera = new CCamera(m_cJsonCameraGeneral.CameraInformation[i_loop], m_cJsonCameraGeneral.HeartBeatTime);
                     // カメラオープン
                     i_ret = c_camera.OpenCamera();
                     switch (i_ret)
@@ -895,8 +895,9 @@ namespace MatroxCS
     /// </summary>
     class CJsonCameraGeneral
     {
-        public int Number { get; set; }     // カメラ個数
-        public int BoardType { get; set; }  // ボード種類 
+        public int Number { get; set; }         // カメラ個数
+        public int BoardType { get; set; }      // ボード種類 
+        public int HeartBeatTime { get; set;  } // ハートビート時間(単位:s)
         public List<CJsonCameraInfo> CameraInformation { get; private set; } = new List<CJsonCameraInfo>(); // カメラの詳細情報
     }
 

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Matrox.MatroxImagingLibrary;
 using System.Runtime.InteropServices;
 using System.Reflection;
+using System.Timers;
 
 namespace MatroxCS
 {
@@ -35,8 +36,11 @@ namespace MatroxCS
         string m_strIPAddress;                                          // カメラのIPアドレス
         Size m_szImageSize;                                             // 画像サイズ。カメラ画像バッファもカメラ映像用バッファも同サイズ
         string m_strCameraFilePath;                                     // DCFファイル名
+        string m_strCameraIdentifyName;                                 // カメラ固有名称
         double m_dGain;                                                 // ゲイン
         long m_lShtterSpeed;                                            // 露光時間(単位：μs)
+
+        Timer m_timerHeartbeat;
 
         #endregion
 
@@ -46,14 +50,18 @@ namespace MatroxCS
         /// コンストラクタ
         /// </summary>
         /// <param name="ncJsonCameraInfo">カメラ情報</param>
-        public CCamera(CJsonCameraInfo ncJsonCameraInfo)
+        public CCamera(CJsonCameraInfo ncJsonCameraInfo, int niHeartBeatTime)
         {
             // カメラIPアドレスの指定
             m_strIPAddress = ncJsonCameraInfo.IPAddress;
             // DCFファイルの指定
             m_strCameraFilePath = $@"{m_sstrExePath}\{ncJsonCameraInfo.CameraFile}";
+            // カメラ固有名を指定
+            m_strCameraIdentifyName = ncJsonCameraInfo.IdentifyName;
             // 画像サイスの指定
             m_szImageSize = new Size(ncJsonCameraInfo.Width, ncJsonCameraInfo.Height);
+            m_timerHeartbeat = new Timer(niHeartBeatTime * 1000);
+            m_timerHeartbeat.Elapsed += Heartbeat;
         }
 
         /// <summary>
@@ -108,7 +116,7 @@ namespace MatroxCS
             catch (Exception ex)
             {
                 //  エラーログ出力
-                m_sdicLogInstance["DLLError"].OutputLog($"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                m_sdicLogInstance["DLLError"].OutputLog($"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
                 return EXCPTIOERROR;
             }
         }
@@ -157,7 +165,7 @@ namespace MatroxCS
             catch (Exception ex)
             {
                 //  エラーログ出力
-                m_sdicLogInstance["DLLError"].OutputLog($"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                m_sdicLogInstance["DLLError"].OutputLog($"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
                 return EXCPTIOERROR;
             }
         }
@@ -194,7 +202,7 @@ namespace MatroxCS
             catch (Exception ex)
             {
                 //  エラーログ出力
-                m_sdicLogInstance["DLLError"].OutputLog($"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                m_sdicLogInstance["DLLError"].OutputLog($"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
                 return EXCPTIOERROR;
             }
         }
@@ -230,7 +238,7 @@ namespace MatroxCS
             catch (Exception ex)
             {
                 //  エラーログ出力
-                m_sdicLogInstance["DLLError"].OutputLog($"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                m_sdicLogInstance["DLLError"].OutputLog($"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
                 return EXCPTIOERROR;
             }
         }
@@ -261,7 +269,7 @@ namespace MatroxCS
             catch (Exception ex)
             {
                 //  エラーログ出力
-                m_sdicLogInstance["DLLError"].OutputLog($"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                m_sdicLogInstance["DLLError"].OutputLog($"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
                 return EXCPTIOERROR;
             }
         }
@@ -341,11 +349,16 @@ namespace MatroxCS
                     // 差分画像モードがオンなら差分画像を作成する
                     if (m_cCamera.m_bDiffPicDisciminateMode)
                     {
-                        int i_ret = m_cCamera.MakeDiffImage(m_cCamera.m_milDiffOrgImage, mil_modified_image);
-                        if(i_ret != 0)
+                        if (m_cCamera.m_milDiffOrgImage != MIL.M_NULL)
                         {
-                            m_cCamera.ResetDiffPicDiscriminationMode();
+                            int i_ret = m_cCamera.MakeDiffImage(m_cCamera.m_milDiffOrgImage, mil_modified_image);
+                            if (i_ret != 0)
+                            {
+                                m_cCamera.ResetDiffPicDiscriminationMode();
+                            }
                         }
+                        // 最新の画像バッファを差分画像元バッファにコピーする
+                        MIL.MbufCopy(mil_modified_image,m_cCamera.m_milDiffOrgImage);
                     }
                     lock (m_slockObject)
                     {
@@ -391,7 +404,7 @@ namespace MatroxCS
             catch (Exception ex)
             {
                 //  エラーログ出力
-                m_sdicLogInstance["DLLError"].OutputLog($"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                m_sdicLogInstance["DLLError"].OutputLog($"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
                 return EXCPTIOERROR;
             }
         }
@@ -447,6 +460,17 @@ namespace MatroxCS
                 MIL.MbufFree(m_milDiffDstImage);
                 m_milDiffDstImage = MIL.M_NULL;
             }
+        }
+
+        private void Heartbeat(object sender, EventArgs e)
+        {
+            // 致命的エラーの発生をイベントで知らせる
+            m_sevFatalErrorOccured();
+            // 致命的エラーの発生を示すフラグを立てる
+            m_sbFatalErrorOccured = true;
+            //  エラーログ出力
+            m_sdicLogInstance["DLLError"].OutputLog($"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},DisapperCamera");
+            Freeze();
         }
     }
 }

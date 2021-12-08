@@ -586,8 +586,9 @@ namespace MILonCSSample
                             break;
                     }
                 }
-                i_ret = cMatroxMain.DrawLine(m_lstDisplayID[0], new Point(0, 0), new Point(pnl_graphic.Width, pnl_graphic.Height));
-                if (i_ret != 0)
+                // 画像差分モードオンにする
+                i_ret = cMatroxMain.SetDiffPicDiscriminationMode(m_lstCameraID[0], true);
+                if (i_ret != -1)
                 {
                     // エラー処理
                     DialogResult result;
@@ -595,13 +596,13 @@ namespace MILonCSSample
                     {
 
                         case -1:
-                            result = MessageBox.Show("該当ディスプレイがありません", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                            result = MessageBox.Show("カメラが見つかりませんでした", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
                             break;
-                        case -100:
-                            result = MessageBox.Show("致命的なエラーが発生しました", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                        case -2:
+                            result = MessageBox.Show("画像バッファ取得に失敗しました", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
                             break;
-                        case -200:
-                            result = MessageBox.Show("初期化処理が完了していません", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                        case -3:
+                            result = MessageBox.Show("画像バッファ取得に失敗しました", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
                             break;
                         case -999:
                             result = MessageBox.Show("DLLError.logを確認して下さい", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
@@ -610,6 +611,30 @@ namespace MILonCSSample
                             break;
                     }
                 }
+                //i_ret = cMatroxMain.DrawLine(m_lstDisplayID[0], new Point(0, 0), new Point(pnl_graphic.Width, pnl_graphic.Height));
+                //if (i_ret != 0)
+                //{
+                //    // エラー処理
+                //    DialogResult result;
+                //    switch (i_ret)
+                //    {
+
+                //        case -1:
+                //            result = MessageBox.Show("該当ディスプレイがありません", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                //            break;
+                //        case -100:
+                //            result = MessageBox.Show("致命的なエラーが発生しました", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                //            break;
+                //        case -200:
+                //            result = MessageBox.Show("初期化処理が完了していません", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                //            break;
+                //        case -999:
+                //            result = MessageBox.Show("DLLError.logを確認して下さい", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                //            break;
+                //        default:
+                //            break;
+                //    }
+                //}
                 // saveボタンの表示・有効化
                 btn_save.Enabled = true;
                 btn_save.Visible = true;
@@ -787,6 +812,7 @@ namespace MILonCSSample
                 }
             }
             m_lstDisplayID[0] = i_ret;
+            cMatroxMain.ResetDiffPicDiscriminationMode(m_lstCameraID[0]);
             // パネル1とカメラ1を接続
             i_ret = cMatroxMain.SelectCameraImageDisplay(m_lstCameraID[0], m_lstDisplayID[0]);
             if (i_ret < 0)
