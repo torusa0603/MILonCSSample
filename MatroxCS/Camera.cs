@@ -40,7 +40,7 @@ namespace MatroxCS
         double m_dGain;                                                 // ゲイン
         long m_lShtterSpeed;                                            // 露光時間(単位：μs)
 
-        Timer m_timerHeartbeat;
+        Timer m_timerHeartbeat;                                         // カメラから一定時間待っても画像取得できない場合に対応するためのタイマー
 
         #endregion
 
@@ -60,7 +60,9 @@ namespace MatroxCS
             m_strCameraIdentifyName = ncJsonCameraInfo.IdentifyName;
             // 画像サイスの指定
             m_szImageSize = new Size(ncJsonCameraInfo.Width, ncJsonCameraInfo.Height);
+            // カメラ画像を待つ最大秒を指定する
             m_timerHeartbeat = new Timer(niHeartBeatTime * 1000);
+            // 一定時間カメラから画像を取得できない時に起動するイベントを登録する
             m_timerHeartbeat.Elapsed += Heartbeat;
         }
 
@@ -344,6 +346,10 @@ namespace MatroxCS
                     //　送られてきたポインタをカメラクラスポインタにキャスティングする
                     m_handUserData_ProcessingFunction = GCHandle.FromIntPtr(npUserDataPtr);
                     m_cCamera = m_handUserData_ProcessingFunction.Target as CCamera;
+                    // ハートビートタイマーを止める
+                    m_cCamera.m_timerHeartbeat.Stop();
+                    // ハートビートタイマーを起動する
+                    m_cCamera.m_timerHeartbeat.Start();
                     //　変更されたバッファIDを取得する
                     MIL.MdigGetHookInfo(nEventId, MIL.M_MODIFIED_BUFFER + MIL.M_BUFFER_ID, ref mil_modified_image);
                     // 差分画像モードがオンなら差分画像を作成する
@@ -351,9 +357,11 @@ namespace MatroxCS
                     {
                         if (m_cCamera.m_milDiffOrgImage != MIL.M_NULL)
                         {
+                            // 差分画像を作成する
                             int i_ret = m_cCamera.MakeDiffImage(m_cCamera.m_milDiffOrgImage, mil_modified_image);
                             if (i_ret != 0)
                             {
+                                // 差分画像を作成失敗時は差分画像モードをオフにする
                                 m_cCamera.ResetDiffPicDiscriminationMode();
                             }
                         }
@@ -462,14 +470,22 @@ namespace MatroxCS
             }
         }
 
+        /// <summary>
+        /// 一定時間、カメラ画像を取得できなかった場合に起動
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Heartbeat(object sender, EventArgs e)
         {
+            // ハートビートタイマーを止める
+            m_timerHeartbeat.Stop();
             // 致命的エラーの発生をイベントで知らせる
             m_sevFatalErrorOccured();
             // 致命的エラーの発生を示すフラグを立てる
             m_sbFatalErrorOccured = true;
             //  エラーログ出力
             m_sdicLogInstance["DLLError"].OutputLog($"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},DisapperCamera");
+            // フリーズ状態にする
             Freeze();
         }
     }
