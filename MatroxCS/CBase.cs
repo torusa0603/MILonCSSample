@@ -153,35 +153,30 @@ namespace MatroxCS
         /// <returns>0:正常終了、-999:異常終了</returns>
         public int End()
         {
-            try
+            // システムID取得済みなら
+            if (m_smilSystem != MIL.M_NULL)
             {
-                // システムID取得済みなら
-                if (m_smilSystem != MIL.M_NULL)
-                {
-                    // システムIDの解放
-                    MIL.MsysFree(m_smilSystem);
-                    m_smilSystem = MIL.M_NULL;
-                }
+                // システムIDの解放
+                MIL.MsysFree(m_smilSystem);
+                m_smilSystem = MIL.M_NULL;
+            }
 
-                // アプリケーションID取得済みなら
-                if (m_smilApplication != MIL.M_NULL)
-                {
-                    // アプリケーションIDの解放
-                    MIL.MappFree(m_smilApplication);
-                    m_smilApplication = MIL.M_NULL;
-                }
-                // 致命的エラーを示すフラグをオフにする
-                m_sbFatalErrorOccured = false;
+            // アプリケーションID取得済みなら
+            if (m_smilApplication != MIL.M_NULL)
+            {
+                // アプリケーションIDの解放
+                MIL.MappFree(m_smilApplication);
+                m_smilApplication = MIL.M_NULL;
+            }
+            // 致命的エラーを示すフラグをオフにする
+            m_sbFatalErrorOccured = false;
+            // ログオブジェクトがあるのなら破棄する
+            if (m_sdicLogInstance　!= null)
+            {
                 // ログオブジェクト全てを破棄する
                 m_sdicLogInstance.Clear();
-                return 0;
             }
-            catch (Exception ex)
-            {
-                //  エラーログ出力
-                m_sdicLogInstance["DLLError"].OutputLog($"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
-                return EXCPTIOERROR;
-            }
+            return 0;
         }
 
         #endregion

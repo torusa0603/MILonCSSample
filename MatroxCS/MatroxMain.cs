@@ -59,7 +59,7 @@ namespace MatroxCS
             {
                 int i_ret = 0;
                 // 設定ファイルの存在確認、JSONファイルであるかの確認
-                if (!File.Exists(nstrSettingPath) || !(nstrSettingPath.Substring(nstrSettingPath.IndexOf(".") + 1) == "json"))
+                if (!File.Exists(nstrSettingPath) || !(Path.GetExtension(nstrSettingPath) == ".json"))
                 {
                     return -1;
                 }
