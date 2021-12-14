@@ -35,10 +35,13 @@ namespace MatroxCS
         static protected MIL_ID m_smilSystem = MIL.M_NULL;                                      // システムID
         static protected int m_siBoardType;                                                     // 使用ボードタイプ
         static protected object m_slockObject = new object();                                   // 排他制御に使用
-        static protected Dictionary<string, CLog> m_sdicLogInstance;                            // ログインスタンスを格納
         static protected string m_sstrExePath;                                                  // アプリケーション実行パス 
         static protected readonly MIL_INT m_smilintTransparentColor = MIL.M_RGB888(1, 1, 1);    // 透過色
         static protected bool m_sbFatalErrorOccured = false;                                    // 致命的なエラー発生を示すフラグ
+        static protected Dictionary<string, CLog> m_sdicLogInstance;                            // ログインスタンスを格納
+        static protected string m_sstrLogKeyMilError = "MILError";                              // ログインスタンス内のMILエラー用インスタンスに対応するキー名
+        static protected string m_sstrLogKeyDllError = "DLLError";                              // ログインスタンス内のDLL由来エラー用インスタンスに対応するキー名
+        static protected string m_sstrLogKeyOperate = "Operate";                                // ログインスタンス内の操作用インスタンスに対応するキー名
 
         protected GCHandle hUserData_Error;                                                     // 本クラスのポインター
         protected MIL_APP_HOOK_FUNCTION_PTR ProcessingFunctionPtr_Error;                        // フック関数のポインター
@@ -78,9 +81,9 @@ namespace MatroxCS
 
             // ログオブジェクトを作成
             m_sdicLogInstance = new Dictionary<string, CLog>();
-            m_sdicLogInstance.Add("MILError", new CLog(nstrExePath, "MILError.log"));
-            m_sdicLogInstance.Add("DLLError", new CLog(nstrExePath, "DLLError.log"));
-            m_sdicLogInstance.Add("Operate", new CLog(nstrExePath, "Operate.log"));
+            m_sdicLogInstance.Add(m_sstrLogKeyMilError, new CLog(nstrExePath, "MILError.log"));
+            m_sdicLogInstance.Add(m_sstrLogKeyDllError, new CLog(nstrExePath, "DLLError.log"));
+            m_sdicLogInstance.Add(m_sstrLogKeyOperate, new CLog(nstrExePath, "Operate.log"));
 
             try
             {
@@ -133,7 +136,7 @@ namespace MatroxCS
             catch (Exception ex)
             {
                 //  エラーログ出力
-                m_sdicLogInstance["DLLError"].OutputLog($"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                m_sdicLogInstance[m_sstrLogKeyDllError].OutputLog($"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
                 return EXCPTIOERROR;
             }
         }
@@ -257,7 +260,7 @@ namespace MatroxCS
                     str_error += " ";
                 }
                 //	エラーログ内容を出力する
-                m_sdicLogInstance["MILError"].OutputLog(str_error);
+                m_sdicLogInstance[m_sstrLogKeyMilError].OutputLog(str_error);
 
                 //	致命的なエラーかどうか判断する
                 //	MdigProcess、xxxAllocで発生するエラーは全て致命的とする
@@ -278,7 +281,7 @@ namespace MatroxCS
                 //	エラーフックの例外エラー
                 str_error = "Unknown Error";
                 //	エラーをログ出力する
-                m_sdicLogInstance["MILError"].OutputLog(str_error);
+                m_sdicLogInstance[m_sstrLogKeyMilError].OutputLog(str_error);
 
                 return (MIL.M_NULL);
             }
