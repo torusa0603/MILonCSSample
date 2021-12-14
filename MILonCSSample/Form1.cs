@@ -13,11 +13,12 @@ namespace MILonCSSample
 {
     public partial class Form1 : Form
     {
-        CMatroxMain cMatroxMain;                                                    // マトロックスオブジェクト
-        List<int> m_lstCameraID = new List<int>();                                  // カメラリストID
-        List<int> m_lstDisplayID = new List<int>() { 0, 0, 0, 0 };    // ディスプレイID{パネル1, パネル2, パネル3, パネル4}
-        string m_strExePath;                                                        // アプリケーションの実行パス
-        bool m_bPnl4GraphEnable;                                                    // パネル4のグラフィック描画の有無
+        CMatroxMain cMatroxMain;     // マトロックスオブジェクト
+        List<int> m_lstCameraID;     // カメラリストID
+        List<int> m_lstDisplayID;    // ディスプレイID{パネル1, パネル2, パネル3, パネル4}
+        string m_strExePath;         // アプリケーションの実行パス
+        bool m_bPnl4GraphEnable;     // パネル4のグラフィック描画の有無
+        bool m_bConnect = false;
 
         public Form1()
         {
@@ -54,6 +55,10 @@ namespace MILonCSSample
         /// </summary>
         private void Open()
         {
+            // カメラリストID作成
+            m_lstCameraID = new List<int>();
+            // ディスプレイID{パネル1, パネル2, パネル3, パネル4}作成
+            m_lstDisplayID = new List<int>() { 0, 0, 0, 0 };
             int? m_iCameraNumber = 0;                                                    // カメラ個数
             cMatroxMain.m_evMatroxFatalErrorOccured += OccuredMatroxFatalError;
             int i_ret = 0;
@@ -480,7 +485,10 @@ namespace MILonCSSample
             }
             // パネル4に描画があることを示す
             m_bPnl4GraphEnable = true;
-
+            // コネクト済みかを示すフラグをオンにする
+            m_bConnect = true;
+            this.connectToolStripMenuItem.Enabled = false;
+            this.disConnectToolStripMenuItem.Enabled = true;
         }
 
         /// <summary>
@@ -683,7 +691,7 @@ namespace MILonCSSample
                 f_form3.Show();
                 // フォーム3上のパネルにディスプレイIDを取得
                 i_ret = cMatroxMain.OpenDisplay(f_form3.pnl_form3.Handle, new Size(f_form3.pnl_form3.Width, f_form3.pnl_form3.Height));
-                if (i_ret <0)
+                if (i_ret < 0)
                 {
                     DialogResult result;
                     switch (i_ret)
@@ -1073,7 +1081,7 @@ namespace MILonCSSample
         {
             int i_ret;
             // マトロックスクラスの終了処理実行
-            i_ret =cMatroxMain.EndMatrox();
+            i_ret = cMatroxMain.EndMatrox();
             if (i_ret != 0)
             {
                 DialogResult result;
@@ -1083,6 +1091,7 @@ namespace MILonCSSample
                         result = MessageBox.Show("DLLError.logを確認して下さい", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
                         break;
                     default:
+                        m_bConnect = false;
                         break;
                 }
             }
@@ -1117,17 +1126,18 @@ namespace MILonCSSample
             int i_ret;
             // マトロックスクラスの終了処理を実行
             i_ret = cMatroxMain.EndMatrox();
-            if (i_ret != 0)
+            switch (i_ret)
             {
-                DialogResult result;
-                switch (i_ret)
-                {
-                    case -999:
-                        result = MessageBox.Show("DLLError.logを確認して下さい", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
-                        break;
-                    default:
-                        break;
-                }
+                case -999:
+                    // エラー発生
+                    DialogResult result;
+                    result = MessageBox.Show("DLLError.logを確認して下さい", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                    break;
+                default:
+                    m_bConnect = false;
+                    this.connectToolStripMenuItem.Enabled = true;
+                    this.disConnectToolStripMenuItem.Enabled = false;
+                    break;
             }
             // 保持していたカメラ・ディスプレイIDをクリア
             m_lstCameraID.Clear();

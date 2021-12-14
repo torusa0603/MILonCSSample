@@ -16,31 +16,31 @@ namespace MatroxCS
     {
         #region ローカル変数
 
+        // MILに関する変数
         MIL_ID m_milDigitizer = MIL.M_NULL;                             // デジタイザID
         MIL_ID m_milShowImage = MIL.M_NULL;                             // カメラ映像を画面に表示するときの画像バッファ
         MIL_ID[] m_milGrabImageArray = { MIL.M_NULL, MIL.M_NULL };      // グラブ専用リングバッファ 2固定
         MIL_ID m_milDiffOrgImage = MIL.M_NULL;                          // 差分用オリジナル画像
         MIL_ID m_milDiffDstImage = MIL.M_NULL;                          // 差分結果画像
-
-        MIL_DIG_HOOK_FUNCTION_PTR m_delProcessingFunctionPtr;           // 画像取得関数のポインター
-        //MIL_DIG_HOOK_FUNCTION_PTR m_delProcessingErrorFunctionPtr;    
+        MIL_DIG_HOOK_FUNCTION_PTR m_delProcessingFunctionPtr;           // 画像取得関数のポインター    
         GCHandle m_handUserData_doThrough;                              // 自己インスタンスのポインター
         GCHandle m_handUserData_ProcessingFunction;                     // 自己インスタンスのポインター(画像取得関数内で使用)
         CCamera m_cCamera;                                              // 自己のインスタンスをフック関数内で保持するために使用
+
+        // カメラクラス固有変数
         bool m_bDiffPicDisciminateMode;                                 // 差分画像モードかどうかを示すフラグ
         bool m_bShowDiffPic;                                            // 差分画像を表示用バッファにコピーするかを示すフラグ
-
         int m_iCameraID;                                                // カメラインスタンスID
         bool m_bThroughFlg = false;                                     // スルー状態であるか否か
+        Timer m_timerHeartbeat;                                         // カメラから一定時間待っても画像取得できない場合に対応するためのタイマー
 
+        // カメラ設定値
         string m_strIPAddress;                                          // カメラのIPアドレス
         Size m_szImageSize;                                             // 画像サイズ。カメラ画像バッファもカメラ映像用バッファも同サイズ
         string m_strCameraFilePath;                                     // DCFファイル名
         string m_strCameraIdentifyName;                                 // カメラ固有名称
         double m_dGain;                                                 // ゲイン
         long m_lShtterSpeed;                                            // 露光時間(単位：μs)
-
-        Timer m_timerHeartbeat;                                         // カメラから一定時間待っても画像取得できない場合に対応するためのタイマー
 
         #endregion
 
@@ -209,12 +209,6 @@ namespace MatroxCS
             }
         }
 
-
-        //private MIL_INT HookErrorHandler_camera(MIL_INT nlHookType, MIL_ID nEventId, IntPtr npUserDataPtr)
-        //{
-        //    return -1;
-        //}
-
         /// <summary>
         /// フリーズを行う
         /// </summary>
@@ -234,6 +228,8 @@ namespace MatroxCS
                     }
                     // スルー状態であるかを示すフラグをオフにする
                     m_bThroughFlg = false;
+                    // ハートビットタイマーを止める
+                    m_cCamera.m_timerHeartbeat.Stop();
                 }
                 return 0;
             }
@@ -255,7 +251,7 @@ namespace MatroxCS
             try
             {
                 //  nMilShowImageの画像サイズ取得
-                Size sz_show_image = InquireBaffaSize(nmilShowImage);
+                Size sz_show_image = InquireBufferSize(nmilShowImage);
                 //  カメラ画像とこのサイズが一致してなければ表示出来ないのでエラー
                 if (m_szImageSize != sz_show_image)
                 {
@@ -279,16 +275,16 @@ namespace MatroxCS
         /// <summary>
         /// 指定画像バッファのサイズを回答する
         /// </summary>
-        /// <param name="nmilBaffa">指定画像バッファ</param>
+        /// <param name="nmilBuffer">指定画像バッファ</param>
         /// <returns>画像バッファサイズ</returns>
-        private Size InquireBaffaSize(MIL_ID nmilBaffa)
+        private Size InquireBufferSize(MIL_ID nmilBuffer)
         {
             Size sz_ret = new Size(0, 0);
-            if (nmilBaffa != MIL.M_NULL)
+            if (nmilBuffer != MIL.M_NULL)
             {
                 // サイズを聞く
-                sz_ret.Width = (int)MIL.MbufInquire(nmilBaffa, MIL.M_SIZE_X, MIL.M_NULL);
-                sz_ret.Height = (int)MIL.MbufInquire(nmilBaffa, MIL.M_SIZE_Y, MIL.M_NULL);
+                sz_ret.Width = (int)MIL.MbufInquire(nmilBuffer, MIL.M_SIZE_X, MIL.M_NULL);
+                sz_ret.Height = (int)MIL.MbufInquire(nmilBuffer, MIL.M_SIZE_Y, MIL.M_NULL);
             }
             // サイズを返す
             return sz_ret;
@@ -324,6 +320,82 @@ namespace MatroxCS
             // カメラ画像サイズを返す
             return m_szImageSize;
         }
+
+        /// <summary>
+        /// 差分画像を作成する
+        /// </summary>
+        /// <param name="nmilDiffOrgImage1">差分元画像バッファ1</param>
+        /// <param name="nmilDiffOrgImage2">差分元画像バッファ2</param>
+        /// <returns>0:正常終了、-999:異常終了</returns>
+        public int MakeDiffImage(MIL_ID nmilDiffOrgImage1, MIL_ID nmilDiffOrgImage2)
+        {
+            try
+            {
+                //	差分画像を作る
+                MIL.MimArith(nmilDiffOrgImage1, nmilDiffOrgImage2, m_milDiffDstImage, MIL.M_SUB_ABS + MIL.M_SATURATION);
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                //  エラーログ出力
+                m_sdicLogInstance["DLLError"].OutputLog($"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                return EXCPTIOERROR;
+            }
+        }
+
+        /// <summary>
+        /// 差分画像モードをオンにする
+        /// </summary>
+        /// <param name="nbShowDiffPic">差分画像を表示を行うか</param>
+        /// <returns>0:正常終了、-1:差分元画像バッファ取得失敗、-2:差分結果画像バッファ取得失敗</returns>
+        public int SetDiffPicDiscriminationMode(bool nbShowDiffPic)
+        {
+            // 画像差分モードがオフであれば処理を行う
+            if (!m_bDiffPicDisciminateMode)
+            {
+                // バッファ取得失敗時にフラグだけが立ってしまうことを防ぐための処理
+                m_bDiffPicDisciminateMode = false;
+                m_bShowDiffPic = false;
+                // 差分元画像バッファ取得
+                MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_PACKED + MIL.M_BGR24, ref m_milDiffOrgImage);
+                if (m_milDiffOrgImage == MIL.M_NULL)
+                {
+                    return -1;
+                }
+                // 差分結果画像バッファ取得
+                MIL.MbufAlloc2d(m_smilSystem, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC, ref m_milDiffDstImage);
+                if (m_milDiffOrgImage == MIL.M_NULL)
+                {
+                    MIL.MbufFree(m_milDiffOrgImage);
+                    m_milDiffOrgImage = MIL.M_NULL;
+                    return -2;
+                }
+                // バッファ取得成功後にフラグをセットする
+                m_bDiffPicDisciminateMode = true;
+                m_bShowDiffPic = nbShowDiffPic;
+            }
+            return 0;
+
+        }
+
+        /// <summary>
+        /// 差分画像モードをオフにする
+        /// </summary>
+        public void ResetDiffPicDiscriminationMode()
+        {
+            // 画像差分モードがオンであれば処理を行う
+            if (m_bDiffPicDisciminateMode)
+            {
+                // 各フラグ、バッファをクリアする
+                m_bDiffPicDisciminateMode = false;
+                m_bShowDiffPic = false;
+                MIL.MbufFree(m_milDiffOrgImage);
+                m_milDiffOrgImage = MIL.M_NULL;
+                MIL.MbufFree(m_milDiffDstImage);
+                m_milDiffDstImage = MIL.M_NULL;
+            }
+        }
+
         #endregion
 
         #region ローカル関数
@@ -366,7 +438,7 @@ namespace MatroxCS
                             }
                         }
                         // 最新の画像バッファを差分画像元バッファにコピーする
-                        MIL.MbufCopy(mil_modified_image,m_cCamera.m_milDiffOrgImage);
+                        MIL.MbufCopy(mil_modified_image, m_cCamera.m_milDiffOrgImage);
                     }
                     lock (m_slockObject)
                     {
@@ -393,82 +465,7 @@ namespace MatroxCS
             }
         }
 
-        #endregion
 
-        /// <summary>
-        /// 差分画像を作成する
-        /// </summary>
-        /// <param name="nmilDiffOrgImage1">差分元画像バッファ1</param>
-        /// <param name="nmilDiffOrgImage2">差分元画像バッファ2</param>
-        /// <returns>0:正常終了、-999:異常終了</returns>
-        public int MakeDiffImage(MIL_ID nmilDiffOrgImage1, MIL_ID nmilDiffOrgImage2)
-        {
-            try
-            {
-                //	差分画像を作る
-                MIL.MimArith(nmilDiffOrgImage1, nmilDiffOrgImage2, m_milDiffDstImage, MIL.M_SUB_ABS + MIL.M_SATURATION);
-                return 0;
-            }
-            catch (Exception ex)
-            {
-                //  エラーログ出力
-                m_sdicLogInstance["DLLError"].OutputLog($"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
-                return EXCPTIOERROR;
-            }
-        }
-
-        /// <summary>
-        /// 差分画像モードをオンにする
-        /// </summary>
-        /// <param name="nbShowDiffPic">差分画像を表示を行うか</param>
-        /// <returns>0:正常終了、-1:差分元画像バッファ取得失敗、-2:差分結果画像バッファ取得失敗</returns>
-        public int SetDiffPicDiscriminationMode(bool nbShowDiffPic)
-        {
-            // 画像差分モードがオフであれば処理を行う
-            if (!m_bDiffPicDisciminateMode)
-            {
-                // バッファ取得失敗時にフラグだけが立ってしまうことを防ぐための処理
-                m_bDiffPicDisciminateMode = false;
-                m_bShowDiffPic = false;
-                // 差分元画像バッファ取得
-                MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_PACKED + MIL.M_BGR24, ref m_milDiffOrgImage);
-                if(m_milDiffOrgImage == MIL.M_NULL)
-                {
-                    return -1;
-                }
-                // 差分結果画像バッファ取得
-                MIL.MbufAlloc2d(m_smilSystem, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC, ref m_milDiffDstImage);
-                if (m_milDiffOrgImage == MIL.M_NULL)
-                {
-                    MIL.MbufFree(m_milDiffOrgImage);
-                    m_milDiffOrgImage = MIL.M_NULL;
-                    return -2;
-                }
-                // バッファ取得成功後にフラグをセットする
-                m_bDiffPicDisciminateMode = true;
-                m_bShowDiffPic = nbShowDiffPic;
-            }
-            return 0;
-
-        }
-
-        /// <summary>
-        /// 差分画像モードをオフにする
-        /// </summary>
-        public void ResetDiffPicDiscriminationMode()
-        {
-            // 画像差分モードがオンであれば処理を行う
-            if (m_bDiffPicDisciminateMode)
-            {
-                // 各フラグ、バッファをクリアする
-                m_bDiffPicDisciminateMode = false;
-                m_bShowDiffPic = false;
-                MIL.MbufFree(m_milDiffOrgImage);
-                m_milDiffOrgImage = MIL.M_NULL;
-                MIL.MbufFree(m_milDiffDstImage);
-                m_milDiffDstImage = MIL.M_NULL;
-            }
-        }
 
         /// <summary>
         /// 一定時間、カメラ画像を取得できなかった場合に起動
@@ -488,5 +485,7 @@ namespace MatroxCS
             // フリーズ状態にする
             Freeze();
         }
+
+        #endregion
     }
 }
