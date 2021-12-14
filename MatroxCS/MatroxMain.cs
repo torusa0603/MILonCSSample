@@ -894,6 +894,8 @@ namespace MatroxCS
         /// <param name="nstrJsonFilePath">作成ファイルパス</param>
         private int CreateSettingFile(string nstrJsonFilePath)
         {
+            Encoding encod_encoding = Encoding.GetEncoding("utf-8");
+            // デフォルトとなる情報を代入していく
             CJsonCameraGeneral c_json_camera_general = new CJsonCameraGeneral();
             CJsonCameraInfo c_json_camera_info = new CJsonCameraInfo();
             c_json_camera_general.Number = 1;
@@ -910,11 +912,14 @@ namespace MatroxCS
             c_json_camera_info.COMNo = 0;
             c_json_camera_info.IPAddress = " ";
             c_json_camera_general.CameraInformation.Add(c_json_camera_info);
+            // パラメータをシリアライズする
             string str_json_contents = JsonConvert.SerializeObject(c_json_camera_general, Formatting.Indented);
+            // パラメータ文字列にコメントを追加する
             AddCommentToParameterDescription(ref str_json_contents);
-            Encoding encod_encoding = Encoding.GetEncoding("utf-8");
-
+            
+            // jsonファイルを作成する
             using (FileStream fs = File.Create(nstrJsonFilePath)) { }
+            // jsonファイルにパラメータ文字列を書き込む
             using (var writer = new StreamWriter(nstrJsonFilePath, false, encod_encoding))
             {
                 writer.WriteLine(str_json_contents);
@@ -928,13 +933,16 @@ namespace MatroxCS
         /// <param name="nstrJsonContents">json型をシリアライズした文字列</param>
         private void AddCommentToParameterDescription(ref string nstrJsonContents)
         {
+            // 取得するパラメータのアクセス修飾子を指定する
             BindingFlags b_access_flag = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
+            // 一般設定項目クラスからプロパティを取得する
             PropertyInfo[] props_json_camera_general = typeof(CJsonCameraGeneral).GetProperties(b_access_flag);
-            string str_comment_contents = "";
-            int i_num_prop_name;                     // コメントコードの位置を示すint型データ
+            string str_comment_contents = "";           // コメント内容
+            int i_num_prop_name;                        // コメントコードの位置を示すint型データ
             int i_num_enter;                            // 改行コードの位置を示すint型データ
             foreach (PropertyInfo prop in props_json_camera_general)
             {
+                // 各プロパティのコメントを設定する
                 switch (prop.Name)
                 {
                     case "Number":
@@ -953,6 +961,7 @@ namespace MatroxCS
                         str_comment_contents = "";
                         break;
                 }
+                // 指定プロパティ名直後改行コードの直前にコメント追加する
                 i_num_prop_name = nstrJsonContents.IndexOf(prop.Name);
                 if (i_num_prop_name != -1)
                 {
@@ -961,9 +970,11 @@ namespace MatroxCS
                 }
 
             }
+            // 詳細設定項目クラスからプロパティを取得する
             PropertyInfo[] props_json_camera_info = typeof(CJsonCameraInfo).GetProperties(b_access_flag);
             foreach (PropertyInfo prop in props_json_camera_info)
             {
+                // 各プロパティのコメントを設定する
                 switch (prop.Name)
                 {
                     case "IdentifyName":
@@ -1000,6 +1011,7 @@ namespace MatroxCS
                         str_comment_contents = "";
                         break;
                 }
+                // 指定プロパティ名直後改行コードの直前にコメント追加する
                 i_num_prop_name = nstrJsonContents.IndexOf(prop.Name);
                 if (i_num_prop_name != -1)
                 {
@@ -1030,14 +1042,14 @@ namespace MatroxCS
     class CJsonCameraInfo
     {
         public string IdentifyName { get; set; }    // 識別ネーム
-        public int CameraType { get; set; }         // カメラのタイプ(例:USB,gige)
+        public int CameraType { get; set; }         // 現在未使用
         public string CameraFile { get; set; }      // DCFファイルパス
         public int Width { get; set; }              // 取得画像幅
         public int Height { get; set; }             // 取得画像高さ
-        public int Color { get; set; }              // 
-        public int ImagePose { get; set; }          // 
-        public int UseSerialComm { get; set; }      // 
-        public int COMNo { get; set; }              // 
+        public int Color { get; set; }              // 現在未使用
+        public int ImagePose { get; set; }          // 現在未使用
+        public int UseSerialComm { get; set; }      // 現在未使用
+        public int COMNo { get; set; }              // 現在未使用
         public string IPAddress { get; set; }       // gigeカメラのIPアドレス
     }
 
