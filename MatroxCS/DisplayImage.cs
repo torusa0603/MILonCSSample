@@ -92,7 +92,7 @@ namespace MatroxCS
             {
                 //  エラーログ出力
                 m_sdicLogInstance[m_sstrLogKeyDllError].OutputLog($"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
-                return EXCPTIOERROR;
+                return EXCEPTIOERROR;
             }
         }
 
@@ -146,7 +146,7 @@ namespace MatroxCS
             {
                 //  エラーログ出力
                 m_sdicLogInstance[m_sstrLogKeyDllError].OutputLog($"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
-                return EXCPTIOERROR;
+                return EXCEPTIOERROR;
             }
         }
 
@@ -209,7 +209,7 @@ namespace MatroxCS
             {
                 //  エラーログ出力
                 m_sdicLogInstance[m_sstrLogKeyDllError].OutputLog($"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
-                return EXCPTIOERROR;
+                return EXCEPTIOERROR;
             }
         }
 
@@ -223,7 +223,7 @@ namespace MatroxCS
             try
             {
                 string str_ext;
-                bool b_exist_ext = ExtrctExtention(nstrImageFilePath, out str_ext);
+                bool b_exist_ext = ExtractExtention(nstrImageFilePath, out str_ext);
                 if (!b_exist_ext)
                 {
                     // 画像拡張子(bmp,jpg,jpeg,png)がついていない
@@ -257,7 +257,7 @@ namespace MatroxCS
             {
                 //  エラーログ出力
                 m_sdicLogInstance[m_sstrLogKeyDllError].OutputLog($"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
-                return EXCPTIOERROR;
+                return EXCEPTIOERROR;
             }
         }
 
@@ -289,7 +289,7 @@ namespace MatroxCS
             {
                 //  エラーログ出力
                 m_sdicLogInstance[m_sstrLogKeyDllError].OutputLog($"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
-                return EXCPTIOERROR;
+                return EXCEPTIOERROR;
             }
         }
 
@@ -324,7 +324,7 @@ namespace MatroxCS
             {
                 //  エラーログ出力
                 m_sdicLogInstance[m_sstrLogKeyDllError].OutputLog($"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
-                return EXCPTIOERROR;
+                return EXCEPTIOERROR;
             }
         }
 
@@ -344,7 +344,7 @@ namespace MatroxCS
             {
                 //  エラーログ出力
                 m_sdicLogInstance[m_sstrLogKeyDllError].OutputLog($"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
-                return EXCPTIOERROR;
+                return EXCEPTIOERROR;
             }
         }
 
@@ -386,7 +386,7 @@ namespace MatroxCS
                     MIL.MbufFree(mil_overlay_temp);
                 }
 
-                bool b_exist_ext = ExtrctExtention(nstrImageFilePath, out str_ext);
+                bool b_exist_ext = ExtractExtention(nstrImageFilePath, out str_ext);
                 if (!b_exist_ext)
                 {
                     if (str_ext == "")
@@ -435,7 +435,7 @@ namespace MatroxCS
             {
                 //  エラーログ出力
                 m_sdicLogInstance[m_sstrLogKeyDllError].OutputLog($"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
-                return EXCPTIOERROR;
+                return EXCEPTIOERROR;
             }
         }
 
@@ -445,7 +445,7 @@ namespace MatroxCS
         /// <param name="nstrImageFilePath">ファイルパス</param>
         /// <param name="nstrExt">拡張子を返す</param>
         /// <returns>画像拡張子(bmp,jpg,jpeg,png,tiff)の有無</returns>
-        private bool ExtrctExtention(string nstrImageFilePath, out string nstrExt)
+        private bool ExtractExtention(string nstrImageFilePath, out string nstrExt)
         {
             int i_index_ext;                        // パス内の拡張子の位置
             string str_ext;                         // 拡張子

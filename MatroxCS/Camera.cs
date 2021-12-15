@@ -119,7 +119,7 @@ namespace MatroxCS
             {
                 //  エラーログ出力
                 m_sdicLogInstance[m_sstrLogKeyDllError].OutputLog($"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
-                return EXCPTIOERROR;
+                return EXCEPTIOERROR;
             }
         }
 
@@ -168,7 +168,7 @@ namespace MatroxCS
             {
                 //  エラーログ出力
                 m_sdicLogInstance[m_sstrLogKeyDllError].OutputLog($"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
-                return EXCPTIOERROR;
+                return EXCEPTIOERROR;
             }
         }
 
@@ -205,7 +205,7 @@ namespace MatroxCS
             {
                 //  エラーログ出力
                 m_sdicLogInstance[m_sstrLogKeyDllError].OutputLog($"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
-                return EXCPTIOERROR;
+                return EXCEPTIOERROR;
             }
         }
 
@@ -237,7 +237,7 @@ namespace MatroxCS
             {
                 //  エラーログ出力
                 m_sdicLogInstance[m_sstrLogKeyDllError].OutputLog($"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
-                return EXCPTIOERROR;
+                return EXCEPTIOERROR;
             }
         }
 
@@ -268,7 +268,7 @@ namespace MatroxCS
             {
                 //  エラーログ出力
                 m_sdicLogInstance[m_sstrLogKeyDllError].OutputLog($"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
-                return EXCPTIOERROR;
+                return EXCEPTIOERROR;
             }
         }
 
@@ -339,7 +339,7 @@ namespace MatroxCS
             {
                 //  エラーログ出力
                 m_sdicLogInstance[m_sstrLogKeyDllError].OutputLog($"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
-                return EXCPTIOERROR;
+                return EXCEPTIOERROR;
             }
         }
 

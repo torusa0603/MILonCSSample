@@ -60,7 +60,7 @@ namespace MatroxCS
 
         #region 固有エラー番号
 
-        protected const int EXCPTIOERROR = -999;                                                // try-catchで捉えたエラー
+        protected const int EXCEPTIOERROR = -999;                                                // try-catchで捉えたエラー
 
         #endregion
 
@@ -137,7 +137,7 @@ namespace MatroxCS
             {
                 //  エラーログ出力
                 m_sdicLogInstance[m_sstrLogKeyDllError].OutputLog($"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
-                return EXCPTIOERROR;
+                return EXCEPTIOERROR;
             }
         }
 
