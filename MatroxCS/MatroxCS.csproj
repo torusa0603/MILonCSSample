@@ -89,11 +89,14 @@
     <Compile Include="Graphic.cs" />
     <Compile Include="CLog.cs" />
     <Compile Include="MatroxMain.cs" />
+    <Compile Include="Parameter\CCameraGeneral.cs" />
+    <Compile Include="Parameter\CCameraInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
