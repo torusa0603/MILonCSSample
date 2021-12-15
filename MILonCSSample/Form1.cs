@@ -73,29 +73,34 @@ namespace MILonCSSample
                 DialogResult result;
                 switch (i_ret)
                 {
-
                     case -1:
-                        result = MessageBox.Show("設定ファイルがありません", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                        result = MessageBox.Show("設定ファイルパスの途中フォルダーが存在しません", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
                         break;
                     case -2:
-                        result = MessageBox.Show("設定ファイル内の構文が無効です", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                        result = MessageBox.Show("設定ファイルがありません、新規作成に失敗しました", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
                         break;
                     case -3:
-                        result = MessageBox.Show("アプリケーションIDが取得できませんでした", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                        result = MessageBox.Show("設定ファイルがありません、新規作成しました", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
                         break;
                     case -4:
-                        result = MessageBox.Show("ボードの指定が間違っています。", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                        result = MessageBox.Show("設定ファイル内の構文が無効です", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
                         break;
                     case -5:
-                        result = MessageBox.Show("システムIDが取得できませんでした", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                        result = MessageBox.Show("アプリケーションIDが取得できませんでした", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
                         break;
                     case -6:
-                        result = MessageBox.Show("カメラがつながっているか確認してください", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                        result = MessageBox.Show("ボードの指定が間違っています。", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
                         break;
                     case -7:
-                        result = MessageBox.Show("取得画像サイズを確認してください", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                        result = MessageBox.Show("システムIDが取得できませんでした", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
                         break;
                     case -8:
+                        result = MessageBox.Show("カメラがつながっているか確認してください", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                        break;
+                    case -9:
+                        result = MessageBox.Show("取得画像サイズを確認してください", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                        break;
+                    case -10:
                         result = MessageBox.Show("グラフィックIDが取得できませんでした", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
                         break;
                     case -99:

@@ -85,12 +85,14 @@
   <ItemGroup>
     <Compile Include="Camera.cs" />
     <Compile Include="CBase.cs" />
+    <Compile Include="CParameterBase.cs" />
     <Compile Include="DisplayImage.cs" />
     <Compile Include="Graphic.cs" />
     <Compile Include="CLog.cs" />
     <Compile Include="MatroxMain.cs" />
     <Compile Include="Parameter\CCameraGeneral.cs" />
     <Compile Include="Parameter\CCameraInfo.cs" />
+    <Compile Include="Parameter\CParameterFromJsonFile.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

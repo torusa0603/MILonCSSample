@@ -4,10 +4,8 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Matrox.MatroxImagingLibrary;
-using Newtonsoft.Json;
 using System.IO;
-using System.Reflection;
+using MatroxCS.Parameter;
 
 namespace MatroxCS
 {
@@ -25,7 +23,7 @@ namespace MatroxCS
         List<CDisplayImage> m_lstDisplayImage = new List<CDisplayImage>();      // ディスプレイオブジェクト(インスタンス、初期化ともに成功したものしか追加しない)
         CBase m_cBase = new CBase();                                            // ベースオブジェクト
         CGraphic m_cGraphic = new CGraphic();                                   // グラフィックオブジェクト
-        CJsonCameraGeneral m_cJsonCameraGeneral = new CJsonCameraGeneral();     // カメラ情報
+        CParameterBase m_cParameter = new CParameterFromJsonFile();             // パラメータオブジェクト
         bool m_bBaseInitialFinished = false;                                    // 初期処理完了済みかを示す
 
         string m_strCommentCode = "###";                                        // コメントコード
@@ -37,7 +35,7 @@ namespace MatroxCS
 
         const int FATAL_ERROR_OCCURED = -100;                                   // MILの処理中に発生した致命的エラー
         const int UNCOMPLETED_OPENING_ERROR = -200;                             // 初期化完了前に処理を実行した時のエラー
-        const int EXCPTIOERROR = -999;                                          // try-catchで捉えたエラー
+        const int EXCEPTIOERROR = -999;                                         // try-catchで捉えたエラー
 
         #endregion
 
@@ -46,13 +44,13 @@ namespace MatroxCS
         /// <summary>
         /// Matrox制御の初期化
         /// </summary>
-        /// <param name="nstrSettingPath">設定ファイルパス</param>
+        /// <param name="nstrSettingFilePath">設定ファイルパス</param>
         /// <returns>
-        /// 0:正常終了、-1:設定ファイルパスエラー、-2:設定ファイルjson構文エラー、-3:アプリケーションID取得失敗、-4:指定ボードの該当なし<br />
-        /// -5:システムID取得失敗、-6:デジタイザー取得失敗、-7:グラブ専用バッファ取得失敗、-8:グラフィックバッファID取得失敗<br />
+        /// 0:正常終了、-1:設定ファイルの途中パスディレクトリが存在しない、-2:設定ファイル作成・書き込みエラー、-3:設定ファイルなし(新規作成)、-4:設定ファイル構文エラー<br />
+        /// -5:アプリケーションID取得失敗、-6:指定ボードの該当なし、-7:システムID取得失敗、-8:デジタイザー取得失敗、-9:グラブ専用バッファ取得失敗、-10:グラフィックバッファID取得失敗<br />
         /// -99:初期化の重複エラー、-999:異常終了(内容に関してはDLLError.log参照)
         /// </returns>
-        public int InitMatrox(string nstrSettingPath, string nstrExePath)
+        public int InitMatrox(string nstrSettingFilePath, string nstrExePath)
         {
             // 初期化処理を既に行っていた場合は行わない
             if (m_bBaseInitialFinished)
@@ -62,42 +60,50 @@ namespace MatroxCS
             else
             {
                 int i_ret = 0;
-                // 設定ファイルの存在確認、JSONファイルであるかの確認
-                if (!File.Exists(nstrSettingPath) || !(Path.GetExtension(nstrSettingPath) == ".json"))
-                {
-                    CreateSettingFile(nstrSettingPath);
-                    return -1;
-                }
                 // 設定ファイルの読み込み
-                i_ret = ReadParameter(nstrSettingPath);
-                if (i_ret != 0)
+                i_ret = m_cParameter.ReadParameter(nstrSettingFilePath);
+                switch (i_ret)
                 {
-                    return -2;
+                    case -1:
+                        // 設定ファイルの途中パスディレクトリが存在しない
+                        return -1;
+                    case -2:
+                        // 設定ファイル作成・書き込みエラー
+                        return -2;
+                    case -3:
+                        // 設定ファイルなし(新規作成)
+                        return -3;
+                    case -4:
+                        // 設定ファイル構文エラー
+                        return -4;
+                    default:
+                        // エラーなし
+                        break;
                 }
                 // カメラ数を取得
-                int i_camera_num = m_cJsonCameraGeneral.Number;
+                int i_camera_num = CParameterBase.m_scCameraGeneral.Number;
                 // 致命的なエラー発生時に起動するイベントハンドラを渡す
                 CBase.m_sevFatalErrorOccured += m_evMatroxFatalErrorOccured;
                 // ベースオブジェクトを初期化
-                i_ret = m_cBase.Initial(m_cJsonCameraGeneral.BoardType, nstrExePath);
+                i_ret = m_cBase.Initial(CParameterBase.m_scCameraGeneral.BoardType, nstrExePath);
                 switch (i_ret)
                 {
                     case -1:
                         // アプリケーションID取得失敗
                         EndMatrox();
-                        return -3;
+                        return -5;
                     case -2:
                         // 指定ボード種類の該当なし
                         EndMatrox();
-                        return -4;
+                        return -6;
                     case -3:
                         // システムID取得失敗
                         EndMatrox();
-                        return -5;
-                    case EXCPTIOERROR:
+                        return -7;
+                    case EXCEPTIOERROR:
                         // try-catchで捉えたエラー(内容はDLLError.log参照)
                         EndMatrox();
-                        return EXCPTIOERROR;
+                        return EXCEPTIOERROR;
                     default:
                         // エラーなし
                         break;
@@ -108,7 +114,7 @@ namespace MatroxCS
                 for (i_loop = 0; i_loop < i_camera_num; i_loop++)
                 {
                     // カメラオブジェクトに各種設定値を代入
-                    CCamera c_camera = new CCamera(m_cJsonCameraGeneral.CameraInformation[i_loop], m_cJsonCameraGeneral.HeartBeatTime);
+                    CCamera c_camera = new CCamera(CParameterBase.m_scCameraGeneral.CameraInformation[i_loop], CParameterBase.m_scCameraGeneral.HeartBeatTime);
                     // カメラオープン
                     i_ret = c_camera.OpenCamera();
                     switch (i_ret)
@@ -116,15 +122,15 @@ namespace MatroxCS
                         case -1:
                             // デジタイザーID取得失敗
                             EndMatrox();
-                            return -6;
+                            return -8;
                         case -2:
                             // グラブ専用バッファ取得失敗
                             EndMatrox();
-                            return -7;
-                        case EXCPTIOERROR:
+                            return -9;
+                        case EXCEPTIOERROR:
                             // try-catchで捉えたエラー(内容はDLLError.log参照)
                             EndMatrox();
-                            return EXCPTIOERROR;
+                            return EXCEPTIOERROR;
                         default:
                             // 無事、インスタンス・オープン処理完了
                             // カメラリストに追加
@@ -139,11 +145,11 @@ namespace MatroxCS
                     case -1:
                         // グラフィックバッファID取得失敗
                         EndMatrox();
-                        return -8;
-                    case EXCPTIOERROR:
+                        return -10;
+                    case EXCEPTIOERROR:
                         // try-catchで捉えたエラー(内容はDLLError.log参照)
                         EndMatrox();
-                        return EXCPTIOERROR;
+                        return EXCEPTIOERROR;
                 }
                 m_bBaseInitialFinished = true;
                 return 0;
@@ -164,7 +170,7 @@ namespace MatroxCS
                 if (i_ret != 0)
                 {
                     // try-catchで捉えたエラー(内容はDLLError.log参照)
-                    return EXCPTIOERROR;
+                    return EXCEPTIOERROR;
                 }
             }
             // カメラオブジェクトリストをクリア
@@ -176,7 +182,7 @@ namespace MatroxCS
                 if (i_ret != 0)
                 {
                     // try-catchで捉えたエラー(内容はDLLError.log参照)
-                    return EXCPTIOERROR;
+                    return EXCEPTIOERROR;
                 }
             }
             // ディスプレイオブジェクトリストをクリア
@@ -186,14 +192,14 @@ namespace MatroxCS
             if (i_ret != 0)
             {
                 // try-catchで捉えたエラー(内容はDLLError.log参照)
-                return EXCPTIOERROR;
+                return EXCEPTIOERROR;
             }
             // ベースオブジェクトの終了処理
             m_cBase.End();
             if (i_ret != 0)
             {
                 // try-catchで捉えたエラー(内容はDLLError.log参照)
-                return EXCPTIOERROR;
+                return EXCEPTIOERROR;
             }
             if (m_bBaseInitialFinished)
             {
@@ -263,7 +269,7 @@ namespace MatroxCS
             if (i_ret != 0)
             {
                 // try-catchで捉えたエラー(内容はDLLError.log参照)
-                return EXCPTIOERROR;
+                return EXCEPTIOERROR;
             }
             if (m_cBase.GetFatalErrorOccured())
             {
@@ -387,9 +393,9 @@ namespace MatroxCS
                 case -2:
                     // 画像バッファ取得失敗
                     return -3;
-                case EXCPTIOERROR:
+                case EXCEPTIOERROR:
                     // try-catchで捉えたエラー(内容はDLLError.log参照)
-                    return EXCPTIOERROR;
+                    return EXCEPTIOERROR;
                 default:
                     // 無事、インスタンス・初期化処理完了
                     // ディスプレイオブジェクトリストに追加
@@ -454,9 +460,9 @@ namespace MatroxCS
             {
                 case -1:
                     return -4;
-                case EXCPTIOERROR:
+                case EXCEPTIOERROR:
                     // try-catchで捉えたエラー(内容はDLLError.log参照)
-                    return EXCPTIOERROR;
+                    return EXCEPTIOERROR;
                 default:
                     break;
             }
@@ -471,9 +477,9 @@ namespace MatroxCS
             {
                 case -1:
                     return -5;
-                case EXCPTIOERROR:
+                case EXCEPTIOERROR:
                     // try-catchで捉えたエラー(内容はDLLError.log参照)
-                    return EXCPTIOERROR;
+                    return EXCEPTIOERROR;
                 default:
                     break;
             }
@@ -507,14 +513,14 @@ namespace MatroxCS
                 if (i_ret != 0)
                 {
                     // try-catchで捉えたエラー(内容はDLLError.log参照)
-                    return EXCPTIOERROR;
+                    return EXCEPTIOERROR;
                 }
                 // ディスプレイオブジェクトのクローズ処理
                 m_lstDisplayImage[i_display_index].CloseDisplay();
                 if (i_ret != 0)
                 {
                     // try-catchで捉えたエラー(内容はDLLError.log参照)
-                    return EXCPTIOERROR;
+                    return EXCEPTIOERROR;
                 }
                 // 接続カメラオブジェクトの表示バッファの中身をnullにする
                 m_lstCamera[i_camera_index].ClearShowImage();
@@ -523,7 +529,7 @@ namespace MatroxCS
                 if (i_ret != 0)
                 {
                     // try-catchで捉えたエラー(内容はDLLError.log参照)
-                    return EXCPTIOERROR;
+                    return EXCEPTIOERROR;
                 }
             }
             else
@@ -533,7 +539,7 @@ namespace MatroxCS
                 i_ret = m_lstDisplayImage[i_display_index].CloseDisplay();
                 if (i_ret != 0)
                 {
-                    return EXCPTIOERROR;
+                    return EXCEPTIOERROR;
                 }
             }
             // ディスプレイリストから削除
@@ -588,9 +594,9 @@ namespace MatroxCS
                 case -3:
                     // 画像拡張子なし
                     return -5;
-                case EXCPTIOERROR:
+                case EXCEPTIOERROR:
                     // try-catchで捉えたエラー(内容はDLLError.log参照)
-                    return EXCPTIOERROR;
+                    return EXCEPTIOERROR;
                 default:
                     // エラーなし
                     break;
@@ -621,7 +627,7 @@ namespace MatroxCS
             if (i_ret != 0)
             {
                 // try-catchで捉えたエラー(内容はDLLError.log参照)
-                return EXCPTIOERROR;
+                return EXCEPTIOERROR;
             }
             return 0;
         }
@@ -660,7 +666,7 @@ namespace MatroxCS
             if (i_ret != 0)
             {
                 // try-catchで捉えたエラー(内容はDLLError.log参照)
-                return EXCPTIOERROR;
+                return EXCEPTIOERROR;
             }
             return 0;
         }
@@ -697,7 +703,7 @@ namespace MatroxCS
             if (i_ret != 0)
             {
                 // try-catchで捉えたエラー(内容はDLLError.log参照)
-                return EXCPTIOERROR;
+                return EXCEPTIOERROR;
             }
             return 0;
         }
@@ -738,9 +744,9 @@ namespace MatroxCS
                 case -3:
                     // パス内にファイル名無し
                     return -4;
-                case EXCPTIOERROR:
+                case EXCEPTIOERROR:
                     // try-catchで捉えたエラー(内容はDLLError.log参照)
-                    return EXCPTIOERROR;
+                    return EXCEPTIOERROR;
                 default:
                     // エラーなし
                     break;
@@ -824,234 +830,6 @@ namespace MatroxCS
             return i_ret;
         }
 
-
-        /// <summary>
-        /// 設定ファイルの内容を設定用オブジェクトに格納
-        /// </summary>
-        /// <param name="nstrSettingPath">設定ファイルパス</param>
-        /// <returns>0:正常終了、-1:異常終了</returns>
-        private int ReadParameter(string nstrSettingPath)
-        {
-            try
-            {
-                // ファイルから文字列を丸ごと抜き出す
-                string str_jsonfile_sentence = File.ReadAllText(nstrSettingPath);
-                // 文章内のコメントコード～改行コード間にある文とコメントコードを削除する
-                string str_jsonfile_sentence_commentout = CommentoutJsonSentence(str_jsonfile_sentence);
-                // コメントアウトの箇所を削除した文字列をデシリアライズする
-                m_cJsonCameraGeneral = JsonConvert.DeserializeObject<CJsonCameraGeneral>(str_jsonfile_sentence_commentout);
-            }
-            catch
-            {
-                return -1;
-            }
-            return 0;
-        }
-
-        /// <summary>
-        /// "###"ー"改行コード(\r\n)"間の文字を排除する
-        /// </summary>
-        /// <param name="n_strJsonfileContents">Jsonファイルから読み込んだstring型データ</param>
-        /// <returns>コメント削除結果</returns>
-        private string CommentoutJsonSentence(string nstrJsonfileContents)
-        {
-            string str_result = "";                     // 返答用のstring型データ
-            string str_contents = nstrJsonfileContents; // 主となるstring型データ
-            string str_front = "";                      // コメントコードより前の文章を格納するstring型データ
-            string str_back = "";                       // コメントコードより後の文章を格納するstring型データ
-            int i_num_comment_code;                     // コメントコードの位置を示すint型データ
-            int i_num_enter;                            // 改行コードの位置を示すint型データ
-
-            while (true)
-            {
-                // コメントコードの位置を探す
-                i_num_comment_code = str_contents.IndexOf(m_strCommentCode);
-                // コメントコードがこれ以上なければ終了
-                if (i_num_comment_code == -1)
-                {
-                    break;
-                }
-                // コメントコードよりも前の文章を抽出
-                str_front = str_contents.Substring(0, i_num_comment_code - 1);
-                // コメントコードよりも後の文章を抽出
-                str_back = str_contents.Substring(i_num_comment_code, str_contents.Length - i_num_comment_code);
-                // コメントコード直後の改行コードを探す
-                i_num_enter = str_back.IndexOf(m_strEnter);
-                // コメントコード直後の改行コードより後ろの文を抽出
-                str_contents = str_back.Substring(i_num_enter, str_back.Length - i_num_enter);
-                // コメントコードよりも前の文を返答用データに追加
-                str_result += str_front;
-            }
-            // コメントコードを含まない後半データを返答用データに追加
-            str_result += str_contents;
-            // 返答する
-            return str_result;
-        }
-
-        /// <summary>
-        /// 設定ファイルを作成する
-        /// </summary>
-        /// <param name="nstrJsonFilePath">作成ファイルパス</param>
-        private int CreateSettingFile(string nstrJsonFilePath)
-        {
-            Encoding encod_encoding = Encoding.GetEncoding("utf-8");
-            // デフォルトとなる情報を代入していく
-            CJsonCameraGeneral c_json_camera_general = new CJsonCameraGeneral();
-            CJsonCameraInfo c_json_camera_info = new CJsonCameraInfo();
-            c_json_camera_general.Number = 1;
-            c_json_camera_general.BoardType = 4;
-            c_json_camera_general.HeartBeatTime = 5;
-            c_json_camera_info.IdentifyName = "Camera1";
-            c_json_camera_info.CameraType = 0;
-            c_json_camera_info.CameraFile = " ";
-            c_json_camera_info.Width = 0;
-            c_json_camera_info.Height = 0;
-            c_json_camera_info.Color = 0;
-            c_json_camera_info.ImagePose = 0;
-            c_json_camera_info.UseSerialComm = 0;
-            c_json_camera_info.COMNo = 0;
-            c_json_camera_info.IPAddress = " ";
-            c_json_camera_general.CameraInformation.Add(c_json_camera_info);
-            // パラメータをシリアライズする
-            string str_json_contents = JsonConvert.SerializeObject(c_json_camera_general, Formatting.Indented);
-            // パラメータ文字列にコメントを追加する
-            AddCommentToParameterDescription(ref str_json_contents);
-            
-            // jsonファイルを作成する
-            using (FileStream fs = File.Create(nstrJsonFilePath)) { }
-            // jsonファイルにパラメータ文字列を書き込む
-            using (var writer = new StreamWriter(nstrJsonFilePath, false, encod_encoding))
-            {
-                writer.WriteLine(str_json_contents);
-            }
-            return 0;
-        }
-
-        /// <summary>
-        /// 作成される設定ファイルにコメントと加える
-        /// </summary>
-        /// <param name="nstrJsonContents">json型をシリアライズした文字列</param>
-        private void AddCommentToParameterDescription(ref string nstrJsonContents)
-        {
-            // 取得するパラメータのアクセス修飾子を指定する
-            BindingFlags b_access_flag = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
-            // 一般設定項目クラスからプロパティを取得する
-            PropertyInfo[] props_json_camera_general = typeof(CJsonCameraGeneral).GetProperties(b_access_flag);
-            string str_comment_contents = "";           // コメント内容
-            int i_num_prop_name;                        // コメントコードの位置を示すint型データ
-            int i_num_enter;                            // 改行コードの位置を示すint型データ
-            foreach (PropertyInfo prop in props_json_camera_general)
-            {
-                // 各プロパティのコメントを設定する
-                switch (prop.Name)
-                {
-                    case "Number":
-                        str_comment_contents = "カメラ台数";
-                        break;
-                    case "BoardType":
-                        str_comment_contents = "ボードタイプ";
-                        break;
-                    case "HeartBeatTime":
-                        str_comment_contents = "最大カメラ取得待機時間(単位は秒、指定秒数以上カメラから画像が取得できないとエラーとする)";
-                        break;
-                    case "CameraInformation":
-                        str_comment_contents = "カメラ毎の固有情報";
-                        break;
-                    default:
-                        str_comment_contents = "";
-                        break;
-                }
-                // 指定プロパティ名直後改行コードの直前にコメント追加する
-                i_num_prop_name = nstrJsonContents.IndexOf(prop.Name);
-                if (i_num_prop_name != -1)
-                {
-                    i_num_enter = nstrJsonContents.IndexOf(m_strEnter, i_num_prop_name);
-                    nstrJsonContents = $"{nstrJsonContents.Substring(0, i_num_enter)}          {m_strCommentCode} {str_comment_contents}{nstrJsonContents.Substring(i_num_enter, nstrJsonContents.Length - (i_num_enter))}";
-                }
-
-            }
-            // 詳細設定項目クラスからプロパティを取得する
-            PropertyInfo[] props_json_camera_info = typeof(CJsonCameraInfo).GetProperties(b_access_flag);
-            foreach (PropertyInfo prop in props_json_camera_info)
-            {
-                // 各プロパティのコメントを設定する
-                switch (prop.Name)
-                {
-                    case "IdentifyName":
-                        str_comment_contents = "カメラ固有ネーム";
-                        break;
-                    case "CameraType":
-                        str_comment_contents = "現在未使用";
-                        break;
-                    case "CameraFile":
-                        str_comment_contents = "dcfファイル名";
-                        break;
-                    case "Width":
-                        str_comment_contents = "画像の幅";
-                        break;
-                    case "Height":
-                        str_comment_contents = "画像の高さ";
-                        break;
-                    case "Color":
-                        str_comment_contents = "現在未使用";
-                        break;
-                    case "ImagePose":
-                        str_comment_contents = "現在未使用";
-                        break;
-                    case "UseSerialComm":
-                        str_comment_contents = "現在未使用";
-                        break;
-                    case "COMNo":
-                        str_comment_contents = "現在未使用";
-                        break;
-                    case "IPAddress":
-                        str_comment_contents = "カメラのIPアドレス";
-                        break;
-                    default:
-                        str_comment_contents = "";
-                        break;
-                }
-                // 指定プロパティ名直後改行コードの直前にコメント追加する
-                i_num_prop_name = nstrJsonContents.IndexOf(prop.Name);
-                if (i_num_prop_name != -1)
-                {
-                    i_num_enter = nstrJsonContents.IndexOf(m_strEnter, i_num_prop_name);
-                    nstrJsonContents = $"{nstrJsonContents.Substring(0, i_num_enter)}          {m_strCommentCode} {str_comment_contents}{nstrJsonContents.Substring(i_num_enter, nstrJsonContents.Length - (i_num_enter))}";
-                }
-            }
-        }
-
         #endregion 
     }
-
-    #region カメラパラメータクラス
-    /// <summary>
-    /// 一般設定項目
-    /// </summary>
-    class CJsonCameraGeneral
-    {
-        public int Number { get; set; }         // カメラ個数
-        public int BoardType { get; set; }      // ボード種類 
-        public int HeartBeatTime { get; set; } // ハートビート時間(単位:s)
-        public List<CJsonCameraInfo> CameraInformation { get; private set; } = new List<CJsonCameraInfo>(); // カメラの詳細情報
-    }
-
-    /// <summary>
-    /// 詳細設定項目
-    /// </summary>
-    class CJsonCameraInfo
-    {
-        public string IdentifyName { get; set; }    // 識別ネーム
-        public int CameraType { get; set; }         // 現在未使用
-        public string CameraFile { get; set; }      // DCFファイルパス
-        public int Width { get; set; }              // 取得画像幅
-        public int Height { get; set; }             // 取得画像高さ
-        public int Color { get; set; }              // 現在未使用
-        public int ImagePose { get; set; }          // 現在未使用
-        public int UseSerialComm { get; set; }      // 現在未使用
-        public int COMNo { get; set; }              // 現在未使用
-        public string IPAddress { get; set; }       // gigeカメラのIPアドレス
-    }
-
-    #endregion
 }

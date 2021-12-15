@@ -9,6 +9,7 @@ using Matrox.MatroxImagingLibrary;
 using System.Runtime.InteropServices;
 using System.Reflection;
 using System.Timers;
+using MatroxCS.Parameter;
 
 namespace MatroxCS
 {
@@ -50,7 +51,7 @@ namespace MatroxCS
         /// コンストラクタ
         /// </summary>
         /// <param name="ncJsonCameraInfo">カメラ情報</param>
-        public CCamera(CJsonCameraInfo ncJsonCameraInfo, int niHeartBeatTime)
+        public CCamera(CCameraInfo ncJsonCameraInfo, int niHeartBeatTime)
         {
             // カメラIPアドレスの指定
             m_strIPAddress = ncJsonCameraInfo.IPAddress;
