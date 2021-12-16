@@ -32,7 +32,7 @@ namespace MatroxCS
 
         const int FATAL_ERROR_OCCURED = -100;                                   // MILの処理中に発生した致命的エラー
         const int UNCOMPLETED_OPENING_ERROR = -200;                             // 初期化完了前に処理を実行した時のエラー
-        const int EXCEPTIOERROR = -999;                                         // try-catchで捉えたエラー
+        const int EXCEPTIONERROR = -999;                                         // try-catchで捉えたエラー
 
         #endregion
 
@@ -98,10 +98,10 @@ namespace MatroxCS
                         // システムID取得失敗
                         EndMatrox();
                         return -7;
-                    case EXCEPTIOERROR:
+                    case EXCEPTIONERROR:
                         // try-catchで捉えたエラー(内容はDLLError.log参照)
                         EndMatrox();
-                        return EXCEPTIOERROR;
+                        return EXCEPTIONERROR;
                     default:
                         // エラーなし
                         break;
@@ -125,10 +125,10 @@ namespace MatroxCS
                             // グラブ専用バッファ取得失敗
                             EndMatrox();
                             return -9;
-                        case EXCEPTIOERROR:
+                        case EXCEPTIONERROR:
                             // try-catchで捉えたエラー(内容はDLLError.log参照)
                             EndMatrox();
-                            return EXCEPTIOERROR;
+                            return EXCEPTIONERROR;
                         default:
                             // 無事、インスタンス・オープン処理完了
                             // カメラリストに追加
@@ -144,10 +144,10 @@ namespace MatroxCS
                         // グラフィックバッファID取得失敗
                         EndMatrox();
                         return -10;
-                    case EXCEPTIOERROR:
+                    case EXCEPTIONERROR:
                         // try-catchで捉えたエラー(内容はDLLError.log参照)
                         EndMatrox();
-                        return EXCEPTIOERROR;
+                        return EXCEPTIONERROR;
                 }
                 m_bBaseInitialFinished = true;
                 return 0;
@@ -168,7 +168,7 @@ namespace MatroxCS
                 if (i_ret != 0)
                 {
                     // try-catchで捉えたエラー(内容はDLLError.log参照)
-                    return EXCEPTIOERROR;
+                    return EXCEPTIONERROR;
                 }
             }
             // カメラオブジェクトリストをクリア
@@ -180,7 +180,7 @@ namespace MatroxCS
                 if (i_ret != 0)
                 {
                     // try-catchで捉えたエラー(内容はDLLError.log参照)
-                    return EXCEPTIOERROR;
+                    return EXCEPTIONERROR;
                 }
             }
             // ディスプレイオブジェクトリストをクリア
@@ -190,14 +190,14 @@ namespace MatroxCS
             if (i_ret != 0)
             {
                 // try-catchで捉えたエラー(内容はDLLError.log参照)
-                return EXCEPTIOERROR;
+                return EXCEPTIONERROR;
             }
             // ベースオブジェクトの終了処理
             m_cBase.End();
             if (i_ret != 0)
             {
                 // try-catchで捉えたエラー(内容はDLLError.log参照)
-                return EXCEPTIOERROR;
+                return EXCEPTIONERROR;
             }
             if (m_bBaseInitialFinished)
             {
@@ -267,7 +267,7 @@ namespace MatroxCS
             if (i_ret != 0)
             {
                 // try-catchで捉えたエラー(内容はDLLError.log参照)
-                return EXCEPTIOERROR;
+                return EXCEPTIONERROR;
             }
             if (m_cBase.GetFatalErrorOccured())
             {
@@ -355,10 +355,10 @@ namespace MatroxCS
         /// ディスプレイオープン
         /// </summary>
         /// <param name="nhHandle">指定ディスプレイハンドル</param>
-        /// <param name="nDisplaySize">ディスプレイサイズ</param>
+        /// <param name="nszDisplaySize">ディスプレイサイズ</param>
         /// <returns>新規作成ディスプレイID、-1:ハンドルの多重使用、-2:ディスプレイID取得失敗、-3:画像バッファ取得失敗、-100:致命的エラー発生中<br />
         /// -200:初期化未完了、-999:異常終了(内容に関してはDLLError.log参照)</returns>
-        public int OpenDisplay(IntPtr nhHandle, Size nDisplaySize)
+        public int OpenDisplay(IntPtr nhHandle, Size nszDisplaySize)
         {
             int i_ret;
             // 初期化処理が未完了の場合はエラーを返す
@@ -382,7 +382,7 @@ namespace MatroxCS
             // ディスプレイクラスのインスタンスを作成
             CDisplayImage c_display = new CDisplayImage();
             // 新規作成したディスプレイオブジェクトにハンドルとサイズを渡す
-            i_ret = c_display.OpenDisplay(nhHandle, nDisplaySize);
+            i_ret = c_display.OpenDisplay(nhHandle, nszDisplaySize);
             switch (i_ret)
             {
                 case -1:
@@ -391,9 +391,9 @@ namespace MatroxCS
                 case -2:
                     // 画像バッファ取得失敗
                     return -3;
-                case EXCEPTIOERROR:
+                case EXCEPTIONERROR:
                     // try-catchで捉えたエラー(内容はDLLError.log参照)
-                    return EXCEPTIOERROR;
+                    return EXCEPTIONERROR;
                 default:
                     // 無事、インスタンス・初期化処理完了
                     // ディスプレイオブジェクトリストに追加
@@ -451,16 +451,16 @@ namespace MatroxCS
                 }
             }
             //  カメラの画像サイズ取得
-            Size sz = m_lstCamera[i_camera_index].GetImageSize();
+            Size sz_camera = m_lstCamera[i_camera_index].GetImageSize();
             //  このサイズでディスプレイの画像バッファを作成する
-            i_ret = m_lstDisplayImage[i_display_index].CreateImage(sz);
+            i_ret = m_lstDisplayImage[i_display_index].CreateImage(sz_camera);
             switch (i_ret)
             {
                 case -1:
                     return -4;
-                case EXCEPTIOERROR:
+                case EXCEPTIONERROR:
                     // try-catchで捉えたエラー(内容はDLLError.log参照)
-                    return EXCEPTIOERROR;
+                    return EXCEPTIONERROR;
                 default:
                     break;
             }
@@ -475,9 +475,9 @@ namespace MatroxCS
             {
                 case -1:
                     return -5;
-                case EXCEPTIOERROR:
+                case EXCEPTIONERROR:
                     // try-catchで捉えたエラー(内容はDLLError.log参照)
-                    return EXCEPTIOERROR;
+                    return EXCEPTIONERROR;
                 default:
                     break;
             }
@@ -500,25 +500,25 @@ namespace MatroxCS
                 return -1;
             }
             // ディスプレイオブジェクトに接続しているカメラIDを取得、なければnullが入る
-            int? i_ret_connectcamera_id = m_lstDisplayImage[i_display_index].GetConnectCameraID();
-            if (i_ret_connectcamera_id != null)
+            int? i_ret_connect_camera_id = m_lstDisplayImage[i_display_index].GetConnectCameraID();
+            if (i_ret_connect_camera_id != null)
             {
                 // 接続カメラ有りの処理
                 // 接続してたカメラオブジェクトのインデックスを取得
-                int i_camera_index = SearchCameraID((int)i_ret_connectcamera_id);
+                int i_camera_index = SearchCameraID((int)i_ret_connect_camera_id);
                 // 接続カメラのスルー状態を一時停止
                 i_ret = m_lstCamera[i_camera_index].ChangeFreezeState();
                 if (i_ret != 0)
                 {
                     // try-catchで捉えたエラー(内容はDLLError.log参照)
-                    return EXCEPTIOERROR;
+                    return EXCEPTIONERROR;
                 }
                 // ディスプレイオブジェクトのクローズ処理
                 m_lstDisplayImage[i_display_index].CloseDisplay();
                 if (i_ret != 0)
                 {
                     // try-catchで捉えたエラー(内容はDLLError.log参照)
-                    return EXCEPTIOERROR;
+                    return EXCEPTIONERROR;
                 }
                 // 接続カメラオブジェクトの表示バッファの中身をnullにする
                 m_lstCamera[i_camera_index].ClearShowImage();
@@ -527,7 +527,7 @@ namespace MatroxCS
                 if (i_ret != 0)
                 {
                     // try-catchで捉えたエラー(内容はDLLError.log参照)
-                    return EXCEPTIOERROR;
+                    return EXCEPTIONERROR;
                 }
             }
             else
@@ -537,7 +537,7 @@ namespace MatroxCS
                 i_ret = m_lstDisplayImage[i_display_index].CloseDisplay();
                 if (i_ret != 0)
                 {
-                    return EXCEPTIOERROR;
+                    return EXCEPTIONERROR;
                 }
             }
             // ディスプレイリストから削除
@@ -592,9 +592,9 @@ namespace MatroxCS
                 case -3:
                     // 画像拡張子なし
                     return -5;
-                case EXCEPTIOERROR:
+                case EXCEPTIONERROR:
                     // try-catchで捉えたエラー(内容はDLLError.log参照)
-                    return EXCEPTIOERROR;
+                    return EXCEPTIONERROR;
                 default:
                     // エラーなし
                     break;
@@ -625,7 +625,7 @@ namespace MatroxCS
             if (i_ret != 0)
             {
                 // try-catchで捉えたエラー(内容はDLLError.log参照)
-                return EXCEPTIOERROR;
+                return EXCEPTIONERROR;
             }
             return 0;
         }
@@ -664,7 +664,7 @@ namespace MatroxCS
             if (i_ret != 0)
             {
                 // try-catchで捉えたエラー(内容はDLLError.log参照)
-                return EXCEPTIOERROR;
+                return EXCEPTIONERROR;
             }
             return 0;
         }
@@ -701,7 +701,7 @@ namespace MatroxCS
             if (i_ret != 0)
             {
                 // try-catchで捉えたエラー(内容はDLLError.log参照)
-                return EXCEPTIOERROR;
+                return EXCEPTIONERROR;
             }
             return 0;
         }
@@ -742,9 +742,9 @@ namespace MatroxCS
                 case -3:
                     // パス内にファイル名無し
                     return -4;
-                case EXCEPTIOERROR:
+                case EXCEPTIONERROR:
                     // try-catchで捉えたエラー(内容はDLLError.log参照)
-                    return EXCEPTIOERROR;
+                    return EXCEPTIONERROR;
                 default:
                     // エラーなし
                     break;
