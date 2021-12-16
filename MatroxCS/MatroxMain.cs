@@ -26,9 +26,6 @@ namespace MatroxCS
         CParameterBase m_cParameter = new CParameterFromJsonFile();             // パラメータオブジェクト
         bool m_bBaseInitialFinished = false;                                    // 初期処理完了済みかを示す
 
-        string m_strCommentCode = "###";                                        // コメントコード
-        string m_strEnter = "\r\n";                                              // 改行コード
-
         #endregion
 
         #region 固有エラー番号
@@ -45,12 +42,13 @@ namespace MatroxCS
         /// Matrox制御の初期化
         /// </summary>
         /// <param name="nstrSettingFilePath">設定ファイルパス</param>
+        /// <param name="nstrExeFolderPath">アプリケーションの実行パスexe</param>
         /// <returns>
         /// 0:正常終了、-1:設定ファイルの途中パスディレクトリが存在しない、-2:設定ファイル作成・書き込みエラー、-3:設定ファイルなし(新規作成)、-4:設定ファイル構文エラー<br />
         /// -5:アプリケーションID取得失敗、-6:指定ボードの該当なし、-7:システムID取得失敗、-8:デジタイザー取得失敗、-9:グラブ専用バッファ取得失敗、-10:グラフィックバッファID取得失敗<br />
         /// -99:初期化の重複エラー、-999:異常終了(内容に関してはDLLError.log参照)
         /// </returns>
-        public int InitMatrox(string nstrSettingFilePath, string nstrExePath)
+        public int InitMatrox(string nstrSettingFilePath, string nstrExeFolderPath)
         {
             // 初期化処理を既に行っていた場合は行わない
             if (m_bBaseInitialFinished)
@@ -85,7 +83,7 @@ namespace MatroxCS
                 // 致命的なエラー発生時に起動するイベントハンドラを渡す
                 CBase.m_sevFatalErrorOccured += m_evMatroxFatalErrorOccured;
                 // ベースオブジェクトを初期化
-                i_ret = m_cBase.Initial(CParameterBase.m_scCameraGeneral.BoardType, nstrExePath);
+                i_ret = m_cBase.Initial(CParameterBase.m_scCameraGeneral.BoardType, nstrExeFolderPath);
                 switch (i_ret)
                 {
                     case -1:
@@ -249,7 +247,7 @@ namespace MatroxCS
         /// </summary>
         /// <param name="niCameraID">指定カメラID</param>
         /// <returns>0:正常終了、-1:該当カメラID無し、-100:致命的エラー発生中、-999:異常終了(内容に関してはDLLError.log参照)</returns>
-        public int Through(int niCameraID)
+        public int ChangeThroughState(int niCameraID)
         {
             int i_ret;
             if (m_cBase.GetFatalErrorOccured())
@@ -265,7 +263,7 @@ namespace MatroxCS
                 return -1;
             }
             // スルー状態にする
-            i_ret = m_lstCamera[i_camera_index].Through();
+            i_ret = m_lstCamera[i_camera_index].ChangeThroughState();
             if (i_ret != 0)
             {
                 // try-catchで捉えたエラー(内容はDLLError.log参照)
@@ -302,7 +300,7 @@ namespace MatroxCS
                 return -1;
             }
             // 画像差分モードをオンにする
-            i_ret = m_lstCamera[i_camera_index].SetDiffPicDiscriminationMode(nbShowDiffPic);
+            i_ret = m_lstCamera[i_camera_index].SetDiffPictureMode(nbShowDiffPic);
             switch (i_ret)
             {
                 case -1:
@@ -342,7 +340,7 @@ namespace MatroxCS
                 return -1;
             }
             // 画像差分モードをオフにする
-            m_lstCamera[i_camera_index].ResetDiffPicDiscriminationMode();
+            m_lstCamera[i_camera_index].ResetDiffPictureMode();
             if (m_cBase.GetFatalErrorOccured())
             {
                 // 致命的なエラーが起きている
@@ -509,7 +507,7 @@ namespace MatroxCS
                 // 接続してたカメラオブジェクトのインデックスを取得
                 int i_camera_index = SearchCameraID((int)i_ret_connectcamera_id);
                 // 接続カメラのスルー状態を一時停止
-                i_ret = m_lstCamera[i_camera_index].Freeze();
+                i_ret = m_lstCamera[i_camera_index].ChangeFreezeState();
                 if (i_ret != 0)
                 {
                     // try-catchで捉えたエラー(内容はDLLError.log参照)
@@ -525,7 +523,7 @@ namespace MatroxCS
                 // 接続カメラオブジェクトの表示バッファの中身をnullにする
                 m_lstCamera[i_camera_index].ClearShowImage();
                 // 接続カメラを再度スルーにする
-                m_lstCamera[i_camera_index].Through();
+                m_lstCamera[i_camera_index].ChangeThroughState();
                 if (i_ret != 0)
                 {
                     // try-catchで捉えたエラー(内容はDLLError.log参照)

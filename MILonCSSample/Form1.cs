@@ -16,7 +16,7 @@ namespace MILonCSSample
         CMatroxMain cMatroxMain;     // マトロックスオブジェクト
         List<int> m_lstCameraID;     // カメラリストID
         List<int> m_lstDisplayID;    // ディスプレイID{パネル1, パネル2, パネル3, パネル4}
-        string m_strExePath;         // アプリケーションの実行パス
+        string m_strExeFolderPath;         // アプリケーションの実行パス
         bool m_bPnl4GraphEnable;     // パネル4のグラフィック描画の有無
         bool m_bConnect = false;
 
@@ -63,11 +63,11 @@ namespace MILonCSSample
             cMatroxMain.m_evMatroxFatalErrorOccured += OccuredMatroxFatalError;
             int i_ret = 0;
             // exeファイルのいるフォルダーパスを取得
-            m_strExePath = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
+            m_strExeFolderPath = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
             // 設定ファイルパスを作成
-            string str_setting_file_path = $@"{m_strExePath}\setting.json";
+            string str_setting_file_path = $@"{m_strExeFolderPath}\setting.json";
             // 設定ファイルの読み込み、カメラオープンを行う
-            i_ret = cMatroxMain.InitMatrox(str_setting_file_path, m_strExePath);
+            i_ret = cMatroxMain.InitMatrox(str_setting_file_path, m_strExeFolderPath);
             if (i_ret != 0)
             {
                 DialogResult result;
@@ -138,7 +138,7 @@ namespace MILonCSSample
             // カメラをスルー状態にする
             for (int i_loop = 0; i_loop < m_lstCameraID.Count(); i_loop++)
             {
-                i_ret = cMatroxMain.Through(m_lstCameraID[i_loop]);
+                i_ret = cMatroxMain.ChangeThroughState(m_lstCameraID[i_loop]);
                 if (i_ret != -1)
                 {
                     // エラー処理
@@ -377,7 +377,7 @@ namespace MILonCSSample
                     }
                 }
             }
-            string str_img_file_path = $@"{m_strExePath}\image.jpg";
+            string str_img_file_path = $@"{m_strExeFolderPath}\image.jpg";
             // パネル3に画像をロードし、表示
             i_ret = cMatroxMain.LoadImage(str_img_file_path, m_lstDisplayID[2]);
             if (i_ret != 0)
@@ -952,7 +952,7 @@ namespace MILonCSSample
                 int i_ret;
                 DateTime date_now = System.DateTime.Now;
                 // 日時からファイル名を作成
-                string str_picture_file_path = $@"{m_strExePath}\Picture\{date_now.ToString("yyyyMMdd_HHmmssfff")}.jpg";
+                string str_picture_file_path = $@"{m_strExeFolderPath}\Picture\{date_now.ToString("yyyyMMdd_HHmmssfff")}.jpg";
                 // パネル1の画像を保存する
                 i_ret = cMatroxMain.SaveImage(str_picture_file_path, true, m_lstDisplayID[0]);
                 if (i_ret != 0)

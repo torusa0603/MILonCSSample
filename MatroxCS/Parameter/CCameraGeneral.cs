@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace MatroxCS.Parameter
 {
+    /// <summary>
+    /// カメラに関する全般設定項目
+    /// </summary>
     class CCameraGeneral
     {
         public int Number { get; set; }         // カメラ個数

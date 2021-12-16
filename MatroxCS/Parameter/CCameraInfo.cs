@@ -1,5 +1,8 @@
 ﻿namespace MatroxCS.Parameter
 {
+    /// <summary>
+    /// 個々のカメラに対する設定項目
+    /// </summary>
     class CCameraInfo
     {
         public string IdentifyName { get; set; }    // 識別ネーム

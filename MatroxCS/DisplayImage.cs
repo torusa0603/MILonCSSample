@@ -264,7 +264,7 @@ namespace MatroxCS
         /// <summary>
         /// 倍率切替
         /// </summary>
-        /// <param name="ndMagRate"></param>
+        /// <param name="ndMagRate">倍率値</param>
         /// <returns>0:正常終了、-999:異常終了</returns>
         public int SetMagRate(double ndMagRate)
         {
@@ -423,6 +423,7 @@ namespace MatroxCS
                         MIL.MbufExport(nstrImageFilePath, MIL.M_BMP, mil_result_temp);
                         break;
                     case "tiff":
+                        // tiffで保存する
                         MIL.MbufExport(nstrImageFilePath, MIL.M_TIFF, mil_result_temp);
                         break;
                 }

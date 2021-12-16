@@ -40,8 +40,6 @@ namespace MatroxCS
         Size m_szImageSize;                                             // 画像サイズ。カメラ画像バッファもカメラ映像用バッファも同サイズ
         string m_strCameraFilePath;                                     // DCFファイル名
         string m_strCameraIdentifyName;                                 // カメラ固有名称
-        double m_dGain;                                                 // ゲイン
-        long m_lShtterSpeed;                                            // 露光時間(単位：μs)
 
         #endregion
 
@@ -50,17 +48,17 @@ namespace MatroxCS
         /// <summary>
         /// コンストラクタ
         /// </summary>
-        /// <param name="ncJsonCameraInfo">カメラ情報</param>
-        public CCamera(CCameraInfo ncJsonCameraInfo, int niHeartBeatTime)
+        /// <param name="ncCameraInfo">カメラ情報</param>
+        public CCamera(CCameraInfo ncCameraInfo, int niHeartBeatTime)
         {
             // カメラIPアドレスの指定
-            m_strIPAddress = ncJsonCameraInfo.IPAddress;
+            m_strIPAddress = ncCameraInfo.IPAddress;
             // DCFファイルの指定
-            m_strCameraFilePath = $@"{m_sstrExePath}\{ncJsonCameraInfo.CameraFile}";
+            m_strCameraFilePath = $@"{m_sstrExeFolderPath}\{ncCameraInfo.CameraFile}";
             // カメラ固有名を指定
-            m_strCameraIdentifyName = ncJsonCameraInfo.IdentifyName;
+            m_strCameraIdentifyName = ncCameraInfo.IdentifyName;
             // 画像サイスの指定
-            m_szImageSize = new Size(ncJsonCameraInfo.Width, ncJsonCameraInfo.Height);
+            m_szImageSize = new Size(ncCameraInfo.Width, ncCameraInfo.Height);
             // カメラ画像を待つ最大秒を指定する
             m_timerHeartbeat = new Timer(niHeartBeatTime * 1000);
             // 一定時間カメラから画像を取得できない時に起動するイベントを登録する
@@ -137,7 +135,7 @@ namespace MatroxCS
                 //  スルー状態なら、フリーズにする
                 if (m_bThroughFlg == true)
                 {
-                    Freeze();
+                    ChangeFreezeState();
                 }
                 //  グラブ専用バッファ開放
                 if (m_milGrabImageArray[0] != MIL.M_NULL)
@@ -150,7 +148,7 @@ namespace MatroxCS
                     MIL.MbufFree(m_milGrabImageArray[1]);
                     m_milGrabImageArray[1] = MIL.M_NULL;
                 }
-                ResetDiffPicDiscriminationMode();
+                ResetDiffPictureMode();
                 //m_milShowImageは開放しない。これはdispクラスが開放するから。
 
                 //  デジタイザ開放
@@ -177,7 +175,7 @@ namespace MatroxCS
         /// スルーを行う
         /// </summary>
         /// <returns>0:正常終了、-999:異常終了</returns>
-        public int Through()
+        public int ChangeThroughState()
         {
             try
             {
@@ -214,7 +212,7 @@ namespace MatroxCS
         /// フリーズを行う
         /// </summary>
         /// <returns>0:正常終了、-999:異常終了</returns>
-        public int Freeze()
+        public int ChangeFreezeState()
         {
             try
             {
@@ -349,7 +347,7 @@ namespace MatroxCS
         /// </summary>
         /// <param name="nbShowDiffPic">差分画像を表示を行うか</param>
         /// <returns>0:正常終了、-1:差分元画像バッファ取得失敗、-2:差分結果画像バッファ取得失敗</returns>
-        public int SetDiffPicDiscriminationMode(bool nbShowDiffPic)
+        public int SetDiffPictureMode(bool nbShowDiffPic)
         {
             // 画像差分モードがオフであれば処理を行う
             if (!m_bDiffPicDisciminateMode)
@@ -382,7 +380,7 @@ namespace MatroxCS
         /// <summary>
         /// 差分画像モードをオフにする
         /// </summary>
-        public void ResetDiffPicDiscriminationMode()
+        public void ResetDiffPictureMode()
         {
             // 画像差分モードがオンであれば処理を行う
             if (m_bDiffPicDisciminateMode)
@@ -435,7 +433,7 @@ namespace MatroxCS
                             if (i_ret != 0)
                             {
                                 // 差分画像を作成失敗時は差分画像モードをオフにする
-                                m_cCamera.ResetDiffPicDiscriminationMode();
+                                m_cCamera.ResetDiffPictureMode();
                             }
                         }
                         // 最新の画像バッファを差分画像元バッファにコピーする
@@ -484,7 +482,7 @@ namespace MatroxCS
             //  エラーログ出力
             m_sdicLogInstance[m_sstrLogKeyDllError].OutputLog($"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},DisapperCamera");
             // フリーズ状態にする
-            Freeze();
+            ChangeFreezeState();
         }
 
         #endregion
