@@ -96,15 +96,15 @@ namespace MatroxCS
                         // システムID取得失敗
                         EndMatrox();
                         return -8;
-                    case Define.EXCEPTION_ERROR:
+                    case Define.SpecificErrorCode.EXCEPTION_ERROR:
                         // try-catchで捉えたエラー(内容はDLLError.log参照)
                         EndMatrox();
-                        return Define.EXCEPTION_ERROR;
+                        return Define.SpecificErrorCode.EXCEPTION_ERROR;
                     default:
                         // エラーなし
                         break;
                 }
-
+                
                 int i_loop;
                 //  カメラ初期化
                 for (i_loop = 0; i_loop < i_camera_num; i_loop++)
@@ -123,10 +123,10 @@ namespace MatroxCS
                             // グラブ専用バッファ取得失敗
                             EndMatrox();
                             return -10;
-                        case Define.EXCEPTION_ERROR:
+                        case Define.SpecificErrorCode.EXCEPTION_ERROR:
                             // try-catchで捉えたエラー(内容はDLLError.log参照)
                             EndMatrox();
-                            return Define.EXCEPTION_ERROR;
+                            return Define.SpecificErrorCode.EXCEPTION_ERROR;
                         default:
                             // 無事、インスタンス・オープン処理完了
                             // カメラリストに追加
@@ -142,10 +142,10 @@ namespace MatroxCS
                         // グラフィックバッファID取得失敗
                         EndMatrox();
                         return -11;
-                    case Define.EXCEPTION_ERROR:
+                    case Define.SpecificErrorCode.EXCEPTION_ERROR:
                         // try-catchで捉えたエラー(内容はDLLError.log参照)
                         EndMatrox();
-                        return Define.EXCEPTION_ERROR;
+                        return Define.SpecificErrorCode.EXCEPTION_ERROR;
                 }
                 m_bBaseInitialFinished = true;
                 return 0;
@@ -166,7 +166,7 @@ namespace MatroxCS
                 if (i_ret != 0)
                 {
                     // try-catchで捉えたエラー(内容はDLLError.log参照)
-                    return Define.EXCEPTION_ERROR;
+                    return Define.SpecificErrorCode.EXCEPTION_ERROR;
                 }
             }
             // カメラオブジェクトリストをクリア
@@ -178,7 +178,7 @@ namespace MatroxCS
                 if (i_ret != 0)
                 {
                     // try-catchで捉えたエラー(内容はDLLError.log参照)
-                    return Define.EXCEPTION_ERROR;
+                    return Define.SpecificErrorCode.EXCEPTION_ERROR;
                 }
             }
             // ディスプレイオブジェクトリストをクリア
@@ -188,14 +188,14 @@ namespace MatroxCS
             if (i_ret != 0)
             {
                 // try-catchで捉えたエラー(内容はDLLError.log参照)
-                return Define.EXCEPTION_ERROR;
+                return Define.SpecificErrorCode.EXCEPTION_ERROR;
             }
             // ベースオブジェクトの終了処理
             m_cBase.End();
             if (i_ret != 0)
             {
                 // try-catchで捉えたエラー(内容はDLLError.log参照)
-                return Define.EXCEPTION_ERROR;
+                return Define.SpecificErrorCode.EXCEPTION_ERROR;
             }
             if (m_bBaseInitialFinished)
             {
@@ -251,7 +251,7 @@ namespace MatroxCS
             if (m_cBase.GetFatalErrorOccured())
             {
                 // 致命的なエラーが起きている
-                return Define.FATAL_ERROR_OCCURED;
+                return Define.SpecificErrorCode.FATAL_ERROR_OCCURED;
             }
             // 指定カメラIDのインデックスを探す
             int i_camera_index = SearchCameraID(niCameraID);
@@ -265,12 +265,12 @@ namespace MatroxCS
             if (i_ret != 0)
             {
                 // try-catchで捉えたエラー(内容はDLLError.log参照)
-                return Define.EXCEPTION_ERROR;
+                return Define.SpecificErrorCode.EXCEPTION_ERROR;
             }
             if (m_cBase.GetFatalErrorOccured())
             {
                 // 致命的なエラーが起きている
-                return Define.FATAL_ERROR_OCCURED;
+                return Define.SpecificErrorCode.FATAL_ERROR_OCCURED;
             }
 
             return 0;
@@ -288,7 +288,7 @@ namespace MatroxCS
             if (m_cBase.GetFatalErrorOccured())
             {
                 // 致命的なエラーが起きている
-                return Define.FATAL_ERROR_OCCURED;
+                return Define.SpecificErrorCode.FATAL_ERROR_OCCURED;
             }
             // 指定カメラIDのインデックスを探す
             int i_camera_index = SearchCameraID(niCameraID);
@@ -313,7 +313,7 @@ namespace MatroxCS
             if (m_cBase.GetFatalErrorOccured())
             {
                 // 致命的なエラーが起きている
-                return Define.FATAL_ERROR_OCCURED;
+                return Define.SpecificErrorCode.FATAL_ERROR_OCCURED;
             }
 
             return 0;
@@ -328,7 +328,7 @@ namespace MatroxCS
             if (m_cBase.GetFatalErrorOccured())
             {
                 // 致命的なエラーが起きている
-                return Define.FATAL_ERROR_OCCURED;
+                return Define.SpecificErrorCode.FATAL_ERROR_OCCURED;
             }
             // 指定カメラIDのインデックスを探す
             int i_camera_index = SearchCameraID(niCameraID);
@@ -342,7 +342,7 @@ namespace MatroxCS
             if (m_cBase.GetFatalErrorOccured())
             {
                 // 致命的なエラーが起きている
-                return Define.FATAL_ERROR_OCCURED;
+                return Define.SpecificErrorCode.FATAL_ERROR_OCCURED;
             }
 
             return 0;
@@ -362,12 +362,12 @@ namespace MatroxCS
             // 初期化処理が未完了の場合はエラーを返す
             if (!m_bBaseInitialFinished)
             {
-                return Define.UNCOMPLETED_OPENING_ERROR;
+                return Define.SpecificErrorCode.UNCOMPLETED_OPENING_ERROR;
             }
             if (m_cBase.GetFatalErrorOccured())
             {
                 // 致命的なエラーが起きている
-                return Define.FATAL_ERROR_OCCURED;
+                return Define.SpecificErrorCode.FATAL_ERROR_OCCURED;
             }
             int i_display_id = 0;
             // ハンドルの多重使用のチェック
@@ -389,9 +389,9 @@ namespace MatroxCS
                 case -2:
                     // 画像バッファ取得失敗
                     return -3;
-                case Define.EXCEPTION_ERROR:
+                case Define.SpecificErrorCode.EXCEPTION_ERROR:
                     // try-catchで捉えたエラー(内容はDLLError.log参照)
-                    return Define.EXCEPTION_ERROR;
+                    return Define.SpecificErrorCode.EXCEPTION_ERROR;
                 default:
                     // 無事、インスタンス・初期化処理完了
                     // ディスプレイオブジェクトリストに追加
@@ -414,12 +414,12 @@ namespace MatroxCS
             // 初期化処理が未完了の場合はエラーを返す
             if (!m_bBaseInitialFinished)
             {
-                return Define.UNCOMPLETED_OPENING_ERROR;
+                return Define.SpecificErrorCode.UNCOMPLETED_OPENING_ERROR;
             }
             if (m_cBase.GetFatalErrorOccured())
             {
                 // 致命的なエラーが起きている
-                return Define.FATAL_ERROR_OCCURED;
+                return Define.SpecificErrorCode.FATAL_ERROR_OCCURED;
             }
             int i_camera_index = 0;
             int i_display_index = 0;
@@ -456,16 +456,16 @@ namespace MatroxCS
             {
                 case -1:
                     return -4;
-                case Define.EXCEPTION_ERROR:
+                case Define.SpecificErrorCode.EXCEPTION_ERROR:
                     // try-catchで捉えたエラー(内容はDLLError.log参照)
-                    return Define.EXCEPTION_ERROR;
+                    return Define.SpecificErrorCode.EXCEPTION_ERROR;
                 default:
                     break;
             }
             if (m_cBase.GetFatalErrorOccured())
             {
                 // 致命的なエラーが起きた
-                return Define.FATAL_ERROR_OCCURED;
+                return Define.SpecificErrorCode.FATAL_ERROR_OCCURED;
             }
             // ディスプレイ表示用画像バッファをカメラに渡す
             i_ret = m_lstCamera[i_camera_index].SetShowImage(m_lstDisplayImage[i_display_index].GetShowImage(niCameraID));
@@ -473,9 +473,9 @@ namespace MatroxCS
             {
                 case -1:
                     return -5;
-                case Define.EXCEPTION_ERROR:
+                case Define.SpecificErrorCode.EXCEPTION_ERROR:
                     // try-catchで捉えたエラー(内容はDLLError.log参照)
-                    return Define.EXCEPTION_ERROR;
+                    return Define.SpecificErrorCode.EXCEPTION_ERROR;
                 default:
                     break;
             }
@@ -509,14 +509,14 @@ namespace MatroxCS
                 if (i_ret != 0)
                 {
                     // try-catchで捉えたエラー(内容はDLLError.log参照)
-                    return Define.EXCEPTION_ERROR;
+                    return Define.SpecificErrorCode.EXCEPTION_ERROR;
                 }
                 // ディスプレイオブジェクトのクローズ処理
                 m_lstDisplayImage[i_display_index].CloseDisplay();
                 if (i_ret != 0)
                 {
                     // try-catchで捉えたエラー(内容はDLLError.log参照)
-                    return Define.EXCEPTION_ERROR;
+                    return Define.SpecificErrorCode.EXCEPTION_ERROR;
                 }
                 // 接続カメラオブジェクトの表示バッファの中身をnullにする
                 m_lstCamera[i_camera_index].ClearShowImage();
@@ -525,7 +525,7 @@ namespace MatroxCS
                 if (i_ret != 0)
                 {
                     // try-catchで捉えたエラー(内容はDLLError.log参照)
-                    return Define.EXCEPTION_ERROR;
+                    return Define.SpecificErrorCode.EXCEPTION_ERROR;
                 }
             }
             else
@@ -535,7 +535,7 @@ namespace MatroxCS
                 i_ret = m_lstDisplayImage[i_display_index].CloseDisplay();
                 if (i_ret != 0)
                 {
-                    return Define.EXCEPTION_ERROR;
+                    return Define.SpecificErrorCode.EXCEPTION_ERROR;
                 }
             }
             // ディスプレイリストから削除
@@ -543,7 +543,7 @@ namespace MatroxCS
             if (m_cBase.GetFatalErrorOccured())
             {
                 // 致命的なエラーが起きている
-                return Define.FATAL_ERROR_OCCURED;
+                return Define.SpecificErrorCode.FATAL_ERROR_OCCURED;
             }
 
             return 0;
@@ -562,7 +562,7 @@ namespace MatroxCS
             if (m_cBase.GetFatalErrorOccured())
             {
                 // 致命的なエラーが起きている
-                return Define.FATAL_ERROR_OCCURED;
+                return Define.SpecificErrorCode.FATAL_ERROR_OCCURED;
             }
             // 指定ディスプレイIDのインデックス番号を取得
             int i_display_index = SearchDisplayID(niDisplayID);
@@ -590,9 +590,9 @@ namespace MatroxCS
                 case -3:
                     // 画像拡張子なし
                     return -5;
-                case Define.EXCEPTION_ERROR:
+                case Define.SpecificErrorCode.EXCEPTION_ERROR:
                     // try-catchで捉えたエラー(内容はDLLError.log参照)
-                    return Define.EXCEPTION_ERROR;
+                    return Define.SpecificErrorCode.EXCEPTION_ERROR;
                 default:
                     // エラーなし
                     break;
@@ -611,19 +611,19 @@ namespace MatroxCS
             // 初期化処理が未完了の場合はエラーを返す
             if (!m_bBaseInitialFinished)
             {
-                return Define.UNCOMPLETED_OPENING_ERROR;
+                return Define.SpecificErrorCode.UNCOMPLETED_OPENING_ERROR;
             }
             if (m_cBase.GetFatalErrorOccured())
             {
                 // 致命的なエラーが起きている
-                return Define.FATAL_ERROR_OCCURED;
+                return Define.SpecificErrorCode.FATAL_ERROR_OCCURED;
             }
             //  RGBの値に分割して設定
             i_ret = m_cGraphic.SetColor(nGraphicColor.R, nGraphicColor.G, nGraphicColor.B);
             if (i_ret != 0)
             {
                 // try-catchで捉えたエラー(内容はDLLError.log参照)
-                return Define.EXCEPTION_ERROR;
+                return Define.SpecificErrorCode.EXCEPTION_ERROR;
             }
             return 0;
         }
@@ -641,12 +641,12 @@ namespace MatroxCS
             // 初期化処理が未完了の場合はエラーを返す
             if (!m_bBaseInitialFinished)
             {
-                return Define.UNCOMPLETED_OPENING_ERROR;
+                return Define.SpecificErrorCode.UNCOMPLETED_OPENING_ERROR;
             }
             if (m_cBase.GetFatalErrorOccured())
             {
                 // 致命的なエラーが起きている
-                return Define.FATAL_ERROR_OCCURED;
+                return Define.SpecificErrorCode.FATAL_ERROR_OCCURED;
             }
             // 指定ディスプレイIDのインデックス番号を取得
             int i_display_index = SearchDisplayID(niDisplayID); ;
@@ -662,7 +662,7 @@ namespace MatroxCS
             if (i_ret != 0)
             {
                 // try-catchで捉えたエラー(内容はDLLError.log参照)
-                return Define.EXCEPTION_ERROR;
+                return Define.SpecificErrorCode.EXCEPTION_ERROR;
             }
             return 0;
         }
@@ -678,12 +678,12 @@ namespace MatroxCS
             // 初期化処理が未完了の場合はエラーを返す
             if (!m_bBaseInitialFinished)
             {
-                return Define.UNCOMPLETED_OPENING_ERROR;
+                return Define.SpecificErrorCode.UNCOMPLETED_OPENING_ERROR;
             }
             if (m_cBase.GetFatalErrorOccured())
             {
                 // 致命的なエラーが起きている
-                return Define.FATAL_ERROR_OCCURED;
+                return Define.SpecificErrorCode.FATAL_ERROR_OCCURED;
             }
             // 指定ディスプレイIDのインデックス番号を取得
             int i_display_index = SearchDisplayID(niDisplayID); ;
@@ -699,7 +699,7 @@ namespace MatroxCS
             if (i_ret != 0)
             {
                 // try-catchで捉えたエラー(内容はDLLError.log参照)
-                return Define.EXCEPTION_ERROR;
+                return Define.SpecificErrorCode.EXCEPTION_ERROR;
             }
             return 0;
         }
@@ -718,7 +718,7 @@ namespace MatroxCS
             if (m_cBase.GetFatalErrorOccured())
             {
                 // 致命的なエラーが起きている
-                return Define.FATAL_ERROR_OCCURED;
+                return Define.SpecificErrorCode.FATAL_ERROR_OCCURED;
             }
             int i_display_index = SearchDisplayID(niDisplayID);
             if (i_display_index == -1)
@@ -740,9 +740,9 @@ namespace MatroxCS
                 case -3:
                     // パス内にファイル名無し
                     return -4;
-                case Define.EXCEPTION_ERROR:
+                case Define.SpecificErrorCode.EXCEPTION_ERROR:
                     // try-catchで捉えたエラー(内容はDLLError.log参照)
-                    return Define.EXCEPTION_ERROR;
+                    return Define.SpecificErrorCode.EXCEPTION_ERROR;
                 default:
                     // エラーなし
                     break;

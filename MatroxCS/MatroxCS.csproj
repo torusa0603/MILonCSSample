@@ -86,6 +86,7 @@
     <Compile Include="Camera.cs" />
     <Compile Include="Base.cs" />
     <Compile Include="Define.cs" />
+    <Compile Include="LogMatroxCS.cs" />
     <Compile Include="Parameter.cs" />
     <Compile Include="DisplayImage.cs" />
     <Compile Include="Graphic.cs" />
