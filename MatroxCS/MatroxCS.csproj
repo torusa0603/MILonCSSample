@@ -66,6 +66,7 @@
       *.xml;
       *.pdb
     </AllowedReferenceRelatedFileExtensions>
+    <NoWarn>612,169</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Matrox.MatroxImagingLibrary">
