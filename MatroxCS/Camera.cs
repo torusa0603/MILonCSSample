@@ -117,7 +117,7 @@ namespace MatroxCS
             catch (Exception ex)
             {
                 //  エラーログ出力
-                m_sdicLogInstance[m_sstrLogKeyDllError].OutputLog($"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                CLogMatroxCS.Output(Define.LogKey.m_cstrLogKeyDllError, $"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
                 return Define.SpecificErrorCode.EXCEPTION_ERROR;
             }
         }
@@ -166,7 +166,7 @@ namespace MatroxCS
             catch (Exception ex)
             {
                 //  エラーログ出力
-                m_sdicLogInstance[m_sstrLogKeyDllError].OutputLog($"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                CLogMatroxCS.Output(Define.LogKey.m_cstrLogKeyDllError, $"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
                 return Define.SpecificErrorCode.EXCEPTION_ERROR;
             }
         }
@@ -203,7 +203,7 @@ namespace MatroxCS
             catch (Exception ex)
             {
                 //  エラーログ出力
-                m_sdicLogInstance[m_sstrLogKeyDllError].OutputLog($"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                CLogMatroxCS.Output(Define.LogKey.m_cstrLogKeyDllError, $"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
                 return Define.SpecificErrorCode.EXCEPTION_ERROR;
             }
         }
@@ -235,7 +235,7 @@ namespace MatroxCS
             catch (Exception ex)
             {
                 //  エラーログ出力
-                m_sdicLogInstance[m_sstrLogKeyDllError].OutputLog($"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                CLogMatroxCS.Output(Define.LogKey.m_cstrLogKeyDllError, $"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
                 return Define.SpecificErrorCode.EXCEPTION_ERROR;
             }
         }
@@ -266,7 +266,7 @@ namespace MatroxCS
             catch (Exception ex)
             {
                 //  エラーログ出力
-                m_sdicLogInstance[m_sstrLogKeyDllError].OutputLog($"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                CLogMatroxCS.Output(Define.LogKey.m_cstrLogKeyDllError, $"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
                 return Define.SpecificErrorCode.EXCEPTION_ERROR;
             }
         }
@@ -337,7 +337,7 @@ namespace MatroxCS
             catch (Exception ex)
             {
                 //  エラーログ出力
-                m_sdicLogInstance[m_sstrLogKeyDllError].OutputLog($"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                CLogMatroxCS.Output(Define.LogKey.m_cstrLogKeyDllError, $"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
                 return Define.SpecificErrorCode.EXCEPTION_ERROR;
             }
         }
@@ -480,7 +480,7 @@ namespace MatroxCS
             // 致命的エラーの発生を示すフラグを立てる
             m_sbFatalErrorOccured = true;
             //  エラーログ出力
-            m_sdicLogInstance[m_sstrLogKeyDllError].OutputLog($"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},DisapperCamera");
+            CLogMatroxCS.Output(Define.LogKey.m_cstrLogKeyDllError, $"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},DisapperCamera");
             // フリーズ状態にする
             ChangeFreezeState();
         }
