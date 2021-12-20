@@ -16,9 +16,8 @@ namespace MILonCSSample
         CMatroxMain cMatroxMain;     // マトロックスオブジェクト
         List<int> m_lstCameraID;     // カメラリストID
         List<int> m_lstDisplayID;    // ディスプレイID{パネル1, パネル2, パネル3, パネル4}
-        string m_strExeFolderPath;         // アプリケーションの実行パス
+        string m_strExeFolderPath;   // アプリケーションの実行パス
         bool m_bPnl4GraphEnable;     // パネル4のグラフィック描画の有無
-        bool m_bConnect = false;
 
         public Form1()
         {
@@ -67,7 +66,7 @@ namespace MILonCSSample
             // 設定ファイルパスを作成
             string str_setting_file_path = $@"{m_strExeFolderPath}\setting.json";
             // 設定ファイルの読み込み、カメラオープンを行う
-            i_ret = cMatroxMain.InitMatrox(str_setting_file_path, m_strExeFolderPath);
+            i_ret = cMatroxMain.InitMatrox(str_setting_file_path);
             if (i_ret != 0)
             {
                 DialogResult result;
@@ -490,8 +489,8 @@ namespace MILonCSSample
             }
             // パネル4に描画があることを示す
             m_bPnl4GraphEnable = true;
-            // コネクト済みかを示すフラグをオンにする
-            m_bConnect = true;
+
+            // Connectメニューを非活性にし、DisCoonnectメニューを活性化させる
             this.connectToolStripMenuItem.Enabled = false;
             this.disConnectToolStripMenuItem.Enabled = true;
         }
@@ -1096,7 +1095,6 @@ namespace MILonCSSample
                         result = MessageBox.Show("DLLError.logを確認して下さい", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
                         break;
                     default:
-                        m_bConnect = false;
                         break;
                 }
             }
@@ -1139,7 +1137,7 @@ namespace MILonCSSample
                     result = MessageBox.Show("DLLError.logを確認して下さい", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
                     break;
                 default:
-                    m_bConnect = false;
+                    // Cnnectメニューを活性化させ、DisConnectメニューを非活性にする
                     this.connectToolStripMenuItem.Enabled = true;
                     this.disConnectToolStripMenuItem.Enabled = false;
                     break;
