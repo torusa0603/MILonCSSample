@@ -75,7 +75,7 @@ namespace MatroxCS
             {
                 m_bDiffPicDisciminateMode = false;
                 //  デジタイザオープン
-                if (m_siBoardType != (int)MTX_TYPE.MTX_HOST)
+                if (m_siBoardType != (int)Define.MTX_TYPE.MTX_HOST)
                 {
                     //	デジタイザID取得
                     if (m_strIPAddress != "")
@@ -152,7 +152,7 @@ namespace MatroxCS
                 //m_milShowImageは開放しない。これはdispクラスが開放するから。
 
                 //  デジタイザ開放
-                if (m_siBoardType != (int)MTX_TYPE.MTX_HOST)
+                if (m_siBoardType != (int)Define.MTX_TYPE.MTX_HOST)
                 {
                     if (m_milDigitizer != MIL.M_NULL)
                     {
@@ -182,7 +182,7 @@ namespace MatroxCS
                 // スルー状態でなければ実行
                 if (m_bThroughFlg == false)
                 {
-                    if (m_siBoardType != (int)MTX_TYPE.MTX_HOST)
+                    if (m_siBoardType != (int)Define.MTX_TYPE.MTX_HOST)
                     {
                         // 自己のインスタンスをポインター化
                         m_handUserData_doThrough = GCHandle.Alloc(this);
@@ -219,7 +219,7 @@ namespace MatroxCS
                 // スルー状態ならば実行
                 if (m_bThroughFlg == true)
                 {
-                    if (m_siBoardType != (int)MTX_TYPE.MTX_HOST)
+                    if (m_siBoardType != (int)Define.MTX_TYPE.MTX_HOST)
                     {
                         //	フック関数を休止させる
                         MIL.MdigProcess(m_milDigitizer, m_milGrabImageArray, m_milGrabImageArray.Length,
