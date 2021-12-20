@@ -43,7 +43,7 @@ namespace MatroxCS
         /// -6:アプリケーションID取得失敗、-7:指定ボードの該当なし、-8:システムID取得失敗、-9:デジタイザー取得失敗、-10:グラブ専用バッファ取得失敗、-11:グラフィックバッファID取得失敗<br />
         /// -99:初期化の重複エラー、-999:異常終了(内容に関してはDLLError.log参照)
         /// </returns>
-        public int InitMatrox(string nstrSettingFilePath, string nstrExeFolderPath)
+        public int InitMatrox(string nstrSettingFilePath)
         {
             // 初期化処理を既に行っていた場合は行わない
             if (m_bBaseInitialFinished)
@@ -81,7 +81,7 @@ namespace MatroxCS
                 // 致命的なエラー発生時に起動するイベントハンドラを渡す
                 CBase.m_sevFatalErrorOccured += m_evMatroxFatalErrorOccured;
                 // ベースオブジェクトを初期化
-                i_ret = m_cBase.Initial(m_cCameraGeneral.BoardType, nstrExeFolderPath);
+                i_ret = m_cBase.Initial(m_cCameraGeneral.BoardType);
                 switch (i_ret)
                 {
                     case -1:

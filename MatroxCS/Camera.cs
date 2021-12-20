@@ -54,7 +54,7 @@ namespace MatroxCS
             // カメラIPアドレスの指定
             m_strIPAddress = ncCameraInfo.IPAddress;
             // DCFファイルの指定
-            m_strCameraFilePath = $@"{m_sstrExeFolderPath}\{ncCameraInfo.CameraFile}";
+            m_strCameraFilePath = $@"{Define.EXE_FOLDER_PATH}\{ncCameraInfo.CameraFile}";
             // カメラ固有名を指定
             m_strCameraIdentifyName = ncCameraInfo.IdentifyName;
             // 画像サイスの指定
