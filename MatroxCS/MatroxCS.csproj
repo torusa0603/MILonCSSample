@@ -84,6 +84,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algorithm\IAlgorithm.cs" />
     <Compile Include="Camera.cs" />
     <Compile Include="Base.cs" />
     <Compile Include="Define.cs" />
