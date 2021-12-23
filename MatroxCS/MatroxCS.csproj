@@ -85,6 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Algorithm\IAlgorithm.cs" />
+    <Compile Include="Algorithm\RequiredParameterForAlgorithm.cs" />
     <Compile Include="Camera.cs" />
     <Compile Include="Base.cs" />
     <Compile Include="Define.cs" />
@@ -96,6 +97,7 @@
     <Compile Include="MatroxMain.cs" />
     <Compile Include="Parameter\CameraGeneral.cs" />
     <Compile Include="Parameter\CameraInfo.cs" />
+    <Compile Include="Parameter\ParameterFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

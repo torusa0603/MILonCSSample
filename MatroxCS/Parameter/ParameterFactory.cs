@@ -1,107 +1,78 @@
-﻿using MatroxCS.Parameter;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using System.IO;
+using System.Xml.Serialization;
+using Newtonsoft.Json;
 using System.Reflection;
+using MatroxCS.Parameter;
 
-namespace MatroxCS
+namespace MatroxCS.Parameter
 {
-    class CParameter
+
+    public class CJsonParameterFactory<T> where T : IParameter
     {
-        string m_strCommentCode = "###";    // コメントコード
-        string m_strNewLineCode = "\r\n";   // 改行コード
+        const string m_strCommentCode = "###";    // コメントコード
+        const string m_strNewLineCode = "\r\n";   // 改行コード
 
         /// <summary>
-        /// 設定ファイルの内容を設定用オブジェクトに格納
+        /// Json形式ファイルからパラメータ値を抜き出し、クラス変数に代入する
         /// </summary>
-        /// <param name="nstrSettingFilePath">設定ファイルパス</param>
-        /// <returns>0:正常終了、-1:設定ファイルパスの途中ディレクトリが存在しない、-2:設定ファイル作成・書き込みエラー、-3:設定ファイルなし(新規作成)<br />
-        /// -4:設定ファイル構文エラー、-5:設定値エラー</returns>
-        public int ReadParameter(string nstrSettingFilePath, ref CCameraGeneral ncCameraGeneral)
+        /// <param name="nstrFilePath"></param>
+        /// <param name="ncParameter"></param>
+        /// <returns>-1:ファイルからの読み込み失敗、-2:json構文エラー、-3:異常値が代入された</returns>
+        public static int Load(string nstrFilePath, ref T ncParameter)
         {
-
+            string str_jsonfile_sentence;
             int i_ret;
-            if (!File.Exists(nstrSettingFilePath) || !(Path.GetExtension(nstrSettingFilePath) == ".json"))
+            try
             {
-                i_ret = CreateSettingFile(nstrSettingFilePath);
-                switch (i_ret)
-                {
-                    case -1:
-                        // 設定ファイルの途中パスディレクトリが存在しない
-                        return -1;
-                    case -2:
-                        // 設定ファイル作成・書き込みエラー
-                        return -2;
-                    default:
-                        // 設定ファイルなし(新規作成)
-                        return -3;
-                }
+                // ファイルから文字列を丸ごと抜き出す
+                str_jsonfile_sentence = File.ReadAllText(nstrFilePath);
             }
-            i_ret = CJsonParameterFactory<CCameraGeneral>.Load(nstrSettingFilePath, ref ncCameraGeneral);
-            switch (i_ret)
+            catch
             {
-                case -1:
-                    // ファイルへのアクセス失敗
-                    return -4;
-                case -2:
-                    // 設定ファイル構文エラー
-                    return -5;
-                case -3:
-                    // 異常値が代入された
-                    return -6;
-                default:
-                    break;
+                // ファイルからの読み込み失敗
+                return -1;
+            }
+            // 文章内のコメントコード～改行コード間にある文とコメントコードを削除する
+            string str_jsonfile_sentence_commentout = RemoveComment(str_jsonfile_sentence);
+            try
+            {
+                // コメントアウトの箇所を削除した文字列をデシリアライズする
+                ncParameter = JsonConvert.DeserializeObject<T>(str_jsonfile_sentence_commentout);
+            }
+            catch
+            {
+                // json構文エラー
+                return -2;
+            }
+            i_ret = ncParameter.CheckVariableValidity();
+            if (i_ret != 0)
+            {
+                // 異常値が代入された
+                ncParameter.Dispose();
+                return -3;
             }
             return 0;
         }
 
-        /// <summary>
-        /// 設定ファイルを作成する
-        /// </summary>
-        /// <param name="nstrSettingFilePath">作成ファイルパス</param>
-        /// <returns>0:正常終了、-1:設定ファイルパスの途中ディレクトリーが存在しない、-2:ファイル作成・書き込みエラー</returns>
-        private int CreateSettingFile(string nstrSettingFilePath)
+        public static int Save(string nstrFilePath, T ncParameter)
         {
-            // 作成ファイルパスのディレクトリの存在チェック
-            string str_setting_file_folder = Path.GetDirectoryName(nstrSettingFilePath);
-            if (!Directory.Exists(str_setting_file_folder))
-            {
-                return -1;
-            }
-
             Encoding encd_encoding = Encoding.GetEncoding("utf-8");
-            // デフォルトとなる情報を代入していく
-            CCameraGeneral c_json_camera_general = new CCameraGeneral();
-            CCameraInfo c_json_camera_info = new CCameraInfo();
-            c_json_camera_general.Number = 1;
-            c_json_camera_general.BoardType = 4;
-            c_json_camera_general.HeartBeatTime = 5;
-            c_json_camera_info.IdentifyName = "Camera1";
-            c_json_camera_info.CameraType = 0;
-            c_json_camera_info.CameraFile = " ";
-            c_json_camera_info.Width = 0;
-            c_json_camera_info.Height = 0;
-            c_json_camera_info.Color = 0;
-            c_json_camera_info.ImagePose = 0;
-            c_json_camera_info.UseSerialComm = 0;
-            c_json_camera_info.COMNo = 0;
-            c_json_camera_info.IPAddress = " ";
-            c_json_camera_general.CameraInformation.Add(c_json_camera_info);
             // パラメータをシリアライズする
-            string str_json_contents = JsonConvert.SerializeObject(c_json_camera_general, Formatting.Indented);
+            string str_json_contents = JsonConvert.SerializeObject(ncParameter, Formatting.Indented);
             // パラメータ文字列にコメントを追加する
             AddDescriptionOfParameter(ref str_json_contents);
 
             try
             {
                 // jsonファイルを作成する
-                using (FileStream fs = File.Create(nstrSettingFilePath)) { }
+                using (FileStream fs = File.Create(nstrFilePath)) { }
                 // jsonファイルにパラメータ文字列を書き込む
-                using (StreamWriter writer = new StreamWriter(nstrSettingFilePath, false, encd_encoding))
+                using (StreamWriter writer = new StreamWriter(nstrFilePath, false, encd_encoding))
                 {
                     writer.WriteLine(str_json_contents);
                 }
@@ -109,15 +80,56 @@ namespace MatroxCS
             }
             catch
             {
-                return -2;
+                // ファイル作成・書き込みエラー
+                return -1;
             }
+        }
+
+        /// <summary>
+        /// "###"ー"改行コード(\r\n)"間の文字を排除する
+        /// </summary>
+        /// <param name="n_strJsonfileContents">Jsonファイルから読み込んだstring型データ</param>
+        /// <returns>コメント削除結果</returns>
+        private static string RemoveComment(string nstrJsonfileContents)
+        {
+            string str_result = "";                     // 返答用のstring型データ
+            string str_contents = nstrJsonfileContents; // 主となるstring型データ
+            string str_front = "";                      // コメントコードより前の文章を格納するstring型データ
+            string str_back = "";                       // コメントコードより後の文章を格納するstring型データ
+            int i_num_comment_code;                     // コメントコードの位置を示すint型データ
+            int i_num_newline_code;                     // 改行コードの位置を示すint型データ
+
+            while (true)
+            {
+                // コメントコードの位置を探す
+                i_num_comment_code = str_contents.IndexOf(m_strCommentCode);
+                // コメントコードがこれ以上なければ終了
+                if (i_num_comment_code == -1)
+                {
+                    break;
+                }
+                // コメントコードよりも前の文章を抽出
+                str_front = str_contents.Substring(0, i_num_comment_code - 1);
+                // コメントコードよりも後の文章を抽出
+                str_back = str_contents.Substring(i_num_comment_code, str_contents.Length - i_num_comment_code);
+                // コメントコード直後の改行コードを探す
+                i_num_newline_code = str_back.IndexOf(m_strNewLineCode);
+                // コメントコード直後の改行コードより後ろの文を抽出
+                str_contents = str_back.Substring(i_num_newline_code, str_back.Length - i_num_newline_code);
+                // コメントコードよりも前の文を返答用データに追加
+                str_result += str_front;
+            }
+            // コメントコードを含まない後半データを返答用データに追加
+            str_result += str_contents;
+            // 返答する
+            return str_result;
         }
 
         /// <summary>
         /// 作成される設定ファイルにコメントを加える
         /// </summary>
         /// <param name="nstrJsonContents">json型をシリアライズした文字列</param>
-        private void AddDescriptionOfParameter(ref string nstrJsonContents)
+        private static void  AddDescriptionOfParameter(ref string nstrJsonContents)
         {
             // 取得するパラメータのアクセス修飾子を指定する
             BindingFlags b_access_flag = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
@@ -206,7 +218,6 @@ namespace MatroxCS
                 }
             }
         }
-
-
-    }
+        }
 }
+

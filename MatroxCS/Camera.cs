@@ -301,6 +301,15 @@ namespace MatroxCS
         }
 
         /// <summary>
+        /// 画像取得用バッファを取得
+        /// </summary>
+        /// <returns></returns>
+        public MIL_ID GetShowImage()
+        {
+            return m_milShowImage;
+        }
+
+        /// <summary>
         /// カメラID取得
         /// </summary>
         /// <returns>カメラID</returns>

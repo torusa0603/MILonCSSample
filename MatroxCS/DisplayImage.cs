@@ -155,7 +155,7 @@ namespace MatroxCS
         /// 画面表示用バッファを取得
         /// </summary>
         /// <returns>表示バッファMIL_ID</returns>
-        public MIL_ID GetShowImage(int niConnectCameraID)
+        public MIL_ID GetShowImage(int? niConnectCameraID)
         {
             // 接続先のカメラクラスIDを取得
             m_iConnectCameraID = niConnectCameraID;

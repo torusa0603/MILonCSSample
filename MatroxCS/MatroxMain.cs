@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.IO;
 using MatroxCS.Parameter;
+using MatroxCS.Algorithm;
 
 namespace MatroxCS
 {
@@ -26,10 +27,11 @@ namespace MatroxCS
         CCameraGeneral m_cCameraGeneral = new CCameraGeneral();                 // パラメータオブジェクト
         CParameter m_cParameter = new CParameter();                             // パラメータクラスオブジェクト
         bool m_bBaseInitialFinished = false;                                    // 初期処理完了済みかを示す
+        IAlgorithm m_cAlgorithm;                                                // アルゴリズムオブジェクト
 
         #endregion
 
-        
+
 
         #region メンバ関数
 
@@ -748,6 +750,55 @@ namespace MatroxCS
                     break;
             }
             return 0;
+        }
+
+        public List<object> DoAlgorithm(int niCameraID, int? niDisplayID, List<object> n_loValue)
+        {
+            CRequiredParameterForAlgorithm c_algorithm_parameter = new CRequiredParameterForAlgorithm();
+            string str_dll_error = "DLLError:"; // DLL由来のエラーであることを示す文字列
+            List<object> ls_ret = new List<object> { };
+
+            if (!m_bBaseInitialFinished)
+            {
+                // 初期化処理が行われていない
+                ls_ret.Add($"{str_dll_error}UncompleteInitializationProcess");
+                return ls_ret;
+            }
+
+            int i_camera_index = SearchCameraID(niCameraID);
+            if (i_camera_index == -1)
+            {
+                // カメラオブジェクトなし
+                ls_ret.Add($"{str_dll_error}MissingCameraObject");
+                return ls_ret;
+            }
+            c_algorithm_parameter.ProcessingImageBuffer = m_lstCamera[i_camera_index].GetShowImage();
+            c_algorithm_parameter.ProcessingImageSize = m_lstCamera[i_camera_index].GetImageSize();
+
+            int i_display_index;
+            if (niDisplayID == null)
+            {
+                c_algorithm_parameter.DisplayImageBuffer = null;
+            }
+            else
+            {
+                i_display_index = SearchDisplayID((int)niDisplayID);
+                if (i_display_index == -1)
+                {
+                    // ディスプレイオブジェクトなし
+                    ls_ret.Add($"{str_dll_error}MissingDisplayObject");
+                    return ls_ret;
+                }
+                c_algorithm_parameter.DisplayImageBuffer = m_lstDisplayImage[(int)i_display_index].GetShowImage(null);
+            }
+
+
+            // 
+            n_loValue.Add(c_algorithm_parameter);
+
+            ls_ret = m_cAlgorithm.Execute(n_loValue);
+
+            return ls_ret;
         }
 
         #endregion
