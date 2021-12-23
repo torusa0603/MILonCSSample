@@ -54,7 +54,7 @@ namespace MatroxCS
             // カメラIPアドレスの指定
             m_strIPAddress = ncCameraInfo.IPAddress;
             // DCFファイルの指定
-            m_strCameraFilePath = $@"{Define.EXE_FOLDER_PATH}\{ncCameraInfo.CameraFile}";
+            m_strCameraFilePath = $@"{CDefine.EXE_FOLDER_PATH}\{ncCameraInfo.CameraFile}";
             // カメラ固有名を指定
             m_strCameraIdentifyName = ncCameraInfo.IdentifyName;
             // 画像サイスの指定
@@ -75,7 +75,7 @@ namespace MatroxCS
             {
                 m_bDiffPicDisciminateMode = false;
                 //  デジタイザオープン
-                if (m_siBoardType != (int)Define.MTX_TYPE.MTX_HOST)
+                if (m_siBoardType != (int)CDefine.MTX_TYPE.MTX_HOST)
                 {
                     //	デジタイザID取得
                     if (m_strIPAddress != "")
@@ -117,8 +117,8 @@ namespace MatroxCS
             catch (Exception ex)
             {
                 //  エラーログ出力
-                CLogMatroxCS.Output(Define.LogKey.m_cstrLogKeyDllError, $"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
-                return Define.SpecificErrorCode.EXCEPTION_ERROR;
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                return CDefine.SpecificErrorCode.EXCEPTION_ERROR;
             }
         }
 
@@ -152,7 +152,7 @@ namespace MatroxCS
                 //m_milShowImageは開放しない。これはdispクラスが開放するから。
 
                 //  デジタイザ開放
-                if (m_siBoardType != (int)Define.MTX_TYPE.MTX_HOST)
+                if (m_siBoardType != (int)CDefine.MTX_TYPE.MTX_HOST)
                 {
                     if (m_milDigitizer != MIL.M_NULL)
                     {
@@ -166,8 +166,8 @@ namespace MatroxCS
             catch (Exception ex)
             {
                 //  エラーログ出力
-                CLogMatroxCS.Output(Define.LogKey.m_cstrLogKeyDllError, $"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
-                return Define.SpecificErrorCode.EXCEPTION_ERROR;
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                return CDefine.SpecificErrorCode.EXCEPTION_ERROR;
             }
         }
 
@@ -182,7 +182,7 @@ namespace MatroxCS
                 // スルー状態でなければ実行
                 if (m_bThroughFlg == false)
                 {
-                    if (m_siBoardType != (int)Define.MTX_TYPE.MTX_HOST)
+                    if (m_siBoardType != (int)CDefine.MTX_TYPE.MTX_HOST)
                     {
                         // 自己のインスタンスをポインター化
                         m_handUserData_doThrough = GCHandle.Alloc(this);
@@ -203,8 +203,8 @@ namespace MatroxCS
             catch (Exception ex)
             {
                 //  エラーログ出力
-                CLogMatroxCS.Output(Define.LogKey.m_cstrLogKeyDllError, $"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
-                return Define.SpecificErrorCode.EXCEPTION_ERROR;
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                return CDefine.SpecificErrorCode.EXCEPTION_ERROR;
             }
         }
 
@@ -219,7 +219,7 @@ namespace MatroxCS
                 // スルー状態ならば実行
                 if (m_bThroughFlg == true)
                 {
-                    if (m_siBoardType != (int)Define.MTX_TYPE.MTX_HOST)
+                    if (m_siBoardType != (int)CDefine.MTX_TYPE.MTX_HOST)
                     {
                         //	フック関数を休止させる
                         MIL.MdigProcess(m_milDigitizer, m_milGrabImageArray, m_milGrabImageArray.Length,
@@ -235,8 +235,8 @@ namespace MatroxCS
             catch (Exception ex)
             {
                 //  エラーログ出力
-                CLogMatroxCS.Output(Define.LogKey.m_cstrLogKeyDllError, $"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
-                return Define.SpecificErrorCode.EXCEPTION_ERROR;
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                return CDefine.SpecificErrorCode.EXCEPTION_ERROR;
             }
         }
 
@@ -266,8 +266,8 @@ namespace MatroxCS
             catch (Exception ex)
             {
                 //  エラーログ出力
-                CLogMatroxCS.Output(Define.LogKey.m_cstrLogKeyDllError, $"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
-                return Define.SpecificErrorCode.EXCEPTION_ERROR;
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                return CDefine.SpecificErrorCode.EXCEPTION_ERROR;
             }
         }
 
@@ -337,8 +337,8 @@ namespace MatroxCS
             catch (Exception ex)
             {
                 //  エラーログ出力
-                CLogMatroxCS.Output(Define.LogKey.m_cstrLogKeyDllError, $"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
-                return Define.SpecificErrorCode.EXCEPTION_ERROR;
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                return CDefine.SpecificErrorCode.EXCEPTION_ERROR;
             }
         }
 
@@ -480,7 +480,7 @@ namespace MatroxCS
             // 致命的エラーの発生を示すフラグを立てる
             m_sbFatalErrorOccured = true;
             //  エラーログ出力
-            CLogMatroxCS.Output(Define.LogKey.m_cstrLogKeyDllError, $"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},DisapperCamera");
+            CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},DisapperCamera");
             // フリーズ状態にする
             ChangeFreezeState();
         }

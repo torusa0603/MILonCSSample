@@ -81,20 +81,20 @@ namespace MatroxCS
                 // システムID取得(ボードの種類毎に異なる)
                 switch (m_siBoardType)
                 {
-                    case (int)Define.MTX_TYPE.MTX_MORPHIS:
+                    case (int)CDefine.MTX_TYPE.MTX_MORPHIS:
                         MIL.MsysAlloc(MIL.M_SYSTEM_MORPHIS, MIL.M_DEV0, MIL.M_DEFAULT, ref m_smilSystem);
                         break;
-                    case (int)Define.MTX_TYPE.MTX_SOLIOSXCL:
+                    case (int)CDefine.MTX_TYPE.MTX_SOLIOSXCL:
                         break;
-                    case (int)Define.MTX_TYPE.MTX_SOLIOSXA:
+                    case (int)CDefine.MTX_TYPE.MTX_SOLIOSXA:
                         MIL.MsysAlloc(MIL.M_SYSTEM_SOLIOS, MIL.M_DEV0, MIL.M_DEFAULT, ref m_smilSystem);
                         break;
-                    case (int)Define.MTX_TYPE.MTX_METEOR2MC:
+                    case (int)CDefine.MTX_TYPE.MTX_METEOR2MC:
                         return -1;
-                    case (int)Define.MTX_TYPE.MTX_GIGE:
+                    case (int)CDefine.MTX_TYPE.MTX_GIGE:
                         MIL.MsysAlloc(MIL.M_SYSTEM_GIGE_VISION, MIL.M_DEV0, MIL.M_DEFAULT, ref m_smilSystem);
                         break;
-                    case (int)Define.MTX_TYPE.MTX_HOST:
+                    case (int)CDefine.MTX_TYPE.MTX_HOST:
                         MIL.MsysAlloc(MIL.M_SYSTEM_HOST, MIL.M_DEV0, MIL.M_DEFAULT, ref m_smilSystem);
                         break;
                     default:
@@ -111,8 +111,8 @@ namespace MatroxCS
             catch (Exception ex)
             {
                 //  エラーログ出力
-                CLogMatroxCS.Output(Define.LogKey.m_cstrLogKeyDllError, $"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
-                return Define.SpecificErrorCode.EXCEPTION_ERROR;
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                return CDefine.SpecificErrorCode.EXCEPTION_ERROR;
             }
         }
 
@@ -229,7 +229,7 @@ namespace MatroxCS
                     str_error_log_contents += " ";
                 }
                 //	エラーログ内容を出力する
-                CLogMatroxCS.Output(Define.LogKey.m_cstrLogKeyMilError, str_error_log_contents);
+                CLogMatroxCS.Output(CDefine.LogKey.MIL_ERROR, str_error_log_contents);
                 //	致命的なエラーかどうか判断する
                 //	MdigProcess、xxxAllocで発生するエラーは全て致命的とする
 
@@ -249,7 +249,7 @@ namespace MatroxCS
                 //	エラーフックの例外エラー
                 str_error_log_contents = "Unknown Error";
                 //	エラーをログ出力する
-                CLogMatroxCS.Output(Define.LogKey.m_cstrLogKeyMilError, str_error_log_contents);
+                CLogMatroxCS.Output(CDefine.LogKey.MIL_ERROR, str_error_log_contents);
                 return (MIL.M_NULL);
             }
         }

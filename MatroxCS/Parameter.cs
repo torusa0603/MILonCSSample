@@ -50,7 +50,7 @@ namespace MatroxCS
                 // コメントアウトの箇所を削除した文字列をデシリアライズする
                 ncCameraGeneral = JsonConvert.DeserializeObject<CCameraGeneral>(str_jsonfile_sentence_commentout);
                 // 異常な値のデータが入っていないかを検査する
-                i_ret = CheckVariableValidity(ncCameraGeneral);
+                i_ret = ncCameraGeneral.CheckVariableValidity();
                 if (i_ret != 0)
                 {
                     return -5;
@@ -102,27 +102,6 @@ namespace MatroxCS
             str_result += str_contents;
             // 返答する
             return str_result;
-        }
-
-        /// <summary>
-        /// パラメータの有効性を検査
-        /// </summary>
-        /// <param name="ncCameraGeneral">カメラパラメータ</param>
-        /// <returns>0:異常なし、-1:カメラ個数異常、-2:ハートビート時間異常、-3:取得画像高さ異常、-4:取得画像幅異常</returns>
-        private int CheckVariableValidity(CCameraGeneral ncCameraGeneral)
-        {
-            if (ncCameraGeneral.Number < 0 || ncCameraGeneral.Number > CCameraGeneralLimit.Number_Limit)
-                return -1;
-            if (ncCameraGeneral.HeartBeatTime < 0 || ncCameraGeneral.HeartBeatTime > CCameraGeneralLimit.HeartBeatTime_Limit)
-                return -2;
-            foreach (CCameraInfo camera_info in ncCameraGeneral.CameraInformation)
-            {
-                if (camera_info.Width < 0 || camera_info.Width > CCameraInfoLimit.Width_Linit)
-                    return -3;
-                if (camera_info.Height < 0 || camera_info.Height > CCameraInfoLimit.Height_Limit)
-                    return -4;
-            }
-                return 0;
         }
 
         /// <summary>

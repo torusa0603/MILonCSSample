@@ -40,8 +40,8 @@ namespace MatroxCS
             catch (Exception ex)
             {
                 //  エラーログ出力
-                CLogMatroxCS.Output(Define.LogKey.m_cstrLogKeyDllError, $"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
-                return Define.SpecificErrorCode.EXCEPTION_ERROR;
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                return CDefine.SpecificErrorCode.EXCEPTION_ERROR;
             }
         }
 
@@ -65,8 +65,8 @@ namespace MatroxCS
             catch (Exception ex)
             {
                 //  エラーログ出力
-                CLogMatroxCS.Output(Define.LogKey.m_cstrLogKeyDllError, $"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
-                return Define.SpecificErrorCode.EXCEPTION_ERROR;
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                return CDefine.SpecificErrorCode.EXCEPTION_ERROR;
             }
         }
 
@@ -86,8 +86,8 @@ namespace MatroxCS
             catch (Exception ex)
             {
                 //  エラーログ出力
-                CLogMatroxCS.Output(Define.LogKey.m_cstrLogKeyDllError, $"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
-                return Define.SpecificErrorCode.EXCEPTION_ERROR;
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                return CDefine.SpecificErrorCode.EXCEPTION_ERROR;
             }
         }
 
@@ -120,8 +120,8 @@ namespace MatroxCS
             catch (Exception ex)
             {
                 //  エラーログ出力
-                CLogMatroxCS.Output(Define.LogKey.m_cstrLogKeyDllError, $"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
-                return Define.SpecificErrorCode.EXCEPTION_ERROR;
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                return CDefine.SpecificErrorCode.EXCEPTION_ERROR;
             }
         }
 
@@ -167,8 +167,8 @@ namespace MatroxCS
             catch (Exception ex)
             {
                 //  エラーログ出力
-                CLogMatroxCS.Output(Define.LogKey.m_cstrLogKeyDllError, $"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
-                return Define.SpecificErrorCode.EXCEPTION_ERROR;
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                return CDefine.SpecificErrorCode.EXCEPTION_ERROR;
             }
         }
 
