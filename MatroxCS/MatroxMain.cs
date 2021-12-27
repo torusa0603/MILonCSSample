@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.IO;
 using MatroxCS.Parameter;
 using MatroxCS.Algorithm;
+using System.Reflection;
 
 namespace MatroxCS
 {
@@ -752,32 +753,83 @@ namespace MatroxCS
             return 0;
         }
 
+        /// <summary>
+        /// 使用する検査アルゴリズムをセット
+        /// </summary>
+        /// <param name="nstrAlgorithmName"></param>
+        /// <returns>0:正常終了、-1:選択されたアルゴリズム名が異常</returns>
+        public int setAlgorithm(string nstrAlgorithmName)
+        {
+            //  現在、使用中のアルゴリズムがあれば解放する
+            if (m_cAlgorithm != null)
+            {
+                m_cAlgorithm.Dispose();
+                m_cAlgorithm = null;
+            }
+
+            //  現在実行中のアセンブリ情報を取得する
+            Assembly asm = Assembly.GetExecutingAssembly();
+            Type[] ts = asm.GetTypes();
+            //  アセンブリ内に、セットしようとするアルゴリズム(クラス)があればインスタンスを作成
+            var algorighm = ts.Where(type => type.Name == nstrAlgorithmName);
+            //  アルゴリズムがただ一つ見つかった
+            if (algorighm.Count() == 1)
+            {
+                m_cAlgorithm = (IAlgorithm)Activator.CreateInstance(algorighm.First());
+            }
+            //  見つからないor2つ以上見つかればセット失敗
+            else
+            {
+                return -1;
+            }
+
+            return 0;
+        }
+
+        /// <summary>
+        /// 検査実行
+        /// </summary>
+        /// <param name="niCameraID">検査用の画像を取得するカメラID</param>
+        /// <param name="niDisplayID">検査結果の画像を表示するディスプレイID</param>
+        /// <param name="n_loValue">その他の検査用パラメーター</param>
+        /// <returns>
+        /// 先頭の数値はDLLからの戻り値(0:正常終了、-1:検査アルゴリズムが選択されていない、-2:該当カメラ無し、-3該当ディスプレイ無し:、-200:初期化未完了)<br />
+        /// 先頭以降はアルゴリズムプログラムからの戻り値
+        /// </returns>
         public List<object> DoAlgorithm(int niCameraID, int? niDisplayID, List<object> n_loValue)
         {
-            CRequiredParameterForAlgorithm c_algorithm_parameter = new CRequiredParameterForAlgorithm();
-            string str_dll_error = "DLLError:"; // DLL由来のエラーであることを示す文字列
-            List<object> ls_ret = new List<object> { };
+            CRequiredParameterForAlgorithm c_algorithm_parameter = new CRequiredParameterForAlgorithm();    // 必須引数クラス
+            List<object> ls_ret = new List<object> { };                                                     // アルゴリズムごとの専用引数オブジェクト
 
             if (!m_bBaseInitialFinished)
             {
                 // 初期化処理が行われていない
-                ls_ret.Add($"{str_dll_error}UncompleteInitializationProcess");
+                ls_ret.Add(CDefine.SpecificErrorCode.UNCOMPLETED_OPENING_ERROR);
                 return ls_ret;
+            }
+
+            if (m_cAlgorithm == null)
+            {
+                // アルゴリズムが選択されていないのでエラー
+                ls_ret.Add(-1);
             }
 
             int i_camera_index = SearchCameraID(niCameraID);
             if (i_camera_index == -1)
             {
-                // カメラオブジェクトなし
-                ls_ret.Add($"{str_dll_error}MissingCameraObject");
+                // 該当カメラ無し
+                ls_ret.Add(-2);
                 return ls_ret;
             }
+            // 検査検査用の画像バッファを必須引数クラスに追加
             c_algorithm_parameter.ProcessingImageBuffer = m_lstCamera[i_camera_index].GetShowImage();
+            // 検査検査用の画像バッファサイズを必須引数クラスに追加
             c_algorithm_parameter.ProcessingImageSize = m_lstCamera[i_camera_index].GetImageSize();
 
             int i_display_index;
             if (niDisplayID == null)
             {
+                // 検査結果表示バッファは無し
                 c_algorithm_parameter.DisplayImageBuffer = null;
             }
             else
@@ -786,17 +838,16 @@ namespace MatroxCS
                 if (i_display_index == -1)
                 {
                     // ディスプレイオブジェクトなし
-                    ls_ret.Add($"{str_dll_error}MissingDisplayObject");
+                    ls_ret.Add(-3);
                     return ls_ret;
                 }
                 c_algorithm_parameter.DisplayImageBuffer = m_lstDisplayImage[(int)i_display_index].GetShowImage(null);
             }
 
-
-            // 
-            n_loValue.Add(c_algorithm_parameter);
-
-            ls_ret = m_cAlgorithm.Execute(n_loValue);
+            // 検査実行(検査結果を代入)
+            ls_ret = m_cAlgorithm.Execute(c_algorithm_parameter,n_loValue);
+            // 先頭に0(正常終了)を追加する
+            ls_ret.Insert(0, 0);
 
             return ls_ret;
         }

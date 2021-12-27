@@ -9,11 +9,21 @@ using System.Drawing;
 
 namespace MatroxCS.Algorithm
 {
+    /// <summary>
+    /// 検査アルゴリズム必須引数
+    /// </summary>
     class CRequiredParameterForAlgorithm
     {
+        /// <summary>
+        /// 検査画像サイズ
+        /// </summary>
         Size m_szProcessingImageSize;
 
+        /// <summary>
+        /// 検査画像バッファ
+        /// </summary>
         public MIL_ID ProcessingImageBuffer;
+
         public Size ProcessingImageSize
         {
             get { return m_szProcessingImageSize; }
@@ -40,6 +50,10 @@ namespace MatroxCS.Algorithm
                 ;
             }
         }
+
+        /// <summary>
+        /// 検査結果画像表示バッファ(表示しない場合はnull)
+        /// </summary>
         public MIL_ID? DisplayImageBuffer;
     }
 }

@@ -6,7 +6,7 @@ namespace MatroxCS.Parameter
     /// <summary>
     /// カメラに関する全般設定項目
     /// </summary>
-    class CCameraGeneral
+    class CCameraGeneral: IParameter
     {
         /// <summary>
         /// カメラ個数
@@ -52,6 +52,22 @@ namespace MatroxCS.Parameter
                     return i_ret;
             }
             return 0;
+        }
+
+        public class Comment
+        {
+            public static string Number = "カメラ台数";
+
+            public static string BoardType = "ボードタイプ(0: MORPHIS、1: SOLIOSXCL、2: SOLIOSXA、3: METEOR2MC、4: GIGE、100: HOST)";
+
+            public static string HeartBeatTime = "最大カメラ取得待機時間(単位は秒、指定秒数以上カメラから画像が取得できないとエラーとする)";
+
+            public static string CameraInformation = "カメラ毎の固有情報";
+        }
+
+        public void Dispose()
+        {
+
         }
     }
 }

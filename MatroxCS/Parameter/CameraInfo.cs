@@ -3,7 +3,7 @@
     /// <summary>
     /// 個々のカメラに対する設定項目
     /// </summary>
-    class CCameraInfo
+    class CCameraInfo: IParameter
     {
         /// <summary>
         /// 識別ネーム
@@ -69,6 +69,11 @@
             if (Height < 0 || Height > CDefine.CCameraInfoLimit.HEIGHT)
                 return -4;
             return 0;
+        }
+
+        public void Dispose()
+        {
+
         }
     }
 }

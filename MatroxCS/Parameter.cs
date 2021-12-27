@@ -52,6 +52,7 @@ namespace MatroxCS
                     return -5;
                 case -3:
                     // 異常値が代入された
+                    ncCameraGeneral = null;
                     return -6;
                 default:
                     break;
@@ -91,6 +92,8 @@ namespace MatroxCS
             c_json_camera_info.COMNo = 0;
             c_json_camera_info.IPAddress = " ";
             c_json_camera_general.CameraInformation.Add(c_json_camera_info);
+            
+            // int i_ret = CJsonParameterFactory<CCameraGeneral>.Save(nstrSettingFilePath, c_json_camera_general);  ←後に実装する
             // パラメータをシリアライズする
             string str_json_contents = JsonConvert.SerializeObject(c_json_camera_general, Formatting.Indented);
             // パラメータ文字列にコメントを追加する

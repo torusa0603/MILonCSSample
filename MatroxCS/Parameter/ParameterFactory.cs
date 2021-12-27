@@ -53,7 +53,7 @@ namespace MatroxCS.Parameter
             if (i_ret != 0)
             {
                 // 異常値が代入された
-                ncParameter.Dispose();
+
                 return -3;
             }
             return 0;
@@ -128,17 +128,19 @@ namespace MatroxCS.Parameter
         /// <summary>
         /// 作成される設定ファイルにコメントを加える
         /// </summary>
-        /// <param name="nstrJsonContents">json型をシリアライズした文字列</param>
-        private static void  AddDescriptionOfParameter(ref string nstrJsonContents)
+        /// <param name="nstrParameterContents">json型をシリアライズした文字列</param>
+        private static void  AddDescriptionOfParameter(ref string nstrParameterContents)
         {
             // 取得するパラメータのアクセス修飾子を指定する
             BindingFlags b_access_flag = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static | BindingFlags.DeclaredOnly;
             // 一般設定項目クラスからプロパティを取得する
-            PropertyInfo[] props_json_camera_general = typeof(CCameraGeneral).GetProperties(b_access_flag);
+            List<PropertyInfo> list_props_json_camera_general = new List<PropertyInfo>(typeof(T).GetProperties(b_access_flag));
+            List<MemberInfo> list_fields_json_camera_general = new List<MemberInfo>(typeof(T).GetMembers(b_access_flag));
+            var c_comment = list_fields_json_camera_general.Where(member => member.Name == "Comment");
             string str_comment_contents = "";           // コメント内容
             int i_num_prop_name;                        // コメントコードの位置を示すint型データ
             int i_num_enter;                            // 改行コードの位置を示すint型データ
-            foreach (PropertyInfo prop in props_json_camera_general)
+            foreach (PropertyInfo prop in list_props_json_camera_general)
             {
                 // 各プロパティのコメントを設定する
                 switch (prop.Name)
@@ -160,11 +162,11 @@ namespace MatroxCS.Parameter
                         break;
                 }
                 // 指定プロパティ名直後改行コードの直前にコメント追加する
-                i_num_prop_name = nstrJsonContents.IndexOf(prop.Name);
+                i_num_prop_name = nstrParameterContents.IndexOf(prop.Name);
                 if (i_num_prop_name != -1)
                 {
-                    i_num_enter = nstrJsonContents.IndexOf(m_strNewLineCode, i_num_prop_name);
-                    nstrJsonContents = $"{nstrJsonContents.Substring(0, i_num_enter)}          {m_strCommentCode} {str_comment_contents}{nstrJsonContents.Substring(i_num_enter, nstrJsonContents.Length - (i_num_enter))}";
+                    i_num_enter = nstrParameterContents.IndexOf(m_strNewLineCode, i_num_prop_name);
+                    nstrParameterContents = $"{nstrParameterContents.Substring(0, i_num_enter)}          {m_strCommentCode} {str_comment_contents}{nstrParameterContents.Substring(i_num_enter, nstrParameterContents.Length - (i_num_enter))}";
                 }
 
             }
@@ -210,11 +212,11 @@ namespace MatroxCS.Parameter
                         break;
                 }
                 // 指定プロパティ名直後改行コードの直前にコメント追加する
-                i_num_prop_name = nstrJsonContents.IndexOf(prop.Name);
+                i_num_prop_name = nstrParameterContents.IndexOf(prop.Name);
                 if (i_num_prop_name != -1)
                 {
-                    i_num_enter = nstrJsonContents.IndexOf(m_strNewLineCode, i_num_prop_name);
-                    nstrJsonContents = $"{nstrJsonContents.Substring(0, i_num_enter)}          {m_strCommentCode} {str_comment_contents}{nstrJsonContents.Substring(i_num_enter, nstrJsonContents.Length - (i_num_enter))}";
+                    i_num_enter = nstrParameterContents.IndexOf(m_strNewLineCode, i_num_prop_name);
+                    nstrParameterContents = $"{nstrParameterContents.Substring(0, i_num_enter)}          {m_strCommentCode} {str_comment_contents}{nstrParameterContents.Substring(i_num_enter, nstrParameterContents.Length - (i_num_enter))}";
                 }
             }
         }

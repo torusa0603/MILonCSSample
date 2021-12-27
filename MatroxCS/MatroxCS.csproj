@@ -97,6 +97,7 @@
     <Compile Include="MatroxMain.cs" />
     <Compile Include="Parameter\CameraGeneral.cs" />
     <Compile Include="Parameter\CameraInfo.cs" />
+    <Compile Include="Parameter\IParameter.cs" />
     <Compile Include="Parameter\ParameterFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
