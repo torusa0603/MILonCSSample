@@ -138,13 +138,13 @@ namespace MatroxCS
         }
 
         /// <summary>
-        /// 平行四辺形を描写
+        /// 平行四辺形を描写(座標系の原点は左下想定)
         /// </summary>
-        /// <param name="nptFirstPoint">一点目の座標</param>
-        /// <param name="nptSecondPoint">二点目の座標</param>
-        /// <param name="nptThirdPoint">三点目の座標</param>
+        /// <param name="nptRightBottom">右下点の座標</param>
+        /// <param name="nptLeftBottom">左下点の座標</param>
+        /// <param name="nptLeftTop">左上点の座標</param>
         /// <returns>0:正常終了、-1:グラフィックバッファ未取得、-999:異常終了</returns>
-        public int DrawParallelogram(Point nptFirstPoint, Point nptSecondPoint, Point nptThirdPoint)
+        public int DrawParallelogram(Point nptRightBottom, Point nptLeftBottom, Point nptLeftTop)
         {
             //グラフィックバッファ未取得
             if (m_milGraphic == MIL.M_NULL)
@@ -152,18 +152,18 @@ namespace MatroxCS
                 return -1;
             }
 
-            Point pt_fourth_point = new Point(0, 0);          //　平行四辺形の第4点
+            Point pt_right_top_point = new Point(0, 0);          //　平行四辺形の右上点座標
 
-            //　第4点を計算する
-            pt_fourth_point.X = nptThirdPoint.X - nptSecondPoint.X + nptFirstPoint.X;
-            pt_fourth_point.Y = nptThirdPoint.Y - nptSecondPoint.Y + nptFirstPoint.Y;
+            //　右上点座標を計算する
+            pt_right_top_point.X = nptLeftTop.X - nptLeftBottom.X + nptRightBottom.X;
+            pt_right_top_point.Y = nptLeftTop.Y - nptLeftBottom.Y + nptRightBottom.Y;
 
             int i_ret;
             //	平行四辺形を描写
-            i_ret = DrawLine(nptFirstPoint, nptSecondPoint);        //	1→2
-            i_ret = DrawLine(nptSecondPoint, nptThirdPoint);        //	2→3
-            i_ret = DrawLine(nptThirdPoint, pt_fourth_point);   //	3→4
-            i_ret = DrawLine(pt_fourth_point, nptFirstPoint);	//	4→1
+            i_ret = DrawLine(nptLeftBottom, nptRightBottom);  //下辺描写
+            i_ret = DrawLine(nptLeftBottom, nptLeftTop);      //左辺描写
+            i_ret = DrawLine(nptLeftTop, pt_right_top_point);      //上辺描写
+            i_ret = DrawLine(nptRightBottom, pt_right_top_point);  //右辺描写
             return i_ret;
         }
 

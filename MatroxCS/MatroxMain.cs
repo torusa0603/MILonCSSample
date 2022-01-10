@@ -124,15 +124,15 @@ namespace MatroxCS
                     {
                         case -1:
                             // デジタイザーID取得失敗
-                            i_method_return= - 9;
+                            i_method_return = -9;
                             break;
                         case -2:
                             // グラブ専用バッファ取得失敗
-                            i_method_return= - 10;
+                            i_method_return = -10;
                             break;
                         case CDefine.SpecificErrorCode.EXCEPTION_ERROR:
                             // try-catchで捉えたエラー(内容はDLLError.log参照)
-                            i_method_return= CDefine.SpecificErrorCode.EXCEPTION_ERROR;
+                            i_method_return = CDefine.SpecificErrorCode.EXCEPTION_ERROR;
                             break;
                         default:
                             // 無事、インスタンス・オープン処理完了
@@ -147,14 +147,14 @@ namespace MatroxCS
                 {
                     case -1:
                         // グラフィックバッファID取得失敗
-                        i_method_return= - 11;
+                        i_method_return = -11;
                         break;
                     case CDefine.SpecificErrorCode.EXCEPTION_ERROR:
                         // try-catchで捉えたエラー(内容はDLLError.log参照)
-                        i_method_return= CDefine.SpecificErrorCode.EXCEPTION_ERROR;
+                        i_method_return = CDefine.SpecificErrorCode.EXCEPTION_ERROR;
                         break;
                 }
-                
+
                 return i_method_return;
             }
         }
@@ -675,6 +675,51 @@ namespace MatroxCS
         }
 
         /// <summary>
+        /// 直線を描画
+        /// </summary>
+        /// <param name="niDisplayID">指定ディスプレイID</param>
+        /// <param name="nptDiagonalPoint1">矩形の対角点1座標</param>
+        /// <param name="nptDiagonalPoint2">矩形の対角点2座標</param>
+        /// <returns>0:正常終了、-1:該当ディスプレイID無し、-100:致命的エラー発生中、-200:初期化未完了、-999:異常終了(内容に関してはDLLError.log参照)</returns>
+        public int DrawRegion(int niDisplayID, Point nptDiagonalPoint1, Point nptDiagonalPoint2)
+        {
+            int i_ret;
+            // 初期化処理が未完了の場合はエラーを返す
+            if (!m_bMilInitialFinished)
+            {
+                return CDefine.SpecificErrorCode.UNCOMPLETED_OPENING_ERROR;
+            }
+            if (m_cBase.GetFatalErrorOccured())
+            {
+                // 致命的なエラーが起きている
+                return CDefine.SpecificErrorCode.FATAL_ERROR_OCCURED;
+            }
+            // 指定ディスプレイIDのインデックス番号を取得
+            int i_display_index = SearchDisplayID(niDisplayID); ;
+            if (i_display_index == -1)
+            {
+                // 指定ディスプレイIDに該当なし
+                return -1;
+            }
+            //  指定の画面のオーバーレイバッファを設定
+            m_cGraphic.SetOverlay(m_lstDisplayImage[i_display_index].GetOverlay());
+
+            // 左下、左上、右下の座標を作成(座標系の原点は左下想定)
+            Point pt_left_bottom = new Point(Math.Min(nptDiagonalPoint1.X, nptDiagonalPoint2.X), Math.Min(nptDiagonalPoint1.Y, nptDiagonalPoint2.Y));
+            Point pt_left_top = new Point(Math.Min(nptDiagonalPoint1.X, nptDiagonalPoint2.X), Math.Max(nptDiagonalPoint1.Y, nptDiagonalPoint2.Y));
+            Point pt_right_bottom = new Point(Math.Max(nptDiagonalPoint1.X, nptDiagonalPoint2.X), Math.Min(nptDiagonalPoint1.Y, nptDiagonalPoint2.Y));
+
+            //  矩形を描画
+            i_ret = m_cGraphic.DrawParallelogram(pt_right_bottom, pt_left_bottom, pt_left_top);
+            if (i_ret != 0)
+            {
+                // try-catchで捉えたエラー(内容はDLLError.log参照)
+                return CDefine.SpecificErrorCode.EXCEPTION_ERROR;
+            }
+            return 0;
+        }
+
+        /// <summary>
         /// ディスプレイ内のグラフィックをクリア
         /// </summary>
         /// <param name="niDisplayID">指定ディスプレイID</param>
@@ -849,7 +894,7 @@ namespace MatroxCS
             }
 
             // 検査実行(検査結果を代入)
-            ls_ret = m_cAlgorithm.Execute(c_algorithm_parameter,n_loValue);
+            ls_ret = m_cAlgorithm.Execute(c_algorithm_parameter, n_loValue);
             // 先頭に0(正常終了)を追加する
             ls_ret.Insert(0, 0);
 
