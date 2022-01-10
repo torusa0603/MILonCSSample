@@ -41,7 +41,7 @@ namespace MatroxCS
                         return -3;
                 }
             }
-            i_ret = CJsonParameterFactory<CCameraGeneral>.Load(nstrSettingFilePath, ref ncCameraGeneral);
+            i_ret = CParameterFactory<CCameraGeneral>.Load(nstrSettingFilePath, ref ncCameraGeneral);
             switch (i_ret)
             {
                 case -1:
@@ -93,27 +93,16 @@ namespace MatroxCS
             c_json_camera_info.IPAddress = " ";
             c_json_camera_general.CameraInformation.Add(c_json_camera_info);
             
-            // int i_ret = CJsonParameterFactory<CCameraGeneral>.Save(nstrSettingFilePath, c_json_camera_general);  ←後に実装する
-            // パラメータをシリアライズする
-            string str_json_contents = JsonConvert.SerializeObject(c_json_camera_general, Formatting.Indented);
-            // パラメータ文字列にコメントを追加する
-            AddDescriptionOfParameter(ref str_json_contents);
-
-            try
+            int i_ret = CParameterFactory<CCameraGeneral>.Save(nstrSettingFilePath, c_json_camera_general);
+            switch (i_ret)
             {
-                // jsonファイルを作成する
-                using (FileStream fs = File.Create(nstrSettingFilePath)) { }
-                // jsonファイルにパラメータ文字列を書き込む
-                using (StreamWriter writer = new StreamWriter(nstrSettingFilePath, false, encd_encoding))
-                {
-                    writer.WriteLine(str_json_contents);
-                }
+                case -1:
+                    // ファイル作成・書き込みエラー
+                    return -2;
+                default:
+                    break;
+            }
                 return 0;
-            }
-            catch
-            {
-                return -2;
-            }
         }
 
         /// <summary>

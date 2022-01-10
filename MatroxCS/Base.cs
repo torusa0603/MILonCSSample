@@ -236,8 +236,11 @@ namespace MatroxCS
                 str_function = strbuid_error_message_function.ToString();
                 if (str_function.IndexOf("Alloc") != -1)
                 {
-                    // 致命的エラーの発生をイベントで知らせる
-                    m_sevFatalErrorOccured();
+                    if (m_sevFatalErrorOccured != null)
+                    {
+                        // 致命的エラーの発生をイベントで知らせる
+                        m_sevFatalErrorOccured();
+                    }
                     // 致命的エラーの発生を示すフラグを立てる
                     m_sbFatalErrorOccured = true;
                 }

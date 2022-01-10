@@ -758,7 +758,7 @@ namespace MatroxCS
         /// </summary>
         /// <param name="nstrAlgorithmName"></param>
         /// <returns>0:正常終了、-1:選択されたアルゴリズム名が異常</returns>
-        public int setAlgorithm(string nstrAlgorithmName)
+        public int SetAlgorithm(string nstrAlgorithmName)
         {
             //  現在、使用中のアルゴリズムがあれば解放する
             if (m_cAlgorithm != null)
