@@ -27,7 +27,7 @@ namespace MatroxCS
         CGraphic m_cGraphic = new CGraphic();                                   // グラフィックオブジェクト
         CCameraGeneral m_cCameraGeneral = new CCameraGeneral();                 // パラメータオブジェクト
         CParameter m_cParameter = new CParameter();                             // パラメータクラスオブジェクト
-        bool m_bBaseInitialFinished = false;                                    // 初期処理完了済みかを示す
+        bool m_bMilInitialFinished = false;                                     // 初期処理完了済みかを示す
         IAlgorithm m_cAlgorithm;                                                // アルゴリズムオブジェクト
 
         #endregion
@@ -49,13 +49,14 @@ namespace MatroxCS
         public int InitMatrox(string nstrSettingFilePath)
         {
             // 初期化処理を既に行っていた場合は行わない
-            if (m_bBaseInitialFinished)
+            if (m_bMilInitialFinished)
             {
                 return -99;
             }
             else
             {
                 int i_ret = 0;
+                int i_method_return = 0;
                 // 設定ファイルの読み込み
                 i_ret = m_cParameter.ReadParameter(nstrSettingFilePath, ref m_cCameraGeneral);
                 switch (i_ret)
@@ -79,8 +80,7 @@ namespace MatroxCS
                         // エラーなし
                         break;
                 }
-                // カメラ数を取得
-                int i_camera_num = m_cCameraGeneral.Number;
+
                 // 致命的なエラー発生時に起動するイベントハンドラを渡す
                 CBase.m_sevFatalErrorOccured += m_evMatroxFatalErrorOccured;
                 // ベースオブジェクトを初期化
@@ -107,10 +107,14 @@ namespace MatroxCS
                         // エラーなし
                         break;
                 }
-                
-                int i_loop;
+
+                // MILの初期化は成功した為、フラグを立てる
+                m_bMilInitialFinished = true;
+
+                // カメラ数を取得
+                int i_camera_num = m_cCameraGeneral.Number;
                 //  カメラ初期化
-                for (i_loop = 0; i_loop < i_camera_num; i_loop++)
+                for (int i_loop = 0; i_loop < i_camera_num; i_loop++)
                 {
                     // カメラオブジェクトに各種設定値を代入
                     CCamera c_camera = new CCamera(m_cCameraGeneral.CameraInformation[i_loop], m_cCameraGeneral.HeartBeatTime);
@@ -120,16 +124,16 @@ namespace MatroxCS
                     {
                         case -1:
                             // デジタイザーID取得失敗
-                            EndMatrox();
-                            return -9;
+                            i_method_return= - 9;
+                            break;
                         case -2:
                             // グラブ専用バッファ取得失敗
-                            EndMatrox();
-                            return -10;
+                            i_method_return= - 10;
+                            break;
                         case CDefine.SpecificErrorCode.EXCEPTION_ERROR:
                             // try-catchで捉えたエラー(内容はDLLError.log参照)
-                            EndMatrox();
-                            return CDefine.SpecificErrorCode.EXCEPTION_ERROR;
+                            i_method_return= CDefine.SpecificErrorCode.EXCEPTION_ERROR;
+                            break;
                         default:
                             // 無事、インスタンス・オープン処理完了
                             // カメラリストに追加
@@ -143,15 +147,15 @@ namespace MatroxCS
                 {
                     case -1:
                         // グラフィックバッファID取得失敗
-                        EndMatrox();
-                        return -11;
+                        i_method_return= - 11;
+                        break;
                     case CDefine.SpecificErrorCode.EXCEPTION_ERROR:
                         // try-catchで捉えたエラー(内容はDLLError.log参照)
-                        EndMatrox();
-                        return CDefine.SpecificErrorCode.EXCEPTION_ERROR;
+                        i_method_return= CDefine.SpecificErrorCode.EXCEPTION_ERROR;
+                        break;
                 }
-                m_bBaseInitialFinished = true;
-                return 0;
+                
+                return i_method_return;
             }
         }
 
@@ -200,10 +204,10 @@ namespace MatroxCS
                 // try-catchで捉えたエラー(内容はDLLError.log参照)
                 return CDefine.SpecificErrorCode.EXCEPTION_ERROR;
             }
-            if (m_bBaseInitialFinished)
+            if (m_bMilInitialFinished)
             {
                 // 初期化済みフラグをオフにする
-                m_bBaseInitialFinished = false;
+                m_bMilInitialFinished = false;
             }
             return 0;
         }
@@ -215,7 +219,7 @@ namespace MatroxCS
         public int? GetCameraNum()
         {
             // 初期化処理が済んでいる場合に行う
-            if (m_bBaseInitialFinished)
+            if (m_bMilInitialFinished)
             {
                 // カメラオブジェクトリストの個数を返す
                 return m_lstCamera.Count();
@@ -363,7 +367,7 @@ namespace MatroxCS
         {
             int i_ret;
             // 初期化処理が未完了の場合はエラーを返す
-            if (!m_bBaseInitialFinished)
+            if (!m_bMilInitialFinished)
             {
                 return CDefine.SpecificErrorCode.UNCOMPLETED_OPENING_ERROR;
             }
@@ -415,7 +419,7 @@ namespace MatroxCS
         public int SelectCameraImageDisplay(int niCameraID, int niDisplayID)
         {
             // 初期化処理が未完了の場合はエラーを返す
-            if (!m_bBaseInitialFinished)
+            if (!m_bMilInitialFinished)
             {
                 return CDefine.SpecificErrorCode.UNCOMPLETED_OPENING_ERROR;
             }
@@ -612,7 +616,7 @@ namespace MatroxCS
         {
             int i_ret;
             // 初期化処理が未完了の場合はエラーを返す
-            if (!m_bBaseInitialFinished)
+            if (!m_bMilInitialFinished)
             {
                 return CDefine.SpecificErrorCode.UNCOMPLETED_OPENING_ERROR;
             }
@@ -642,7 +646,7 @@ namespace MatroxCS
         {
             int i_ret;
             // 初期化処理が未完了の場合はエラーを返す
-            if (!m_bBaseInitialFinished)
+            if (!m_bMilInitialFinished)
             {
                 return CDefine.SpecificErrorCode.UNCOMPLETED_OPENING_ERROR;
             }
@@ -679,7 +683,7 @@ namespace MatroxCS
         {
             int i_ret;
             // 初期化処理が未完了の場合はエラーを返す
-            if (!m_bBaseInitialFinished)
+            if (!m_bMilInitialFinished)
             {
                 return CDefine.SpecificErrorCode.UNCOMPLETED_OPENING_ERROR;
             }
@@ -801,7 +805,7 @@ namespace MatroxCS
             CRequiredParameterForAlgorithm c_algorithm_parameter = new CRequiredParameterForAlgorithm();    // 必須引数クラス
             List<object> ls_ret = new List<object> { };                                                     // アルゴリズムごとの専用引数オブジェクト
 
-            if (!m_bBaseInitialFinished)
+            if (!m_bMilInitialFinished)
             {
                 // 初期化処理が行われていない
                 ls_ret.Add(CDefine.SpecificErrorCode.UNCOMPLETED_OPENING_ERROR);

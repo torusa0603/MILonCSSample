@@ -28,7 +28,8 @@ namespace MatroxCS
         public int OpenGraphic()
         {
             try
-            {             // グラフィックバッファID取得
+            {             
+                // グラフィックバッファID取得
                 MIL.MgraAlloc(m_smilSystem, ref m_milGraphic);
                 if (m_milGraphic == MIL.M_NULL)
                 {
