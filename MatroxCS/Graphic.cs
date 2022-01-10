@@ -28,7 +28,7 @@ namespace MatroxCS
         public int OpenGraphic()
         {
             try
-            {             
+            {
                 // グラフィックバッファID取得
                 MIL.MgraAlloc(m_smilSystem, ref m_milGraphic);
                 if (m_milGraphic == MIL.M_NULL)
@@ -74,9 +74,14 @@ namespace MatroxCS
         /// <summary>
         /// 色の設定
         /// </summary>
-        /// <returns>0:正常終了、-999:異常終了</returns>
+        /// <returns>0:正常終了、-1:グラフィックバッファ未取得、-999:異常終了</returns>
         public int SetColor(int niRed, int niGreen, int niBlue)
         {
+            //グラフィックバッファ未取得
+            if (m_milGraphic == MIL.M_NULL)
+            {
+                return -1;
+            }
             try
             {
                 // グラフィックの色を設定
@@ -109,9 +114,15 @@ namespace MatroxCS
         /// </summary>
         /// <param name="nptStartPoint">始点座標</param>
         /// <param name="nptEndPoint">終点座標</param>
-        /// <returns>0:正常終了、-999:異常終了</returns>
+        /// <returns>0:正常終了、-1:グラフィックバッファ未取得、-999:異常終了</returns>
         public int DrawLine(Point nptStartPoint, Point nptEndPoint)
         {
+            //グラフィックバッファ未取得
+            if (m_milGraphic == MIL.M_NULL)
+            {
+                return -1;
+            }
+
             try
             {
                 // 直線を描画
@@ -132,29 +143,42 @@ namespace MatroxCS
         /// <param name="nptFirstPoint">一点目の座標</param>
         /// <param name="nptSecondPoint">二点目の座標</param>
         /// <param name="nptThirdPoint">三点目の座標</param>
-        /// <returns>0:正常終了</returns>
+        /// <returns>0:正常終了、-1:グラフィックバッファ未取得、-999:異常終了</returns>
         public int DrawParallelogram(Point nptFirstPoint, Point nptSecondPoint, Point nptThirdPoint)
         {
+            //グラフィックバッファ未取得
+            if (m_milGraphic == MIL.M_NULL)
+            {
+                return -1;
+            }
+
             Point pt_fourth_point = new Point(0, 0);          //　平行四辺形の第4点
 
             //　第4点を計算する
             pt_fourth_point.X = nptThirdPoint.X - nptSecondPoint.X + nptFirstPoint.X;
             pt_fourth_point.Y = nptThirdPoint.Y - nptSecondPoint.Y + nptFirstPoint.Y;
 
+            int i_ret;
             //	平行四辺形を描写
-            DrawLine(nptFirstPoint, nptSecondPoint);        //	1→2
-            DrawLine(nptSecondPoint, nptThirdPoint);        //	2→3
-            DrawLine(nptThirdPoint, pt_fourth_point);   //	3→4
-            DrawLine(pt_fourth_point, nptFirstPoint);	//	4→1
-            return 0;
+            i_ret = DrawLine(nptFirstPoint, nptSecondPoint);        //	1→2
+            i_ret = DrawLine(nptSecondPoint, nptThirdPoint);        //	2→3
+            i_ret = DrawLine(nptThirdPoint, pt_fourth_point);   //	3→4
+            i_ret = DrawLine(pt_fourth_point, nptFirstPoint);	//	4→1
+            return i_ret;
         }
 
         /// <summary>
         /// グラフィックをクリア
         /// </summary>
-        /// <returns>0:正常終了、-999:異常終了</returns>
+        /// <returns>0:正常終了、-1:グラフィックバッファ未取得、-999:異常終了</returns>
         public int ClearGraphic()
         {
+            //グラフィックバッファ未取得
+            if (m_milGraphic == MIL.M_NULL)
+            {
+                return -1;
+            }
+
             try
             {
                 // 透過色を設定
