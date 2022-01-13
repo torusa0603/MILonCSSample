@@ -164,7 +164,7 @@ namespace MatroxCS
         /// <returns>MIL.M_NULL</returns>
         protected MIL_INT HookErrorHandler(MIL_INT nlHookType, MIL_ID nEventId, IntPtr npUserDataPtr)
         {
-            StringBuilder strbuid_error_message_function = new StringBuilder(MIL.M_ERROR_MESSAGE_SIZE);     // エラー発生関数名バッファ
+            StringBuilder str_buid_error_message_function = new StringBuilder(MIL.M_ERROR_MESSAGE_SIZE);     // エラー発生関数名バッファ
             StringBuilder strbuid_error_main_message = new StringBuilder(MIL.M_ERROR_MESSAGE_SIZE);         // エラー内容バッファ
             StringBuilder strbuid_error_sub_message1 = new StringBuilder(MIL.M_ERROR_MESSAGE_SIZE);         // エラー内容詳細文字列1バッファ
             StringBuilder strbuid_error_sub_message2 = new StringBuilder(MIL.M_ERROR_MESSAGE_SIZE);         // エラー内容詳細文字列2バッファ
@@ -183,7 +183,7 @@ namespace MatroxCS
                 //	エラー文字列を取得する
 
                 //	エラー発生関数を取得
-                MIL.MappGetHookInfo(nEventId, MIL.M_MESSAGE + MIL.M_CURRENT_FCT, strbuid_error_message_function);
+                MIL.MappGetHookInfo(nEventId, MIL.M_MESSAGE + MIL.M_CURRENT_FCT, str_buid_error_message_function);
                 //	エラー内容を取得
                 MIL.MappGetHookInfo(nEventId, MIL.M_MESSAGE + MIL.M_CURRENT, strbuid_error_main_message);
                 //	エラー内容詳細の文字列数を取得
@@ -207,7 +207,7 @@ namespace MatroxCS
 
                 //	まずエラー発生関数をエラーログ内容に追加する
                 str_error_log_contents = "Function:(";
-                str_error_log_contents += strbuid_error_message_function;
+                str_error_log_contents += str_buid_error_message_function;
                 str_error_log_contents += ") ";
                 //	次にエラー内容をエラーログ内容に追加する
                 str_error_log_contents += strbuid_error_main_message;
@@ -231,10 +231,10 @@ namespace MatroxCS
                 //	エラーログ内容を出力する
                 CLogMatroxCS.Output(CDefine.LogKey.MIL_ERROR, str_error_log_contents);
                 //	致命的なエラーかどうか判断する
-                //	MdigProcess、xxxAllocで発生するエラーは全て致命的とする
+                //	MdigProcess、MbufAllocで発生するエラーは全て致命的とする
 
-                str_function = strbuid_error_message_function.ToString();
-                if (str_function.IndexOf("Alloc") != -1)
+                str_function = str_buid_error_message_function.ToString();
+                if (str_function.IndexOf("MbufAlloc") != -1)
                 {
                     if (m_sevFatalErrorOccured != null)
                     {

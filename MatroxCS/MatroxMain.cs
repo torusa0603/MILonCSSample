@@ -675,13 +675,13 @@ namespace MatroxCS
         }
 
         /// <summary>
-        /// 直線を描画
+        /// 矩形を描画
         /// </summary>
         /// <param name="niDisplayID">指定ディスプレイID</param>
         /// <param name="nptDiagonalPoint1">矩形の対角点1座標</param>
         /// <param name="nptDiagonalPoint2">矩形の対角点2座標</param>
         /// <returns>0:正常終了、-1:該当ディスプレイID無し、-100:致命的エラー発生中、-200:初期化未完了、-999:異常終了(内容に関してはDLLError.log参照)</returns>
-        public int DrawRegion(int niDisplayID, Point nptDiagonalPoint1, Point nptDiagonalPoint2)
+        public int DrawRectangle(int niDisplayID, Point nptDiagonalPoint1, Point nptDiagonalPoint2)
         {
             int i_ret;
             // 初期化処理が未完了の場合はエラーを返す
@@ -704,13 +704,8 @@ namespace MatroxCS
             //  指定の画面のオーバーレイバッファを設定
             m_cGraphic.SetOverlay(m_lstDisplayImage[i_display_index].GetOverlay());
 
-            // 左下、左上、右下の座標を作成(座標系の原点は左下想定)
-            Point pt_left_bottom = new Point(Math.Min(nptDiagonalPoint1.X, nptDiagonalPoint2.X), Math.Min(nptDiagonalPoint1.Y, nptDiagonalPoint2.Y));
-            Point pt_left_top = new Point(Math.Min(nptDiagonalPoint1.X, nptDiagonalPoint2.X), Math.Max(nptDiagonalPoint1.Y, nptDiagonalPoint2.Y));
-            Point pt_right_bottom = new Point(Math.Max(nptDiagonalPoint1.X, nptDiagonalPoint2.X), Math.Min(nptDiagonalPoint1.Y, nptDiagonalPoint2.Y));
-
             //  矩形を描画
-            i_ret = m_cGraphic.DrawParallelogram(pt_right_bottom, pt_left_bottom, pt_left_top);
+            i_ret = m_cGraphic.DrawRectangle(nptDiagonalPoint1, nptDiagonalPoint2);
             if (i_ret != 0)
             {
                 // try-catchで捉えたエラー(内容はDLLError.log参照)
@@ -723,7 +718,7 @@ namespace MatroxCS
         /// ディスプレイ内のグラフィックをクリア
         /// </summary>
         /// <param name="niDisplayID">指定ディスプレイID</param>
-        /// <returns>0:正常終了、-100:致命的エラー発生中、-200:初期化未完了、-999:異常終了(内容に関してはDLLError.log参照)</returns>
+        /// <returns>0:正常終了、-1:該当ディスプレイなし、-100:致命的エラー発生中、-200:初期化未完了、-999:異常終了(内容に関してはDLLError.log参照)</returns>
         public int ClearGraph(int niDisplayID)
         {
             int i_ret;
