@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 
 namespace MatroxCS.Algorithm
 {
-    interface IAlgorithm : IDisposable
+    abstract class IAlgorithm : CBase
     {
         //  検査を実行
-        List<object> Execute(CRequiredParameterForAlgorithm ncRequiredParameterForAlgorithm, List<object> noValue = null);
+        public abstract List<object> Execute(CRequiredParameterForAlgorithm ncRequiredParameterForAlgorithm, List<object> noValue = null);
     }
 }

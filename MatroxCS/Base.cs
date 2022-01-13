@@ -11,7 +11,7 @@ using System.Reflection;
 
 namespace MatroxCS
 {
-    class CBase
+    class CBase : IDisposable
     {
         #region メンバ変数
 
@@ -255,6 +255,11 @@ namespace MatroxCS
                 CLogMatroxCS.Output(CDefine.LogKey.MIL_ERROR, str_error_log_contents);
                 return (MIL.M_NULL);
             }
+        }
+
+        public void Dispose()
+        {
+
         }
 
         #endregion

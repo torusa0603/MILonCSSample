@@ -84,6 +84,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Algorithm\FujiwaDenki_CheckInoculant.cs" />
     <Compile Include="Algorithm\IAlgorithm.cs" />
     <Compile Include="Algorithm\RequiredParameterForAlgorithm.cs" />
     <Compile Include="Camera.cs" />
