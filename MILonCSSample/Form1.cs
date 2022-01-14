@@ -57,8 +57,8 @@ namespace MILonCSSample
         {
             // カメラリストID作成
             m_lstCameraID = new List<int>();
-            // ディスプレイID{パネル1, パネル2, パネル3, パネル4}作成
-            m_lstDisplayID = new List<int>() { 0, 0, 0, 0 };
+            // ディスプレイID{パネル1, パネル2, パネル3, パネル4, パネル5}作成
+            m_lstDisplayID = new List<int>() { 0, 0, 0, 0, 0 };
             int? m_iCameraNumber = 0;                                                    // カメラ個数
             cMatroxMain.m_evMatroxFatalErrorOccured += OccuredMatroxFatalError;
             int i_ret = 0;
@@ -86,21 +86,24 @@ namespace MILonCSSample
                         result = MessageBox.Show("設定ファイル内の構文が無効です", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
                         break;
                     case -5:
-                        result = MessageBox.Show("アプリケーションIDが取得できませんでした", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                        result = MessageBox.Show("設定値が無効です", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
                         break;
                     case -6:
-                        result = MessageBox.Show("ボードの指定が間違っています。", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                        result = MessageBox.Show("アプリケーションIDが取得できませんでした", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
                         break;
                     case -7:
-                        result = MessageBox.Show("システムIDが取得できませんでした", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                        result = MessageBox.Show("ボードの指定が間違っています。", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
                         break;
                     case -8:
-                        result = MessageBox.Show("カメラがつながっているか確認してください", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                        result = MessageBox.Show("システムIDが取得できませんでした", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
                         break;
                     case -9:
-                        result = MessageBox.Show("取得画像サイズを確認してください", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                        result = MessageBox.Show("カメラがつながっているか確認してください", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
                         break;
                     case -10:
+                        result = MessageBox.Show("取得画像サイズを確認してください", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                        break;
+                    case -11:
                         result = MessageBox.Show("グラフィックIDが取得できませんでした", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
                         break;
                     case -99:
@@ -276,6 +279,43 @@ namespace MILonCSSample
             {
                 // ディスプレイリストIDに追加
                 m_lstDisplayID[3] = i_ret;
+            }
+            else
+            {
+                // エラー処理
+                DialogResult result;
+                switch (i_ret)
+                {
+
+                    case -1:
+                        result = MessageBox.Show("既にコントロールは使用されています", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                        break;
+                    case -2:
+                        result = MessageBox.Show("ディスプレイIDが取得できませんでした", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                        break;
+                    case -3:
+                        result = MessageBox.Show("画像サイズを確認してください", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                        break;
+                    case -100:
+                        result = MessageBox.Show("致命的なエラーが発生しました", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                        break;
+                    case -200:
+                        result = MessageBox.Show("初期化処理が完了していません", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                        break;
+                    case -999:
+                        result = MessageBox.Show("DLLError.logを確認して下さい", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            // パネル4ディスプレイID取得
+            i_ret = cMatroxMain.OpenDisplay(panel_check.Handle, new Size(pnl_graphic.Width, pnl_graphic.Height));
+            if (i_ret > 0)
+            {
+                // ディスプレイリストIDに追加
+                m_lstDisplayID[4] = i_ret;
             }
             else
             {
@@ -624,30 +664,30 @@ namespace MILonCSSample
                             break;
                     }
                 }
-                //i_ret = cMatroxMain.DrawLine(m_lstDisplayID[0], new Point(0, 0), new Point(pnl_graphic.Width, pnl_graphic.Height));
-                //if (i_ret != 0)
-                //{
-                //    // エラー処理
-                //    DialogResult result;
-                //    switch (i_ret)
-                //    {
+                i_ret = cMatroxMain.DrawLine(m_lstDisplayID[0], new Point(0, 0), new Point(pnl_graphic.Width, pnl_graphic.Height));
+                if (i_ret != 0)
+                {
+                    // エラー処理
+                    DialogResult result;
+                    switch (i_ret)
+                    {
 
-                //        case -1:
-                //            result = MessageBox.Show("該当ディスプレイがありません", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
-                //            break;
-                //        case -100:
-                //            result = MessageBox.Show("致命的なエラーが発生しました", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
-                //            break;
-                //        case -200:
-                //            result = MessageBox.Show("初期化処理が完了していません", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
-                //            break;
-                //        case -999:
-                //            result = MessageBox.Show("DLLError.logを確認して下さい", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
-                //            break;
-                //        default:
-                //            break;
-                //    }
-                //}
+                        case -1:
+                            result = MessageBox.Show("該当ディスプレイがありません", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                            break;
+                        case -100:
+                            result = MessageBox.Show("致命的なエラーが発生しました", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                            break;
+                        case -200:
+                            result = MessageBox.Show("初期化処理が完了していません", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                            break;
+                        case -999:
+                            result = MessageBox.Show("DLLError.logを確認して下さい", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                            break;
+                        default:
+                            break;
+                    }
+                }
                 // saveボタンの表示・有効化
                 btn_save.Enabled = true;
                 btn_save.Visible = true;
@@ -1146,6 +1186,19 @@ namespace MILonCSSample
             // 保持していたカメラ・ディスプレイIDをクリア
             m_lstCameraID.Clear();
             m_lstDisplayID.Clear();
+        }
+
+        /// <summary>
+        /// 検査パネルクリック処理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void panel_check_Click(object sender, EventArgs e)
+        {
+            int i_ret = cMatroxMain.SetAlgorithm("FujiwaDenki_CheckInoculant");
+            List<object> lo_argument = new List<object>() { 100 };
+            List<object> lo_ret;
+            lo_ret = cMatroxMain.DoAlgorithm(m_lstCameraID[0], m_lstDisplayID[4], null, null, lo_argument);
         }
     }
 }

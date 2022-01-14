@@ -37,6 +37,7 @@
             this.controlToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.connectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.disConnectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.panel_check = new System.Windows.Forms.Panel();
             this.pnl_camera1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -54,7 +55,7 @@
             this.pnl_camera1.Controls.Add(this.btn_save);
             this.pnl_camera1.Location = new System.Drawing.Point(0, 27);
             this.pnl_camera1.Name = "pnl_camera1";
-            this.pnl_camera1.Size = new System.Drawing.Size(360, 270);
+            this.pnl_camera1.Size = new System.Drawing.Size(720, 540);
             this.pnl_camera1.TabIndex = 0;
             this.pnl_camera1.Click += new System.EventHandler(this.pnl_camera1_Click);
             // 
@@ -92,7 +93,7 @@
             this.controlToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(720, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(1440, 24);
             this.menuStrip1.TabIndex = 2;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -119,11 +120,20 @@
             this.disConnectToolStripMenuItem.Text = "DisConnect";
             this.disConnectToolStripMenuItem.Click += new System.EventHandler(this.DisConnectToolStripMenuItem_Click);
             // 
+            // panel_check
+            // 
+            this.panel_check.Location = new System.Drawing.Point(720, 27);
+            this.panel_check.Name = "panel_check";
+            this.panel_check.Size = new System.Drawing.Size(720, 540);
+            this.panel_check.TabIndex = 1;
+            this.panel_check.Click += new System.EventHandler(this.panel_check_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(720, 567);
+            this.ClientSize = new System.Drawing.Size(1440, 567);
+            this.Controls.Add(this.panel_check);
             this.Controls.Add(this.pnl_camera1);
             this.Controls.Add(this.pnl_graphic);
             this.Controls.Add(this.pnl_camera2);
@@ -153,6 +163,7 @@
         private System.Windows.Forms.ToolStripMenuItem controlToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem connectToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem disConnectToolStripMenuItem;
+        private System.Windows.Forms.Panel panel_check;
     }
 }
 

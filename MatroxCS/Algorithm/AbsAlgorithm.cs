@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace MatroxCS.Algorithm
 {
-    abstract class IAlgorithm : CBase
+    abstract class AbsAlgorithm : CBase
     {
         //  検査を実行
         public abstract List<object> Execute(CRequiredParameterForAlgorithm ncRequiredParameterForAlgorithm, List<object> noValue = null);

@@ -85,7 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Algorithm\FujiwaDenki_CheckInoculant.cs" />
-    <Compile Include="Algorithm\IAlgorithm.cs" />
+    <Compile Include="Algorithm\AbsAlgorithm.cs" />
     <Compile Include="Algorithm\RequiredParameterForAlgorithm.cs" />
     <Compile Include="Camera.cs" />
     <Compile Include="Base.cs" />

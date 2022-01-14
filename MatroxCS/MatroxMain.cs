@@ -28,7 +28,7 @@ namespace MatroxCS
         CCameraGeneral m_cCameraGeneral = new CCameraGeneral();                 // パラメータオブジェクト
         CParameter m_cParameter = new CParameter();                             // パラメータクラスオブジェクト
         bool m_bMilInitialFinished = false;                                     // 初期処理完了済みかを示す
-        IAlgorithm m_cAlgorithm;                                                // アルゴリズムオブジェクト
+        AbsAlgorithm m_cAlgorithm;                                                // アルゴリズムオブジェクト
 
         #endregion
 
@@ -819,7 +819,7 @@ namespace MatroxCS
             //  アルゴリズムがただ一つ見つかった
             if (algorighm.Count() == 1)
             {
-                m_cAlgorithm = (IAlgorithm)Activator.CreateInstance(algorighm.First());
+                m_cAlgorithm = (AbsAlgorithm)Activator.CreateInstance(algorighm.First());
             }
             //  見つからないor2つ以上見つかればセット失敗
             else
@@ -835,12 +835,12 @@ namespace MatroxCS
         /// </summary>
         /// <param name="niCameraID">検査用の画像を取得するカメラID</param>
         /// <param name="niDisplayID">検査結果の画像を表示するディスプレイID</param>
-        /// <param name="n_loValue">その他の検査用パラメーター</param>
+        /// <param name="nloValue">その他の検査用パラメーター</param>
         /// <returns>
         /// 先頭の数値はDLLからの戻り値(0:正常終了、-1:検査アルゴリズムが選択されていない、-2:該当カメラ無し、-3該当ディスプレイ無し:、-200:初期化未完了)<br />
         /// 先頭以降はアルゴリズムプログラムからの戻り値
         /// </returns>
-        public List<object> DoAlgorithm(int niCameraID, int? niDisplayID, List<object> n_loValue)
+        public List<object> DoAlgorithm(int niCameraID, int? niDisplayID, Point? npCutOffset, Size? nszCutSize, List<object> nloValue)
         {
             CRequiredParameterForAlgorithm c_algorithm_parameter = new CRequiredParameterForAlgorithm();    // 必須引数クラス
             List<object> ls_ret = new List<object> { };                                                     // アルゴリズムごとの専用引数オブジェクト
@@ -870,6 +870,18 @@ namespace MatroxCS
             // 検査検査用の画像バッファサイズを必須引数クラスに追加
             c_algorithm_parameter.ProcessingImageSize = m_lstCamera[i_camera_index].GetImageSize();
 
+            // 検査領域を切り抜きを行うかどうか
+            if(npCutOffset ==null || nszCutSize == null)
+            {
+                c_algorithm_parameter.CutBufferOffset = new Point(0, 0);
+                c_algorithm_parameter.CutBufferSize = c_algorithm_parameter.ProcessingImageSize;
+            }
+            else
+            {
+                c_algorithm_parameter.CutBufferOffset = (Point)npCutOffset;
+                c_algorithm_parameter.CutBufferSize = (Size)nszCutSize;
+            }
+
             int i_display_index;
             if (niDisplayID == null)
             {
@@ -885,11 +897,12 @@ namespace MatroxCS
                     ls_ret.Add(-3);
                     return ls_ret;
                 }
+                m_lstDisplayImage[(int)i_display_index].CreateImage(c_algorithm_parameter.CutBufferSize);
                 c_algorithm_parameter.DisplayImageBuffer = m_lstDisplayImage[(int)i_display_index].GetShowImage(null);
             }
 
             // 検査実行(検査結果を代入)
-            ls_ret = m_cAlgorithm.Execute(c_algorithm_parameter, n_loValue);
+            ls_ret = m_cAlgorithm.Execute(c_algorithm_parameter, nloValue);
             // 先頭に0(正常終了)を追加する
             ls_ret.Insert(0, 0);
 
