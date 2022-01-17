@@ -365,7 +365,7 @@ namespace MatroxCS
                 m_bDiffPicDisciminateMode = false;
                 m_bShowDiffPic = false;
                 // 差分元画像バッファ取得
-                MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_PACKED + MIL.M_BGR24, ref m_milDiffOrgImage);
+                MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_PACKED + MIL.M_BGR32, ref m_milDiffOrgImage);
                 if (m_milDiffOrgImage == MIL.M_NULL)
                 {
                     return -1;

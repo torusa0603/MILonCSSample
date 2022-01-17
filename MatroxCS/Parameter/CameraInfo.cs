@@ -62,11 +62,11 @@
         public int CheckVariableValidity()
         {
             // 取得画像幅をチェック
-            if (Width < 0 || Width > CDefine.CCameraInfoLimit.WIDTH)
+            if (Width < 0 || Width > CDefine.CCameraInfoLimit.MAX_WIDTH)
                 return -3;
 
             // 取得画像高さをチェック
-            if (Height < 0 || Height > CDefine.CCameraInfoLimit.HEIGHT)
+            if (Height < 0 || Height > CDefine.CCameraInfoLimit.MAX_HEIGHT)
                 return -4;
             return 0;
         }

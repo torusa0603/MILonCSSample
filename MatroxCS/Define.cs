@@ -59,11 +59,11 @@ namespace MatroxCS
             /// <summary>
             /// カメラ個数の上限
             /// </summary>
-            public static int NUMBER = 10;
+            public static int MAX_CAMERA_NUMBER = 10;
             /// <summary>
             /// ハートビート時間の上限
             /// </summary>
-            public static int HEART_BEAT_TIME = 10;
+            public static int MAX_HEART_BEAT_TIME = 10;
         }
 
         /// <summary>
@@ -74,11 +74,11 @@ namespace MatroxCS
             /// <summary>
             /// 取得画像幅の上限
             /// </summary>
-            public const int WIDTH = 10000;
+            public const int MAX_WIDTH = 10000;
             /// <summary>
             /// 取得画像高さの上限
             /// </summary>
-            public const int HEIGHT = 10000;
+            public const int MAX_HEIGHT = 10000;
         }
 
 

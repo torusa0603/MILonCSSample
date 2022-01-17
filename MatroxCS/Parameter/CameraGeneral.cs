@@ -36,11 +36,11 @@ namespace MatroxCS.Parameter
         {
             int i_ret;
             // カメラ個数をチェック
-            if (Number < 0 || Number > CDefine.CCameraGeneralLimit.NUMBER)
+            if (Number < 0 || Number > CDefine.CCameraGeneralLimit.MAX_CAMERA_NUMBER)
                 return -1;
 
             // ハートビート時間をチェック
-            if (HeartBeatTime < 0 || HeartBeatTime > CDefine.CCameraGeneralLimit.HEART_BEAT_TIME)
+            if (HeartBeatTime < 0 || HeartBeatTime > CDefine.CCameraGeneralLimit.MAX_HEART_BEAT_TIME)
                 return -2;
 
             // カメラ詳細情報をチェック

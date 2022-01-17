@@ -65,7 +65,7 @@ namespace MatroxCS
                 MIL.MdispControl(m_milDisplay, (long)MIL.M_TRANSPARENT_COLOR, m_smilintTransparentColor);
 
                 // 表示バッファを確保
-                MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR24, ref m_milDisplayImage);
+                MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR32, ref m_milDisplayImage);
                 if (m_milDisplayImage == MIL.M_NULL)
                 {
                     return -2;
@@ -129,7 +129,7 @@ namespace MatroxCS
                 {
                     //  違ければ今の画像バッファをクリアしてこの大きさで再確保
                     MIL.MbufFree(m_milDisplayImage);
-                    MIL.MbufAllocColor(m_smilSystem, 3, niImageSize.Width, niImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR24, ref m_milDisplayImage);
+                    MIL.MbufAllocColor(m_smilSystem, 3, niImageSize.Width, niImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR32, ref m_milDisplayImage);
                     // 画像バッファサイズを更新
                     m_szImageSize = niImageSize;
                 }
@@ -236,7 +236,7 @@ namespace MatroxCS
                     //  もし既に画像バッファを確保していたら、一度開放してから再度確保する
                     MIL.MbufFree(m_milDisplayImage);
                     //  画像サイズも更新
-                    MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR24, ref m_milDisplayImage);
+                    MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR32, ref m_milDisplayImage);
                     if (m_milDisplayImage == MIL.M_NULL)
                     {
                         return -1;
@@ -364,7 +364,7 @@ namespace MatroxCS
                 string str_ext;                         // 拡張子
 
                 // 一時的保存バッファを確保
-                MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR24, ref mil_result_temp);
+                MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR32, ref mil_result_temp);
                 if (m_milDisplayImage == MIL.M_NULL)
                 {
                     return -2;
@@ -374,7 +374,7 @@ namespace MatroxCS
                 if (nbIncludeGraphic)
                 {
                     //	一時的オーバーレイバッファを確保
-                    MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR24, ref mil_overlay_temp);
+                    MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR32, ref mil_overlay_temp);
                     if (m_milDisplayImage == MIL.M_NULL)
                     {
                         return -2;

@@ -11,7 +11,7 @@ namespace MatroxCS.Algorithm
 {
     class FujiwaDenki_CheckInoculant : AbsAlgorithm
     {
-        MIL_ID m_milFilterProcessing = MIL.M_NULL;  // フィルタリング用画像
+        static MIL_ID m_milFilterProcessing = MIL.M_NULL;  // フィルタリング用画像
 
         /// <summary>
         /// 接種材検査装置用アルゴリズム
@@ -34,19 +34,19 @@ namespace MatroxCS.Algorithm
             // 検査を行うバッファから検査範囲のみを切り抜く
             i_ret = CutoutProcessBaffa(ncRequiredParameterForAlgorithm.CutBufferOffset, ncRequiredParameterForAlgorithm.CutBufferSize);
 
-            //MIL_ID m_milFilterProcessingMono;
-            //m_milFilterProcessingMono = MIL.M_NULL;
-            //MIL.MbufAlloc2d(m_smilSystem, ncRequiredParameterForAlgorithm.CutBufferSize.Width, ncRequiredParameterForAlgorithm.CutBufferSize.Height,
-            //    8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC, ref m_milFilterProcessingMono);
+            MIL_ID m_milFilterProcessingMono;
+            m_milFilterProcessingMono = MIL.M_NULL;
+            MIL.MbufAlloc2d(m_smilSystem, ncRequiredParameterForAlgorithm.CutBufferSize.Width, ncRequiredParameterForAlgorithm.CutBufferSize.Height,
+                8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC, ref m_milFilterProcessingMono);
 
-            //// 検査項目
-            //MIL.MimConvolve(m_milFilterProcessing, m_milFilterProcessing, MIL.M_DERICHE_FILTER(MIL.M_LAPLACIAN_EDGE, MIL.M_DEFAULT));
-            //MIL.MimConvolve(m_milFilterProcessing, m_milFilterProcessing, MIL.M_SOBEL_X);
-            //MIL.MimMorphic(m_milFilterProcessing, m_milFilterProcessing, MIL.M_3X3_RECT, MIL.M_ERODE, 1, MIL.M_GRAYSCALE);
-            //MIL.MimBinarize(m_milFilterProcessing, m_milFilterProcessingMono, MIL.M_GREATER_OR_EQUAL, 20, MIL.M_NULL);
-            //MIL.MbufCopy(m_milFilterProcessingMono, m_milFilterProcessing);
+            // 検査項目
+            MIL.MimConvolve(m_milFilterProcessing, m_milFilterProcessing, MIL.M_DERICHE_FILTER(MIL.M_LAPLACIAN_EDGE, MIL.M_DEFAULT));
+            MIL.MimConvolve(m_milFilterProcessing, m_milFilterProcessing, MIL.M_SOBEL_X);
+            MIL.MimMorphic(m_milFilterProcessing, m_milFilterProcessing, MIL.M_3X3_RECT, MIL.M_ERODE, 1, MIL.M_GRAYSCALE);
+            MIL.MimBinarize(m_milFilterProcessing, m_milFilterProcessingMono, MIL.M_GREATER_OR_EQUAL, 20, MIL.M_NULL);
+            MIL.MbufCopy(m_milFilterProcessingMono, m_milFilterProcessing);
 
-            int i_ratio_white_pixels = CalculateRatioOfWhitePixels(m_milFilterProcessing);
+            double i_ratio_white_pixels = CountWhitePixels(m_milFilterProcessingMono) * 100.0 / (ncRequiredParameterForAlgorithm.CutBufferSize.Width * ncRequiredParameterForAlgorithm.CutBufferSize.Height);
             bool b_result;  // 判定結果
             if (i_ratio_white_pixels > (int)noValue[0])
             {
@@ -61,7 +61,7 @@ namespace MatroxCS.Algorithm
             {
                 i_ret = DisplayProcessBuff((MIL_ID)ncRequiredParameterForAlgorithm.DisplayImageBuffer);
             }
-            
+
             ls_ret.Add(b_result);
             ls_ret.Add(i_ratio_white_pixels);
             return ls_ret;
@@ -72,7 +72,7 @@ namespace MatroxCS.Algorithm
             try
             {
                 // 加工元画像サイズに合わせてフィルタリング用画像バッファを確保する
-                MIL.MbufAllocColor(m_smilSystem, 3, niImageSize.Width, niImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR24, ref m_milFilterProcessing);
+                MIL.MbufAllocColor(m_smilSystem, 3, niImageSize.Width, niImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR32, ref m_milFilterProcessing);
                 if (m_milFilterProcessing == MIL.M_NULL)
                 {
                     // フィルタリング用画像バッファの確保失敗
@@ -128,7 +128,7 @@ namespace MatroxCS.Algorithm
             {
                 MIL_ID mil_cutout_process_baffa = MIL.M_NULL;    // 一時切り抜き画像バッファ
                 // 一時切り抜き画像バッファ確保
-                MIL.MbufAllocColor(m_smilSystem, 3, niImageSize.Width, niImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR24, ref mil_cutout_process_baffa);
+                MIL.MbufAllocColor(m_smilSystem, 3, niImageSize.Width, niImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR32, ref mil_cutout_process_baffa);
                 if (mil_cutout_process_baffa == MIL.M_NULL)
                 {
                     // 一時切り抜き画像バッファ確保失敗
@@ -139,7 +139,7 @@ namespace MatroxCS.Algorithm
                 // フィルタリング用画像バッファに切り抜き画像をコピーする
                 MIL.MbufFree(m_milFilterProcessing);
                 m_milFilterProcessing = MIL.M_NULL;
-                MIL.MbufAllocColor(m_smilSystem, 3, niImageSize.Width, niImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR24, ref m_milFilterProcessing);
+                MIL.MbufAllocColor(m_smilSystem, 3, niImageSize.Width, niImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR32, ref m_milFilterProcessing);
                 if (m_milFilterProcessing == MIL.M_NULL)
                 {
                     // フィルタリング用画像バッファ確保失敗
@@ -159,43 +159,48 @@ namespace MatroxCS.Algorithm
             }
         }
 
-        private int CalculateRatioOfWhitePixels(MIL_ID nmilProcessBuffer)
+        private int CountWhitePixels(MIL_ID nmilFilterProcessingMono)
         {
             int i_ret = 0;
-            MIL_ID mil_stat_result = MIL.M_NULL;
-            MIL_INT i_average_value = MIL.M_NULL;
+            //MIL_ID mil_stat_result = MIL.M_NULL;
+            //MIL_INT i_average_value = MIL.M_NULL;
+            //double StatSum = 0.0;
+
+            ////
+
+            //MIL_ID MilStatContext = MIL.M_NULL;  // Statistics context identifier.
+            //MIL_ID MilExtreme = MIL.M_NULL;      // Result buffer identifier.
+
+
+            //MIL.MimAlloc(m_smilSystem, MIL.M_STATISTICS_CONTEXT, MIL.M_DEFAULT, ref MilStatContext);
+            //MIL.MimAllocResult(m_smilSystem, MIL.M_DEFAULT, MIL.M_STATISTICS_RESULT, ref MilExtreme);
+
+            //MIL.MimControl(MilStatContext, MIL.M_STAT_SUM, MIL.M_ENABLE);
+            //MIL.MimControl(MilStatContext, MIL.M_CONDITION, MIL.M_EQUAL);
+            //MIL.MimControl(MilStatContext, MIL.M_COND_LOW, 1.0);
+
+            //MIL.MimStatCalculate(MilStatContext, m_milFilterProcessing, MilExtreme, MIL.M_DEFAULT);
+            //MIL.MimGetResult(MilExtreme, MIL.M_STAT_SUM, ref StatSum);
+
+            //MIL.MimFree(MilStatContext);
+            //MIL.MimFree(MilExtreme);
+
 
             //
 
-            MIL_ID MilStatContext = MIL.M_NULL;  // Statistics context identifier.
-            MIL_ID MilExtreme = MIL.M_NULL;      // Result buffer identifier.
+            MIL_ID StatContext = MIL.M_NULL;
+            MIL_ID StatResult = MIL.M_NULL;
+            double StatSum = 0.0;
 
+            MIL.MimAllocResult(m_smilSystem, MIL.M_DEFAULT, MIL.M_STATISTICS_RESULT, ref StatResult);
+            MIL.MimAlloc(m_smilSystem, MIL.M_STATISTICS_CONTEXT, MIL.M_DEFAULT, ref StatContext);
+            MIL.MimControl(StatContext, MIL.M_STAT_SUM, MIL.M_ENABLE);
+            MIL.MimControl(StatContext, MIL.M_CONDITION, MIL.M_EQUAL);
+            MIL.MimControl(StatContext, MIL.M_COND_LOW, 255.0);
+            MIL.MimStatCalculate(StatContext, nmilFilterProcessingMono, StatResult, MIL.M_DEFAULT);
+            MIL.MimGetResult(StatResult, MIL.M_STAT_SUM, ref StatSum);
 
-            MIL.MimAlloc(m_smilSystem, MIL.M_STATISTICS_CONTEXT, MIL.M_DEFAULT, ref MilStatContext);
-            MIL.MimAllocResult(m_smilSystem, MIL.M_DEFAULT, MIL.M_STATISTICS_RESULT, ref MilExtreme);
-
-            MIL.MimControl(MilStatContext, MIL.M_MIN, MIL.M_ENABLE);
-            MIL.MimControl(MilStatContext, MIL.M_MAX, MIL.M_ENABLE);
-            MIL.MimControl(MilStatContext, MIL.M_CONDITION, MIL.M_NOT_EQUAL);
-            MIL.MimControl(MilStatContext, MIL.M_COND_LOW, 0xFFFF);
-
-            MIL.MimStatCalculate(MilStatContext, nmilProcessBuffer, MilExtreme, MIL.M_DEFAULT);
-            MIL.MimGetResult(MilExtreme, MIL.M_STAT_MAX + MIL.M_TYPE_MIL_INT, ref i_average_value);
-
-            MIL.MimFree(MilStatContext);
-            MIL.MimFree(MilExtreme);
-
-            //
-
-
-            //MIL.MimAllocResult(m_smilSystem, MIL.M_DEFAULT, MIL.M_STAT_LIST, ref mil_stat_result);
-            //MIL.MimStatCalculate(nmilProcessBuffer, mil_stat_result, MIL.M_MEAN, MIL.M_NULL, MIL.M_NULL, MIL.M_NULL);
-            //MIL.MimGetResult(mil_stat_result, MIL.M_MEAN + MIL.M_TYPE_MIL_INT, ref i_average_value);
-            //	メモリ解放
-            MIL.MimFree(mil_stat_result);
-
-            i_ret = (int)(i_average_value * 100 / 255);
-
+            i_ret = (int)(StatSum / 255.0);
             return i_ret;
         }
     }
