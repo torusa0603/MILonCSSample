@@ -58,6 +58,9 @@
             this.pnl_camera1.Size = new System.Drawing.Size(720, 540);
             this.pnl_camera1.TabIndex = 0;
             this.pnl_camera1.Click += new System.EventHandler(this.pnl_camera1_Click);
+            this.pnl_camera1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pnl_camera1_MouseDown);
+            this.pnl_camera1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.pnl_camera1_MouseMove);
+            this.pnl_camera1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.pnl_camera1_MouseUp);
             // 
             // btn_save
             // 

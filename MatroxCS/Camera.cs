@@ -485,7 +485,11 @@ namespace MatroxCS
             // ハートビートタイマーを止める
             m_timerHeartbeat.Stop();
             // 致命的エラーの発生をイベントで知らせる
-            m_sevFatalErrorOccured();
+            if (m_sevCameraDisaapear != null)
+            {
+                // 致命的エラーの発生をイベントで知らせる
+                m_sevCameraDisaapear();
+            }
             // 致命的エラーの発生を示すフラグを立てる
             m_sbFatalErrorOccured = true;
             //  エラーログ出力

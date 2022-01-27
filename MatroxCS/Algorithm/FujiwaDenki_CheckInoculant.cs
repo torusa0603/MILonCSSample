@@ -42,7 +42,8 @@ namespace MatroxCS.Algorithm
             // 検査項目
             MIL.MimConvolve(m_milFilterProcessing, m_milFilterProcessing, MIL.M_DERICHE_FILTER(MIL.M_LAPLACIAN_EDGE, MIL.M_DEFAULT));
             MIL.MimConvolve(m_milFilterProcessing, m_milFilterProcessing, MIL.M_SOBEL_X);
-            MIL.MimMorphic(m_milFilterProcessing, m_milFilterProcessing, MIL.M_3X3_RECT, MIL.M_ERODE, 1, MIL.M_GRAYSCALE);
+            //MIL.MimErode(m_milFilterProcessing, m_milFilterProcessing,1, MIL.M_BINARY);
+            //MIL.MimMorphic(m_milFilterProcessing, m_milFilterProcessing, MIL.M_3X3_RECT, MIL.M_ERODE, 1, MIL.M_GRAYSCALE);
             MIL.MimBinarize(m_milFilterProcessing, m_milFilterProcessingMono, MIL.M_GREATER_OR_EQUAL, 20, MIL.M_NULL);
             MIL.MbufCopy(m_milFilterProcessingMono, m_milFilterProcessing);
 
@@ -64,6 +65,12 @@ namespace MatroxCS.Algorithm
 
             ls_ret.Add(b_result);
             ls_ret.Add(i_ratio_white_pixels);
+
+            MIL.MbufFree(m_milFilterProcessing);
+            m_milFilterProcessing = MIL.M_NULL;
+            MIL.MbufFree(m_milFilterProcessingMono);
+            m_milFilterProcessingMono = MIL.M_NULL;
+
             return ls_ret;
         }
 
@@ -126,17 +133,20 @@ namespace MatroxCS.Algorithm
         {
             try
             {
-                MIL_ID mil_cutout_process_baffa = MIL.M_NULL;    // 一時切り抜き画像バッファ
+                MIL_ID mil_cutout_process_baffer = MIL.M_NULL;    // 一時切り抜き画像バッファ
+                MIL_ID mil_tep_cutout_process_baffer = MIL.M_NULL;
                 // 一時切り抜き画像バッファ確保
-                MIL.MbufAllocColor(m_smilSystem, 3, niImageSize.Width, niImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR32, ref mil_cutout_process_baffa);
-                if (mil_cutout_process_baffa == MIL.M_NULL)
+                MIL.MbufAllocColor(m_smilSystem, 3, niImageSize.Width, niImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR32, ref mil_cutout_process_baffer);
+                if (mil_cutout_process_baffer == MIL.M_NULL)
                 {
                     // 一時切り抜き画像バッファ確保失敗
                     return -1;
                 }
                 // フィルタリング用画像バッファの一部分を切り抜き、一時切り抜き画像バッファに保存する
-                MIL.MbufCopy(MIL.MbufChild2d(m_milFilterProcessing, npntOffset.X, npntOffset.Y, niImageSize.Width, niImageSize.Height, MIL.M_NULL), mil_cutout_process_baffa);
+                MIL.MbufChildColor2d(m_milFilterProcessing, MIL.M_ALL_BANDS, npntOffset.X, npntOffset.Y, niImageSize.Width, niImageSize.Height, ref mil_tep_cutout_process_baffer);
+                MIL.MbufCopy(mil_tep_cutout_process_baffer, mil_cutout_process_baffer);
                 // フィルタリング用画像バッファに切り抜き画像をコピーする
+                MIL.MbufFree(mil_tep_cutout_process_baffer);
                 MIL.MbufFree(m_milFilterProcessing);
                 m_milFilterProcessing = MIL.M_NULL;
                 MIL.MbufAllocColor(m_smilSystem, 3, niImageSize.Width, niImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR32, ref m_milFilterProcessing);
@@ -145,10 +155,10 @@ namespace MatroxCS.Algorithm
                     // フィルタリング用画像バッファ確保失敗
                     return -2;
                 }
-                MIL.MbufCopy(mil_cutout_process_baffa, m_milFilterProcessing);
+                MIL.MbufCopy(mil_cutout_process_baffer, m_milFilterProcessing);
                 // 一時切り抜き画像バッファを解放する
-                MIL.MbufFree(mil_cutout_process_baffa);
-                mil_cutout_process_baffa = MIL.M_NULL;
+                MIL.MbufFree(mil_cutout_process_baffer);
+                mil_cutout_process_baffer = MIL.M_NULL;
                 return 0;
             }
             catch (Exception ex)
@@ -199,6 +209,11 @@ namespace MatroxCS.Algorithm
             MIL.MimControl(StatContext, MIL.M_COND_LOW, 255.0);
             MIL.MimStatCalculate(StatContext, nmilFilterProcessingMono, StatResult, MIL.M_DEFAULT);
             MIL.MimGetResult(StatResult, MIL.M_STAT_SUM, ref StatSum);
+
+            MIL.MimFree(StatResult);
+            MIL.MimFree(StatContext);
+            StatContext = MIL.M_NULL;
+            StatResult = MIL.M_NULL;
 
             i_ret = (int)(StatSum / 255.0);
             return i_ret;

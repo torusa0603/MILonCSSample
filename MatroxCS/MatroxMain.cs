@@ -16,6 +16,7 @@ namespace MatroxCS
         #region メンバ変数
 
         public Action m_evMatroxFatalErrorOccured;                              // 致命的なエラー発生(ソフト再起動必須)
+        public Action m_sevCameraDisaapear;
 
         #endregion
 
@@ -63,18 +64,23 @@ namespace MatroxCS
                 {
                     case -1:
                         // 設定ファイルの途中パスディレクトリが存在しない
+                        CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},設定ファイルの途中パスディレクトリが存在しない");
                         return -1;
                     case -2:
                         // 設定ファイル作成・書き込みエラー
+                        CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},設定ファイル作成・書き込みエラー");
                         return -2;
                     case -3:
                         // 設定ファイルなし(新規作成)
+                        CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},設定ファイルなし(新規作成)");
                         return -3;
                     case -4:
                         // 設定ファイル構文エラー
+                        CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},設定ファイル構文エラー");
                         return -4;
                     case -5:
                         // 設定値エラー
+                        CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},設定値エラー");
                         return -5;
                     default:
                         // エラーなし
@@ -83,6 +89,7 @@ namespace MatroxCS
 
                 // 致命的なエラー発生時に起動するイベントハンドラを渡す
                 CBase.m_sevFatalErrorOccured += m_evMatroxFatalErrorOccured;
+                CBase.m_sevCameraDisaapear += m_sevCameraDisaapear;
                 // ベースオブジェクトを初期化
                 i_ret = m_cBase.Initial(m_cCameraGeneral.BoardType);
                 switch (i_ret)
@@ -238,9 +245,10 @@ namespace MatroxCS
         /// <returns>-1:範囲外インデックス番号、-1以外:カメラID</returns>
         public int GetCameraID(int niCameraIndex)
         {
-            // 指定されたカメラインデックがリスト数を以上の場合、エラー
+            // 指定されたカメラインデックスがリスト数以上の場合、エラー
             if ((m_lstCamera.Count() - 1) < niCameraIndex)
             {
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},カメラリスト外を指定");
                 return -1;
             }
             // 指定されたインデックスのカメラIDを返す
@@ -265,6 +273,7 @@ namespace MatroxCS
             if (i_camera_index == -1)
             {
                 // 該当オブジェクトなし
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},該当カメラオブジェクトなし");
                 return -1;
             }
             // スルー状態にする
@@ -302,6 +311,7 @@ namespace MatroxCS
             if (i_camera_index == -1)
             {
                 // 該当オブジェクトなし
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},該当カメラオブジェクトなし");
                 return -1;
             }
             // 画像差分モードをオンにする
@@ -309,10 +319,10 @@ namespace MatroxCS
             switch (i_ret)
             {
                 case -1:
-                    // グラフィックバッファID取得失敗
+                    // 差分元画像バッファ取得失敗
                     return -2;
                 case -2:
-                    // グラフィックバッファID取得失敗
+                    // 差分結果画像バッファ取得失敗
                     return -3;
                 default:
                     break;
@@ -342,6 +352,7 @@ namespace MatroxCS
             if (i_camera_index == -1)
             {
                 // 該当オブジェクトなし
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},該当カメラオブジェクトなし");
                 return -1;
             }
             // 画像差分モードをオフにする
@@ -369,6 +380,7 @@ namespace MatroxCS
             // 初期化処理が未完了の場合はエラーを返す
             if (!m_bMilInitialFinished)
             {
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},初期化処理が未完了");
                 return CDefine.SpecificErrorCode.UNCOMPLETED_OPENING_ERROR;
             }
             if (m_cBase.GetFatalErrorOccured())
@@ -382,6 +394,7 @@ namespace MatroxCS
             if (i_ret == -1)
             {
                 // ハンドルの重複あり
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},ハンドルの多重使用");
                 return -1;
             }
             // ディスプレイクラスのインスタンスを作成
@@ -421,6 +434,7 @@ namespace MatroxCS
             // 初期化処理が未完了の場合はエラーを返す
             if (!m_bMilInitialFinished)
             {
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},初期化処理が未完了");
                 return CDefine.SpecificErrorCode.UNCOMPLETED_OPENING_ERROR;
             }
             if (m_cBase.GetFatalErrorOccured())
@@ -441,17 +455,20 @@ namespace MatroxCS
                     if (i_display_index == -1)
                     {
                         // ディスプレイオブジェクトなし
+                        CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},該当ディスプレイオブジェクトなし");
                         return -1;
                     }
                     else
                     {
                         // カメラオブジェクトなし
+                        CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},該当カメラオブジェクトなし");
                         return -2;
                     }
                 }
                 else
                 {
                     // ディスプレイオブジェクト、カメラオブジェクト両方なし
+                    CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},該当カメラ・ディスプレイオブジェクトなし");
                     return -3;
                 }
             }
@@ -502,6 +519,7 @@ namespace MatroxCS
             if (i_display_index == -1)
             {
                 // オブジェクトなし、エラー
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},該当カメラオブジェクトなし");
                 return -1;
             }
             // ディスプレイオブジェクトに接続しているカメラIDを取得、なければnullが入る
@@ -571,18 +589,20 @@ namespace MatroxCS
                 // 致命的なエラーが起きている
                 return CDefine.SpecificErrorCode.FATAL_ERROR_OCCURED;
             }
-            // 指定ディスプレイIDのインデックス番号を取得
-            int i_display_index = SearchDisplayID(niDisplayID);
-            // 指定IDのオブジェクトがなければエラー
+
             if (!File.Exists(nstrImageFilePath))
             {
                 // 存在しないファイルパスが渡された
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},渡されたイメージファイルが存在しない");
                 return -1;
             }
-            //  指定のIDのオブジェクトがなければエラー
+            // 指定ディスプレイIDのインデックス番号を取得
+            int i_display_index = SearchDisplayID(niDisplayID);
+            // 指定IDのオブジェクトがなければエラー
             if (i_display_index == -1)
             {
                 // 指定ディスプレイIDに該当なし
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},該当カメラオブジェクトなし");
                 return -2;
             }
             i_ret = m_lstDisplayImage[i_display_index].LoadImage(nstrImageFilePath);
@@ -596,6 +616,7 @@ namespace MatroxCS
                     return -4;
                 case -3:
                     // 画像拡張子なし
+                    CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},画像拡張子なし");
                     return -5;
                 case CDefine.SpecificErrorCode.EXCEPTION_ERROR:
                     // try-catchで捉えたエラー(内容はDLLError.log参照)
@@ -618,6 +639,7 @@ namespace MatroxCS
             // 初期化処理が未完了の場合はエラーを返す
             if (!m_bMilInitialFinished)
             {
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},初期化処理が未完了");
                 return CDefine.SpecificErrorCode.UNCOMPLETED_OPENING_ERROR;
             }
             if (m_cBase.GetFatalErrorOccured())
@@ -648,6 +670,7 @@ namespace MatroxCS
             // 初期化処理が未完了の場合はエラーを返す
             if (!m_bMilInitialFinished)
             {
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},初期化処理が未完了");
                 return CDefine.SpecificErrorCode.UNCOMPLETED_OPENING_ERROR;
             }
             if (m_cBase.GetFatalErrorOccured())
@@ -660,6 +683,7 @@ namespace MatroxCS
             if (i_display_index == -1)
             {
                 // 指定ディスプレイIDに該当なし
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},該当ディスプレイオブジェクトなし");
                 return -1;
             }
             //  指定の画面のオーバーレイバッファを設定
@@ -687,6 +711,7 @@ namespace MatroxCS
             // 初期化処理が未完了の場合はエラーを返す
             if (!m_bMilInitialFinished)
             {
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},初期化処理が未完了");
                 return CDefine.SpecificErrorCode.UNCOMPLETED_OPENING_ERROR;
             }
             if (m_cBase.GetFatalErrorOccured())
@@ -699,6 +724,7 @@ namespace MatroxCS
             if (i_display_index == -1)
             {
                 // 指定ディスプレイIDに該当なし
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},該当ディスプレイオブジェクトなし");
                 return -1;
             }
             //  指定の画面のオーバーレイバッファを設定
@@ -725,6 +751,7 @@ namespace MatroxCS
             // 初期化処理が未完了の場合はエラーを返す
             if (!m_bMilInitialFinished)
             {
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},初期化処理が未完了");
                 return CDefine.SpecificErrorCode.UNCOMPLETED_OPENING_ERROR;
             }
             if (m_cBase.GetFatalErrorOccured())
@@ -737,6 +764,7 @@ namespace MatroxCS
             if (i_display_index == -1)
             {
                 // 指定ディスプレイIDに該当なし
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},該当ディスプレイオブジェクトなし");
                 return -1;
             }
             //  指定の画面のオーバーレイバッファを設定
@@ -771,6 +799,7 @@ namespace MatroxCS
             if (i_display_index == -1)
             {
                 // 指定ディスプレイIDに該当なし
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},該当ディスプレイオブジェクトなし");
                 return -1;
             }
             int i_ret;
@@ -824,6 +853,7 @@ namespace MatroxCS
             //  見つからないor2つ以上見つかればセット失敗
             else
             {
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},指定アルゴリズムの個数エラー");
                 return -1;
             }
 
@@ -848,6 +878,7 @@ namespace MatroxCS
             if (!m_bMilInitialFinished)
             {
                 // 初期化処理が行われていない
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},初期化処理が未完了");
                 ls_ret.Add(CDefine.SpecificErrorCode.UNCOMPLETED_OPENING_ERROR);
                 return ls_ret;
             }
@@ -855,6 +886,7 @@ namespace MatroxCS
             if (m_cAlgorithm == null)
             {
                 // アルゴリズムが選択されていないのでエラー
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},アルゴリズムが未選択");
                 ls_ret.Add(-1);
             }
 
@@ -862,6 +894,7 @@ namespace MatroxCS
             if (i_camera_index == -1)
             {
                 // 該当カメラ無し
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},該当カメラオブジェクトなし");
                 ls_ret.Add(-2);
                 return ls_ret;
             }
@@ -894,6 +927,7 @@ namespace MatroxCS
                 if (i_display_index == -1)
                 {
                     // ディスプレイオブジェクトなし
+                    CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},該当ディスプレイオブジェクトなし");
                     ls_ret.Add(-3);
                     return ls_ret;
                 }

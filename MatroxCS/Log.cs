@@ -28,7 +28,7 @@ namespace MatroxCS
         {
             // ログの文字コードはShift-JISとする
             Encoding encod_shift_jis = Encoding.GetEncoding("Shift_JIS");
-            string str_file_path = $"{SetFolderName(m_strExeFolderPath, "Log")}{m_strFileName}";    // ログファイルパス
+            string str_file_path = $"{SetFolderName(m_strExeFolderPath, CDefine.LOG_FOLDER)}{m_strFileName}";    // ログファイルパス
             string str_log_contents;                                                                // ログ内容
             DateTime time_now = System.DateTime.Now;                                                // 現在日時
 

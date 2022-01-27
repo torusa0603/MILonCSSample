@@ -32,6 +32,8 @@ namespace MatroxCS
         /// </summary>
         public readonly static string EXE_FOLDER_PATH = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
 
+        public const string LOG_FOLDER = "Log";
+
         /// <summary>
         /// 辞書型ログインスタンスのキー値
         /// </summary>
@@ -80,7 +82,6 @@ namespace MatroxCS
             /// </summary>
             public const int MAX_HEIGHT = 10000;
         }
-
 
 
         /// <summary>

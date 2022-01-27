@@ -16,6 +16,7 @@ namespace MatroxCS
         #region メンバ変数
 
         public static Action m_sevFatalErrorOccured;                                            // 致命的なエラー発生時に起動するイベント
+        public static Action m_sevCameraDisaapear;
 
         #endregion
 
