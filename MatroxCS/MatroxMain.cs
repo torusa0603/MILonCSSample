@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.IO;
 using MatroxCS.Parameter;
 using MatroxCS.Algorithm;
+using MatroxCS.Camera;
 using System.Reflection;
 
 namespace MatroxCS
@@ -22,7 +23,7 @@ namespace MatroxCS
 
         #region ローカル変数
 
-        List<CCamera> m_lstCamera = new List<CCamera>();                        // カメラオブジェクト(インスタンス、初期化ともに成功したものしか追加しない)
+        List<CCameraBase> m_lstCamera = new List<CCameraBase>();                // カメラオブジェクト(インスタンス、初期化ともに成功したものしか追加しない)
         List<CDisplayImage> m_lstDisplayImage = new List<CDisplayImage>();      // ディスプレイオブジェクト(インスタンス、初期化ともに成功したものしか追加しない)
         CBase m_cBase = new CBase();                                            // ベースオブジェクト
         CGraphic m_cGraphic = new CGraphic();                                   // グラフィックオブジェクト
@@ -124,7 +125,7 @@ namespace MatroxCS
                 for (int i_loop = 0; i_loop < i_camera_num; i_loop++)
                 {
                     // カメラオブジェクトに各種設定値を代入
-                    CCamera c_camera = new CCamera(m_cCameraGeneral.CameraInformation[i_loop], m_cCameraGeneral.HeartBeatTime);
+                    CCameraBase c_camera = new CCameraBase(m_cCameraGeneral.CameraInformation[i_loop], m_cCameraGeneral.HeartBeatTime);
                     // カメラオープン
                     i_ret = c_camera.OpenCamera();
                     switch (i_ret)
@@ -956,7 +957,7 @@ namespace MatroxCS
         {
             int i_index = 0;
             // リスト内の各カメラオブジェクトからIDを取得し、指定IDとの一致するものを探す
-            foreach (CCamera camera in m_lstCamera)
+            foreach (CCameraBase camera in m_lstCamera)
             {
                 if (camera.GetID() == niCameraID)
                 {

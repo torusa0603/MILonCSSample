@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -11,9 +10,9 @@ using System.Reflection;
 using System.Timers;
 using MatroxCS.Parameter;
 
-namespace MatroxCS
+namespace MatroxCS.Camera
 {
-    class CCamera : CBase
+    class CCameraBase : CBase
     {
         #region ローカル変数
 
@@ -26,7 +25,7 @@ namespace MatroxCS
         MIL_DIG_HOOK_FUNCTION_PTR m_delProcessingFunctionPtr;           // 画像取得関数のポインター    
         GCHandle m_handUserData_doThrough;                              // 自己インスタンスのポインター
         GCHandle m_handUserData_ProcessingFunction;                     // 自己インスタンスのポインター(画像取得関数内で使用)
-        CCamera m_cCamera;                                              // 自己のインスタンスをフック関数内で保持するために使用
+        CCameraBase m_cCamera;                                              // 自己のインスタンスをフック関数内で保持するために使用
 
         // カメラクラス固有変数
         bool m_bDiffPicDisciminateMode;                                 // 差分画像モードかどうかを示すフラグ
@@ -49,7 +48,7 @@ namespace MatroxCS
         /// コンストラクタ
         /// </summary>
         /// <param name="ncCameraInfo">カメラ情報</param>
-        public CCamera(CCameraInfo ncCameraInfo, int niHeartBeatTime)
+        public CCameraBase(CCameraInfo ncCameraInfo, int niHeartBeatTime)
         {
             // カメラIPアドレスの指定
             m_strIPAddress = ncCameraInfo.IPAddress;
@@ -425,7 +424,7 @@ namespace MatroxCS
                     nlHookType = 0;
                     //　送られてきたポインタをカメラクラスポインタにキャスティングする
                     m_handUserData_ProcessingFunction = GCHandle.FromIntPtr(npUserDataPtr);
-                    m_cCamera = m_handUserData_ProcessingFunction.Target as CCamera;
+                    m_cCamera = m_handUserData_ProcessingFunction.Target as CCameraBase;
                     // ハートビートタイマーを止める
                     m_cCamera.m_timerHeartbeat.Stop();
                     // ハートビートタイマーを起動する

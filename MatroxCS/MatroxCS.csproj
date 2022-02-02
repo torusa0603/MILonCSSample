@@ -87,8 +87,8 @@
     <Compile Include="Algorithm\FujiwaDenki_CheckInoculant.cs" />
     <Compile Include="Algorithm\AbsAlgorithm.cs" />
     <Compile Include="Algorithm\RequiredParameterForAlgorithm.cs" />
-    <Compile Include="Camera.cs" />
     <Compile Include="Base.cs" />
+    <Compile Include="Camera\CameraBase.cs" />
     <Compile Include="Define.cs" />
     <Compile Include="FileIO.cs" />
     <Compile Include="LogMatroxCS.cs" />
