@@ -14,25 +14,27 @@ namespace MILonCSSample
     public partial class FormSetting : Form
     {
         CMatroxMain m_cMatroxMain;
-        public FormSetting(CMatroxMain ncMatroxMain)
+        int m_iCameraID;
+        public FormSetting(int niCameraID, CMatroxMain ncMatroxMain)
         {
             m_cMatroxMain = ncMatroxMain;
+            m_iCameraID = niCameraID;
 
             InitializeComponent();
         }
 
         private void trb_gain_Scroll(object sender, EventArgs e)
         {
-            int i_gain_value= trb_gain.Value;
+            double i_gain_value = (double)trb_gain.Value;
             txt_gain.Text = (i_gain_value).ToString();
-            //m_cMatroxMain.
+            m_cMatroxMain.SetGain(m_iCameraID, i_gain_value);
         }
 
         private void trb_exposuretime_Scroll(object sender, EventArgs e)
         {
-            int i_exposuretime_value = trb_exposuretime.Value;
+            double i_exposuretime_value = (double)trb_exposuretime.Value;
             txt_exposuretime.Text = (i_exposuretime_value).ToString();
-            //m_cMatroxMain.
+            m_cMatroxMain.SetExposureTime(m_iCameraID, i_exposuretime_value);
         }
     }
 }

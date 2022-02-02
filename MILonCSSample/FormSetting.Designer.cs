@@ -32,11 +32,11 @@ namespace MILonCSSample
             this.trb_gain = new System.Windows.Forms.TrackBar();
             this.label1 = new System.Windows.Forms.Label();
             this.gbx_gain = new System.Windows.Forms.GroupBox();
+            this.txt_gain = new System.Windows.Forms.TextBox();
             this.gbx_exposuretime = new System.Windows.Forms.GroupBox();
             this.label2 = new System.Windows.Forms.Label();
-            this.trb_exposuretime = new System.Windows.Forms.TrackBar();
             this.txt_exposuretime = new System.Windows.Forms.TextBox();
-            this.txt_gain = new System.Windows.Forms.TextBox();
+            this.trb_exposuretime = new System.Windows.Forms.TrackBar();
             ((System.ComponentModel.ISupportInitialize)(this.trb_gain)).BeginInit();
             this.gbx_gain.SuspendLayout();
             this.gbx_exposuretime.SuspendLayout();
@@ -46,7 +46,7 @@ namespace MILonCSSample
             // trb_gain
             // 
             this.trb_gain.Location = new System.Drawing.Point(17, 60);
-            this.trb_gain.Maximum = 1000;
+            this.trb_gain.Maximum = 250;
             this.trb_gain.Minimum = 1;
             this.trb_gain.Name = "trb_gain";
             this.trb_gain.Size = new System.Drawing.Size(312, 45);
@@ -75,6 +75,13 @@ namespace MILonCSSample
             this.gbx_gain.TabIndex = 4;
             this.gbx_gain.TabStop = false;
             // 
+            // txt_gain
+            // 
+            this.txt_gain.Location = new System.Drawing.Point(229, 21);
+            this.txt_gain.Name = "txt_gain";
+            this.txt_gain.Size = new System.Drawing.Size(100, 19);
+            this.txt_gain.TabIndex = 4;
+            // 
             // gbx_exposuretime
             // 
             this.gbx_exposuretime.Controls.Add(this.label2);
@@ -96,17 +103,6 @@ namespace MILonCSSample
             this.label2.TabIndex = 2;
             this.label2.Text = "ExposureTime";
             // 
-            // trb_exposuretime
-            // 
-            this.trb_exposuretime.Location = new System.Drawing.Point(17, 60);
-            this.trb_exposuretime.Maximum = 100000;
-            this.trb_exposuretime.Minimum = 10;
-            this.trb_exposuretime.Name = "trb_exposuretime";
-            this.trb_exposuretime.Size = new System.Drawing.Size(312, 45);
-            this.trb_exposuretime.TabIndex = 0;
-            this.trb_exposuretime.Value = 10;
-            this.trb_exposuretime.Scroll += new System.EventHandler(this.trb_exposuretime_Scroll);
-            // 
             // txt_exposuretime
             // 
             this.txt_exposuretime.Location = new System.Drawing.Point(229, 21);
@@ -114,12 +110,16 @@ namespace MILonCSSample
             this.txt_exposuretime.Size = new System.Drawing.Size(100, 19);
             this.txt_exposuretime.TabIndex = 3;
             // 
-            // txt_gain
+            // trb_exposuretime
             // 
-            this.txt_gain.Location = new System.Drawing.Point(229, 21);
-            this.txt_gain.Name = "txt_gain";
-            this.txt_gain.Size = new System.Drawing.Size(100, 19);
-            this.txt_gain.TabIndex = 4;
+            this.trb_exposuretime.Location = new System.Drawing.Point(17, 60);
+            this.trb_exposuretime.Maximum = 10000;
+            this.trb_exposuretime.Minimum = 15;
+            this.trb_exposuretime.Name = "trb_exposuretime";
+            this.trb_exposuretime.Size = new System.Drawing.Size(312, 45);
+            this.trb_exposuretime.TabIndex = 0;
+            this.trb_exposuretime.Value = 15;
+            this.trb_exposuretime.Scroll += new System.EventHandler(this.trb_exposuretime_Scroll);
             // 
             // FormSetting
             // 

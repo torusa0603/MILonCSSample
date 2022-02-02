@@ -1284,7 +1284,7 @@ namespace MILonCSSample
         private void exposureTimeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             // 設定フォーム作成
-            FormSetting f_form_setting = new FormSetting(cMatroxMain);
+            FormSetting f_form_setting = new FormSetting(m_lstCameraID[0], cMatroxMain);
             // 設定フォームをモーダレス表示
             f_form_setting.Show();
         }

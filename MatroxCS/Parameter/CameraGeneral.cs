@@ -47,9 +47,16 @@ namespace MatroxCS.Parameter
             foreach (CCameraInfo camera_info in CameraInformation)
             {
                 i_ret = camera_info.CheckVariableValidity();
-                // 戻り値(0:異常なし、-3:取得画像幅異常、-4:取得画像高さ異常)
-                if (i_ret != 0)
-                    return i_ret;
+                // 戻り値(0:異常なし、-1:取得画像幅異常、-2:取得画像高さ異常)
+                switch (i_ret)
+                {
+                    case -1:
+                        return -3;
+                    case -2:
+                        return -4;
+                    default:
+                        break;
+                }
             }
             return 0;
         }

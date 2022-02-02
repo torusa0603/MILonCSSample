@@ -91,6 +91,7 @@ namespace MatroxCS
             c_json_camera_info.UseSerialComm = 0;
             c_json_camera_info.COMNo = 0;
             c_json_camera_info.IPAddress = " ";
+            c_json_camera_info.Manufacturer = 0;
             c_json_camera_general.CameraInformation.Add(c_json_camera_info);
             
             int i_ret = CParameterFactory<CCameraGeneral>.Save(nstrSettingFilePath, c_json_camera_general);

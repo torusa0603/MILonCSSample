@@ -124,8 +124,28 @@ namespace MatroxCS
                 //  カメラ初期化
                 for (int i_loop = 0; i_loop < i_camera_num; i_loop++)
                 {
+                    CCameraBase c_camera;
+                    switch (m_cCameraGeneral.CameraInformation[i_loop].Manufacturer)
+                    {
+                        case (int)CDefine.MANUFACTURER.BASLER:
+                            // Basler製カメラインスタンス
+                            c_camera = new CBaslerCamera(m_cCameraGeneral.CameraInformation[i_loop], m_cCameraGeneral.HeartBeatTime);
+                            break;
+                        case (int)CDefine.MANUFACTURER.BAUMER:
+                            // Baumer製カメラインスタンス
+                            c_camera = new CBaumerCamera(m_cCameraGeneral.CameraInformation[i_loop], m_cCameraGeneral.HeartBeatTime);
+                            break;
+                        case (int)CDefine.MANUFACTURER.SONY:
+                            // Sony製カメラインスタンス
+                            c_camera = new CSonyCamera(m_cCameraGeneral.CameraInformation[i_loop], m_cCameraGeneral.HeartBeatTime);
+                            break;
+                        default:
+                            // ベースカメラインスタンス
+                            c_camera = new CCameraBase(m_cCameraGeneral.CameraInformation[i_loop], m_cCameraGeneral.HeartBeatTime);
+                            break;
+                    }
                     // カメラオブジェクトに各種設定値を代入
-                    CCameraBase c_camera = new CCameraBase(m_cCameraGeneral.CameraInformation[i_loop], m_cCameraGeneral.HeartBeatTime);
+                    
                     // カメラオープン
                     i_ret = c_camera.OpenCamera();
                     switch (i_ret)
@@ -367,6 +387,81 @@ namespace MatroxCS
             return 0;
         }
 
+        /// <summary>
+        /// ゲイン値を設定する
+        /// </summary>
+        /// <param name="niCameraID">指定カメラID</param>
+        /// <param name="ndGainValue">ゲイン値</param>
+        /// <returns></returns>
+        public int SetGain(int niCameraID, double ndGainValue)
+        {
+            int i_ret;
+            if (m_cBase.GetFatalErrorOccured())
+            {
+                // 致命的なエラーが起きている
+                return CDefine.SpecificErrorCode.FATAL_ERROR_OCCURED;
+            }
+            // 指定カメラIDのインデックスを探す
+            int i_camera_index = SearchCameraID(niCameraID);
+            if (i_camera_index == -1)
+            {
+                // 該当オブジェクトなし
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},該当カメラオブジェクトなし");
+                return -1;
+            }
+            // スルー状態にする
+            i_ret = m_lstCamera[i_camera_index].SetGain(ndGainValue);
+            if (i_ret != 0)
+            {
+                // try-catchで捉えたエラー(内容はDLLError.log参照)
+                return CDefine.SpecificErrorCode.EXCEPTION_ERROR;
+            }
+            if (m_cBase.GetFatalErrorOccured())
+            {
+                // 致命的なエラーが起きている
+                return CDefine.SpecificErrorCode.FATAL_ERROR_OCCURED;
+            }
+
+            return 0;
+        }
+
+        /// <summary>
+        /// 露光時間を設定する
+        /// </summary>
+        /// <param name="niCameraID">指定カメラID</param>
+        /// <param name="ndExposureTimeValue">ゲイン値</param>
+        /// <returns></returns>
+        public int SetExposureTime(int niCameraID, double ndExposureTimeValue)
+        {
+            int i_ret;
+            if (m_cBase.GetFatalErrorOccured())
+            {
+                // 致命的なエラーが起きている
+                return CDefine.SpecificErrorCode.FATAL_ERROR_OCCURED;
+            }
+            // 指定カメラIDのインデックスを探す
+            int i_camera_index = SearchCameraID(niCameraID);
+            if (i_camera_index == -1)
+            {
+                // 該当オブジェクトなし
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},該当カメラオブジェクトなし");
+                return -1;
+            }
+            // スルー状態にする
+            i_ret = m_lstCamera[i_camera_index].SetExposureTime(ndExposureTimeValue);
+            if (i_ret != 0)
+            {
+                // try-catchで捉えたエラー(内容はDLLError.log参照)
+                return CDefine.SpecificErrorCode.EXCEPTION_ERROR;
+            }
+            if (m_cBase.GetFatalErrorOccured())
+            {
+                // 致命的なエラーが起きている
+                return CDefine.SpecificErrorCode.FATAL_ERROR_OCCURED;
+            }
+
+            return 0;
+        }
 
         /// <summary>
         /// ディスプレイオープン

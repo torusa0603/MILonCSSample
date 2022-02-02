@@ -96,5 +96,12 @@ namespace MatroxCS
             MTX_GIGE,
             MTX_HOST = 100
         }
+
+        public enum MANUFACTURER
+        {
+            BASLER = 0,
+            BAUMER,
+            SONY
+        }
     }
 }

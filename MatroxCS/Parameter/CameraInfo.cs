@@ -56,18 +56,23 @@
         public string IPAddress { get; set; }
 
         /// <summary>
+        /// gigeカメラの製造メーカー
+        /// </summary>
+        public int Manufacturer { get; set; }
+
+        /// <summary>
         /// パラメータの有効性を検査
         /// </summary>
-        /// <returns>0:異常なし、-3:取得画像幅異常、-4:取得画像高さ異常</returns>
+        /// <returns>0:異常なし、-1:取得画像幅異常、-2:取得画像高さ異常</returns>
         public int CheckVariableValidity()
         {
             // 取得画像幅をチェック
             if (Width < 0 || Width > CDefine.CCameraInfoLimit.MAX_WIDTH)
-                return -3;
+                return -1;
 
             // 取得画像高さをチェック
             if (Height < 0 || Height > CDefine.CCameraInfoLimit.MAX_HEIGHT)
-                return -4;
+                return -2;
             return 0;
         }
 
