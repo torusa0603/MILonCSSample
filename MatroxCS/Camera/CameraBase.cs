@@ -17,7 +17,7 @@ namespace MatroxCS.Camera
         #region ローカル変数
 
         // MILに関する変数
-        MIL_ID m_milDigitizer = MIL.M_NULL;                             // デジタイザID
+        protected MIL_ID m_milDigitizer = MIL.M_NULL;                             // デジタイザID
         MIL_ID m_milShowImage = MIL.M_NULL;                             // カメラ映像を画面に表示するときの画像バッファ
         MIL_ID[] m_milGrabImageArray = { MIL.M_NULL, MIL.M_NULL };      // グラブ専用リングバッファ 2固定
         MIL_ID m_milDiffOrgImage = MIL.M_NULL;                          // 差分用オリジナル画像
@@ -499,62 +499,24 @@ namespace MatroxCS.Camera
 
         #endregion
 
-        ///// <summary>
-        ///// ゲインを設定する
-        ///// </summary>
-        ///// <param name="ndGain">ゲイン値</param>
-        ///// <returns></returns>
-        //public int SetGain(double ndGain)
-        //{
-        //    if (m_siBoardType != (int)CDefine.MTX_TYPE.MTX_GIGE)
-        //    {
-        //        return 0;
-        //    }
+        /// <summary>
+        /// ゲインを設定する
+        /// </summary>
+        /// <param name="ndGain">ゲイン値</param>
+        /// <returns></returns>
+        public virtual int SetGain(double ndGain)
+        {
+            return 0;
+        }
 
-        //    StringBuilder str_vendor_name = new StringBuilder(256);
-        //    MIL.MdigInquireFeature(m_milDigitizer, MIL.M_FEATURE_VALUE, "DeviceVendorName", MIL.M_TYPE_STRING, str_vendor_name);
-
-        //    //	Basler
-        //    if ((str_vendor_name.ToString()).IndexOf("Basler") != -1)
-        //    {
-        //        int i_gain_raw = (int)ndGain;
-        //        MIL.MdigControlFeature(m_milDigitizer, MIL.M_FEATURE_VALUE, "GainRaw", MIL.M_TYPE_MIL_INT32, ref i_gain_raw);
-        //    }
-        //    // Point grey
-        //    else
-        //    {
-        //        MIL.MdigControlFeature(m_milDigitizer, MIL.M_FEATURE_VALUE, "Gain", MIL.M_TYPE_DOUBLE, ref ndGain);
-        //    }
-
-        //    return 0;
-        //}
-
-        ///// <summary>
-        ///// 露光時間を設定する
-        ///// </summary>
-        ///// <param name="ndExposureTime">露光時間</param>
-        ///// <returns></returns>
-        //public int SetExposureTime(double ndExposureTime)
-        //{
-        //    if (m_siBoardType != (int)CDefine.MTX_TYPE.MTX_GIGE)
-        //    {
-        //        return 0;
-        //    }
-
-        //    StringBuilder str_vendor_name = new StringBuilder(256);
-        //    MIL.MdigInquireFeature(m_milDigitizer, MIL.M_FEATURE_VALUE, "DeviceVendorName", MIL.M_TYPE_STRING, str_vendor_name);
-
-        //    //	Basler
-        //    if ((str_vendor_name.ToString()).IndexOf("Basler") != -1)
-        //    {
-        //        MIL.MdigControlFeature(m_milDigitizer, MIL.M_FEATURE_VALUE, "ExposureTimeAbs", MIL.M_TYPE_DOUBLE, ref ndExposureTime);
-        //    }
-        //    // Point grey
-        //    else
-        //    {
-        //        MIL.MdigControlFeature(m_milDigitizer, MIL.M_FEATURE_VALUE, "ExposureTime", MIL.M_TYPE_DOUBLE, ref ndExposureTime);
-        //    }
-        //    return 0;
-        //}
+        /// <summary>
+        /// 露光時間を設定する
+        /// </summary>
+        /// <param name="ndExposureTime">露光時間</param>
+        /// <returns></returns>
+        public virtual int SetExposureTime(double ndExposureTime)
+        {
+            return 0;
+        }
     }
 }
