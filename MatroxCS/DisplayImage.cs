@@ -223,13 +223,6 @@ namespace MatroxCS
         {
             try
             {
-                string str_ext;
-                bool b_exist_ext = ExtractExtention(nstrImageFilePath, out str_ext);
-                if (!b_exist_ext)
-                {
-                    // 画像拡張子(bmp,jpg,jpeg,png)がついていない
-                    return -3;
-                }
                 //  MIL関数でロード
                 if (m_milDisplay != MIL.M_NULL)
                 {
@@ -244,8 +237,27 @@ namespace MatroxCS
                 }
                 //  ディスプレイIDにハンドルを渡す
                 MIL.MdispSelectWindow(m_milDisplay, m_milDisplayImage, m_hDisplayHandle);
-                // 画像をインポートする
-                MIL.MbufImport(nstrImageFilePath, MIL.M_DEFAULT, MIL.M_LOAD, m_smilSystem, ref m_milDisplayImage);
+
+                int i_ret = CFileIO.Load(m_milDisplayImage, nstrImageFilePath);
+                switch (i_ret)
+                {
+                    case -1:
+                        return -3;
+                    default:
+                        break;
+                }
+                //string str_ext;
+                //bool b_exist_ext = ExtractExtention(nstrImageFilePath, out str_ext);
+                //if (!b_exist_ext)
+                //{
+                //    // 画像拡張子(bmp,jpg,jpeg,png)がついていない
+                //    return -3;
+                //}
+
+                //// 画像をインポートする
+                //MIL.MbufImport(nstrImageFilePath, MIL.M_DEFAULT, MIL.M_LOAD, m_smilSystem, ref m_milDisplayImage);
+
+
                 // オーバーレイバッファを確保
                 MIL.MdispInquire(m_milDisplay, MIL.M_OVERLAY_ID, ref m_milOverlay);
                 if (m_milOverlay == MIL.M_NULL)
@@ -354,20 +366,19 @@ namespace MatroxCS
         /// </summary>
         /// <param name="nstrImageFilePath">保存先ファイルパス</param>
         /// <param name="nbIncludeGraphic">保存画像にグラフィックを含めるか否か</param>
-        /// <returns>0:正常終了、-1:拡張子エラー、-2:画像バッファ取得失敗、-3:パス内にファイル名無し、-999:異常終了</returns>
+        /// <returns>0:正常終了、-1:画像バッファ取得失敗、-2:拡張子エラー、-3:パス内にファイル名無し、-999:異常終了</returns>
         public int SaveImage(string nstrImageFilePath, bool nbIncludeGraphic)
         {
             try
             {
                 MIL_ID mil_overlay_temp = MIL.M_NULL;   // オーバーレイバッファを一時的に保存するバッファ
                 MIL_ID mil_result_temp = MIL.M_NULL;    // 画像を一時的に保存するバッファ
-                string str_ext;                         // 拡張子
 
                 // 一時的保存バッファを確保
                 MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR32, ref mil_result_temp);
                 if (m_milDisplayImage == MIL.M_NULL)
                 {
-                    return -2;
+                    return -1;
                 }
                 // 表示画像を一時的保存バッファにコピー
                 MIL.MbufCopy(m_milDisplayImage, mil_result_temp);
@@ -377,7 +388,7 @@ namespace MatroxCS
                     MIL.MbufAllocColor(m_smilSystem, 3, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR32, ref mil_overlay_temp);
                     if (m_milDisplayImage == MIL.M_NULL)
                     {
-                        return -2;
+                        return -1;
                     }
                     //	一時的オーバーレイバッファにオーバーレイバッファをコピー
                     MIL.MbufCopy(m_milOverlay, mil_overlay_temp);
@@ -387,49 +398,61 @@ namespace MatroxCS
                     MIL.MbufFree(mil_overlay_temp);
                 }
 
-                bool b_exist_ext = ExtractExtention(nstrImageFilePath, out str_ext);
-                if (!b_exist_ext)
-                {
-                    if (str_ext == "")
-                    {
-                        // 画像ファイル用の拡張子ではない
-                        MIL.MbufFree(mil_result_temp);
-                        return -1;
-                    }
-                    else
-                    {
-                        // 拡張子がない為、bmp拡張子を追加する
-                        nstrImageFilePath += str_ext;
-                        str_ext = str_ext.Replace(".", "");
-                    }
-                }
-                if (System.IO.Path.GetFileNameWithoutExtension(nstrImageFilePath) == "")
-                {
-                    // 拡張子無しのファイル名を取得し、空ならエラー
-                    MIL.MbufFree(mil_result_temp);
-                    return -3;
-                }
-                switch (str_ext)
-                {
-                    case "jpg":
-                        // jpgで保存する
-                        MIL.MbufExport(nstrImageFilePath, MIL.M_JPEG_LOSSY, mil_result_temp);
-                        break;
-                    case "png":
-                        // pngで保存する
-                        MIL.MbufExport(nstrImageFilePath, MIL.M_PNG, mil_result_temp);
-                        break;
-                    case "bmp":
-                        // bmpで保存する
-                        MIL.MbufExport(nstrImageFilePath, MIL.M_BMP, mil_result_temp);
-                        break;
-                    case "tiff":
-                        // tiffで保存する
-                        MIL.MbufExport(nstrImageFilePath, MIL.M_TIFF, mil_result_temp);
-                        break;
-                }
+                int i_ret = CFileIO.Save(mil_result_temp, nstrImageFilePath);
                 //	メモリ開放
                 MIL.MbufFree(mil_result_temp);
+                switch (i_ret)
+                {
+                    case -1:
+                        return -2;
+                    case -2:
+                        return -3;
+                    default:
+                        break;
+                }
+
+
+                //bool b_exist_ext = ExtractExtention(nstrImageFilePath, out str_ext);
+                //if (!b_exist_ext)
+                //{
+                //    if (str_ext == "")
+                //    {
+                //        // 画像ファイル用の拡張子ではない
+                //        MIL.MbufFree(mil_result_temp);
+                //        return -1;
+                //    }
+                //    else
+                //    {
+                //        // 拡張子がない為、bmp拡張子を追加する
+                //        nstrImageFilePath += str_ext;
+                //        str_ext = str_ext.Replace(".", "");
+                //    }
+                //}
+                //if (System.IO.Path.GetFileNameWithoutExtension(nstrImageFilePath) == "")
+                //{
+                //    // 拡張子無しのファイル名を取得し、空ならエラー
+                //    MIL.MbufFree(mil_result_temp);
+                //    return -3;
+                //}
+                //switch (str_ext)
+                //{
+                //    case "jpg":
+                //        // jpgで保存する
+                //        MIL.MbufExport(nstrImageFilePath, MIL.M_JPEG_LOSSY, mil_result_temp);
+                //        break;
+                //    case "png":
+                //        // pngで保存する
+                //        MIL.MbufExport(nstrImageFilePath, MIL.M_PNG, mil_result_temp);
+                //        break;
+                //    case "bmp":
+                //        // bmpで保存する
+                //        MIL.MbufExport(nstrImageFilePath, MIL.M_BMP, mil_result_temp);
+                //        break;
+                //    case "tiff":
+                //        // tiffで保存する
+                //        MIL.MbufExport(nstrImageFilePath, MIL.M_TIFF, mil_result_temp);
+                //        break;
+                //}
 
                 return 0;
             }
@@ -441,69 +464,69 @@ namespace MatroxCS
             }
         }
 
-        /// <summary>
-        /// ファイルパスから拡張子を抽出する
-        /// </summary>
-        /// <param name="nstrImageFilePath">ファイルパス</param>
-        /// <param name="nstrExt">拡張子を返す</param>
-        /// <returns>画像拡張子(bmp,jpg,jpeg,png,tiff)の有無</returns>
-        private bool ExtractExtention(string nstrImageFilePath, out string nstrExt)
-        {
-            int i_index_ext;                        // パス内の拡張子の位置
-            string str_ext;                         // 拡張子
-            //	拡張子の位置を探す
-            i_index_ext = nstrImageFilePath.IndexOf(".");
-            //	拡張子がない場合は仕方ないのでビットマップの拡張子を返す
-            if (i_index_ext < 0)
-            {
-                nstrExt = ".bmp";
-                return false;
-            }
-            else
-            {
-                //	ファイル名の最後の文字が「.」だった場合もビットマップにしてしまう
-                if (i_index_ext + 1 == nstrImageFilePath.Length)
-                {
-                    nstrExt = "bmp";
-                    return false;
-                }
-                else
-                {
-                    // 拡張子を抽出
-                    str_ext = nstrImageFilePath.Substring(i_index_ext + 1);
-                }
-            }
-            //	拡張子がjpgの場合
-            if (string.Compare(str_ext, "jpg") == 0 || string.Compare(str_ext, "JPG") == 0 || string.Compare(str_ext, "jpeg") == 0 || string.Compare(str_ext, "JPEG") == 0)
-            {
-                nstrExt = "jpg";
-                return true;
-            }
-            //	拡張子がpngの場合
-            else if (string.Compare(str_ext, "png") == 0 || string.Compare(str_ext, "PNG") == 0)
-            {
-                nstrExt = "png";
-                return true;
-            }
-            //	拡張子がbmpの場合
-            else if (string.Compare(str_ext, "bmp") == 0 || string.Compare(str_ext, "BMP") == 0)
-            {
-                nstrExt = "bmp";
-                return true;
-            }
-            // 拡張子がtiffの場合
-            else if (string.Compare(str_ext, "tiff") == 0 || string.Compare(str_ext, "TIFF") == 0)
-            {
-                nstrExt = "tiff";
-                return true;
-            }
-            // 該当拡張子がない場合
-            else
-            {
-                nstrExt = "";
-                return false;
-            }
-        }
+        ///// <summary>
+        ///// ファイルパスから拡張子を抽出する
+        ///// </summary>
+        ///// <param name="nstrImageFilePath">ファイルパス</param>
+        ///// <param name="nstrExt">拡張子を返す</param>
+        ///// <returns>画像拡張子(bmp,jpg,jpeg,png,tiff)の有無</returns>
+        //private bool ExtractExtention(string nstrImageFilePath, out string nstrExt)
+        //{
+        //    int i_index_ext;                        // パス内の拡張子の位置
+        //    string str_ext;                         // 拡張子
+        //    //	拡張子の位置を探す
+        //    i_index_ext = nstrImageFilePath.IndexOf(".");
+        //    //	拡張子がない場合は仕方ないのでビットマップの拡張子を返す
+        //    if (i_index_ext < 0)
+        //    {
+        //        nstrExt = ".bmp";
+        //        return false;
+        //    }
+        //    else
+        //    {
+        //        //	ファイル名の最後の文字が「.」だった場合もビットマップにしてしまう
+        //        if (i_index_ext + 1 == nstrImageFilePath.Length)
+        //        {
+        //            nstrExt = "bmp";
+        //            return false;
+        //        }
+        //        else
+        //        {
+        //            // 拡張子を抽出
+        //            str_ext = nstrImageFilePath.Substring(i_index_ext + 1);
+        //        }
+        //    }
+        //    //	拡張子がjpgの場合
+        //    if (string.Compare(str_ext, "jpg") == 0 || string.Compare(str_ext, "JPG") == 0 || string.Compare(str_ext, "jpeg") == 0 || string.Compare(str_ext, "JPEG") == 0)
+        //    {
+        //        nstrExt = "jpg";
+        //        return true;
+        //    }
+        //    //	拡張子がpngの場合
+        //    else if (string.Compare(str_ext, "png") == 0 || string.Compare(str_ext, "PNG") == 0)
+        //    {
+        //        nstrExt = "png";
+        //        return true;
+        //    }
+        //    //	拡張子がbmpの場合
+        //    else if (string.Compare(str_ext, "bmp") == 0 || string.Compare(str_ext, "BMP") == 0)
+        //    {
+        //        nstrExt = "bmp";
+        //        return true;
+        //    }
+        //    // 拡張子がtiffの場合
+        //    else if (string.Compare(str_ext, "tiff") == 0 || string.Compare(str_ext, "TIFF") == 0)
+        //    {
+        //        nstrExt = "tiff";
+        //        return true;
+        //    }
+        //    // 該当拡張子がない場合
+        //    else
+        //    {
+        //        nstrExt = "";
+        //        return false;
+        //    }
+        //}
 
         #endregion
     }

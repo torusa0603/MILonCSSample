@@ -1280,6 +1280,14 @@ namespace MILonCSSample
             cMatroxMain.ClearGraph(m_lstDisplayID[0]);
             DrawRegion(m_lstDisplayID[0], InoculationArea.InspectionArea[0], InoculationArea.InspectionArea[1], Color.Red);
         }
+
+        private void exposureTimeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // 設定フォーム作成
+            FormSetting f_form_setting = new FormSetting(cMatroxMain);
+            // 設定フォームをモーダレス表示
+            f_form_setting.Show();
+        }
     }
 
     static class InoculationArea

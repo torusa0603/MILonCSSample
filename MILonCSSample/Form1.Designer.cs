@@ -37,6 +37,8 @@
             this.controlToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.connectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.disConnectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.settingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exposureTimeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel_check = new System.Windows.Forms.Panel();
             this.pnl_camera1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -93,7 +95,8 @@
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.controlToolStripMenuItem});
+            this.controlToolStripMenuItem,
+            this.settingToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
             this.menuStrip1.Size = new System.Drawing.Size(1440, 24);
@@ -123,6 +126,21 @@
             this.disConnectToolStripMenuItem.Text = "DisConnect";
             this.disConnectToolStripMenuItem.Click += new System.EventHandler(this.DisConnectToolStripMenuItem_Click);
             // 
+            // settingToolStripMenuItem
+            // 
+            this.settingToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.exposureTimeToolStripMenuItem});
+            this.settingToolStripMenuItem.Name = "settingToolStripMenuItem";
+            this.settingToolStripMenuItem.Size = new System.Drawing.Size(56, 20);
+            this.settingToolStripMenuItem.Text = "Setting";
+            // 
+            // exposureTimeToolStripMenuItem
+            // 
+            this.exposureTimeToolStripMenuItem.Name = "exposureTimeToolStripMenuItem";
+            this.exposureTimeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.exposureTimeToolStripMenuItem.Text = "ExposureTime & Gain";
+            this.exposureTimeToolStripMenuItem.Click += new System.EventHandler(this.exposureTimeToolStripMenuItem_Click);
+            // 
             // panel_check
             // 
             this.panel_check.Location = new System.Drawing.Point(720, 27);
@@ -136,10 +154,10 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1440, 567);
-            this.Controls.Add(this.panel_check);
             this.Controls.Add(this.pnl_camera1);
-            this.Controls.Add(this.pnl_graphic);
             this.Controls.Add(this.pnl_camera2);
+            this.Controls.Add(this.panel_check);
+            this.Controls.Add(this.pnl_graphic);
             this.Controls.Add(this.pnl_load);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
@@ -167,6 +185,8 @@
         private System.Windows.Forms.ToolStripMenuItem connectToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem disConnectToolStripMenuItem;
         private System.Windows.Forms.Panel panel_check;
+        private System.Windows.Forms.ToolStripMenuItem settingToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem exposureTimeToolStripMenuItem;
     }
 }
 

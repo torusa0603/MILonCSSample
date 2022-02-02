@@ -499,5 +499,63 @@ namespace MatroxCS
         }
 
         #endregion
+
+        ///// <summary>
+        ///// ゲインを設定する
+        ///// </summary>
+        ///// <param name="ndGain">ゲイン値</param>
+        ///// <returns></returns>
+        //public int SetGain(double ndGain)
+        //{
+        //    if (m_siBoardType != (int)CDefine.MTX_TYPE.MTX_GIGE)
+        //    {
+        //        return 0;
+        //    }
+
+        //    StringBuilder str_vendor_name = new StringBuilder(256);
+        //    MIL.MdigInquireFeature(m_milDigitizer, MIL.M_FEATURE_VALUE, "DeviceVendorName", MIL.M_TYPE_STRING, str_vendor_name);
+
+        //    //	Basler
+        //    if ((str_vendor_name.ToString()).IndexOf("Basler") != -1)
+        //    {
+        //        int i_gain_raw = (int)ndGain;
+        //        MIL.MdigControlFeature(m_milDigitizer, MIL.M_FEATURE_VALUE, "GainRaw", MIL.M_TYPE_MIL_INT32, ref i_gain_raw);
+        //    }
+        //    // Point grey
+        //    else
+        //    {
+        //        MIL.MdigControlFeature(m_milDigitizer, MIL.M_FEATURE_VALUE, "Gain", MIL.M_TYPE_DOUBLE, ref ndGain);
+        //    }
+
+        //    return 0;
+        //}
+
+        ///// <summary>
+        ///// 露光時間を設定する
+        ///// </summary>
+        ///// <param name="ndExposureTime">露光時間</param>
+        ///// <returns></returns>
+        //public int SetExposureTime(double ndExposureTime)
+        //{
+        //    if (m_siBoardType != (int)CDefine.MTX_TYPE.MTX_GIGE)
+        //    {
+        //        return 0;
+        //    }
+
+        //    StringBuilder str_vendor_name = new StringBuilder(256);
+        //    MIL.MdigInquireFeature(m_milDigitizer, MIL.M_FEATURE_VALUE, "DeviceVendorName", MIL.M_TYPE_STRING, str_vendor_name);
+
+        //    //	Basler
+        //    if ((str_vendor_name.ToString()).IndexOf("Basler") != -1)
+        //    {
+        //        MIL.MdigControlFeature(m_milDigitizer, MIL.M_FEATURE_VALUE, "ExposureTimeAbs", MIL.M_TYPE_DOUBLE, ref ndExposureTime);
+        //    }
+        //    // Point grey
+        //    else
+        //    {
+        //        MIL.MdigControlFeature(m_milDigitizer, MIL.M_FEATURE_VALUE, "ExposureTime", MIL.M_TYPE_DOUBLE, ref ndExposureTime);
+        //    }
+        //    return 0;
+        //}
     }
 }
