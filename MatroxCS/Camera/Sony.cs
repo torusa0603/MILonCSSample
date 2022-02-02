@@ -23,7 +23,7 @@ namespace MatroxCS.Camera
         /// </summary>
         /// <param name="ndGain">ゲイン値</param>
         /// <returns></returns>
-        public override int SetGain(double ndGain)
+        public override int SetGain(ref double ndGain)
         {
             if (m_siBoardType != (int)CDefine.MTX_TYPE.MTX_GIGE)
             {
@@ -41,7 +41,7 @@ namespace MatroxCS.Camera
         /// </summary>
         /// <param name="ndExposureTime">露光時間</param>
         /// <returns></returns>
-        public override int SetExposureTime(double ndExposureTime)
+        public override int SetExposureTime(ref double ndExposureTime)
         {
             if (m_siBoardType != (int)CDefine.MTX_TYPE.MTX_GIGE)
             {

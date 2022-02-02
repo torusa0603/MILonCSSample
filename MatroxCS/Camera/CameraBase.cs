@@ -504,7 +504,7 @@ namespace MatroxCS.Camera
         /// </summary>
         /// <param name="ndGain">ゲイン値</param>
         /// <returns></returns>
-        public virtual int SetGain(double ndGain)
+        public virtual int SetGain(ref double ndGain)
         {
             return 0;
         }
@@ -514,7 +514,7 @@ namespace MatroxCS.Camera
         /// </summary>
         /// <param name="ndExposureTime">露光時間</param>
         /// <returns></returns>
-        public virtual int SetExposureTime(double ndExposureTime)
+        public virtual int SetExposureTime(ref double ndExposureTime)
         {
             return 0;
         }

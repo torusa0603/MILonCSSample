@@ -393,7 +393,7 @@ namespace MatroxCS
         /// <param name="niCameraID">指定カメラID</param>
         /// <param name="ndGainValue">ゲイン値</param>
         /// <returns></returns>
-        public int SetGain(int niCameraID, double ndGainValue)
+        public int SetGain(int niCameraID, ref double ndGainValue)
         {
             int i_ret;
             if (m_cBase.GetFatalErrorOccured())
@@ -409,8 +409,8 @@ namespace MatroxCS
                 CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},該当カメラオブジェクトなし");
                 return -1;
             }
-            // スルー状態にする
-            i_ret = m_lstCamera[i_camera_index].SetGain(ndGainValue);
+            // ゲイン値を設定する
+            i_ret = m_lstCamera[i_camera_index].SetGain(ref ndGainValue);
             if (i_ret != 0)
             {
                 // try-catchで捉えたエラー(内容はDLLError.log参照)
@@ -431,7 +431,7 @@ namespace MatroxCS
         /// <param name="niCameraID">指定カメラID</param>
         /// <param name="ndExposureTimeValue">ゲイン値</param>
         /// <returns></returns>
-        public int SetExposureTime(int niCameraID, double ndExposureTimeValue)
+        public int SetExposureTime(int niCameraID, ref double ndExposureTimeValue)
         {
             int i_ret;
             if (m_cBase.GetFatalErrorOccured())
@@ -447,8 +447,8 @@ namespace MatroxCS
                 CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},該当カメラオブジェクトなし");
                 return -1;
             }
-            // スルー状態にする
-            i_ret = m_lstCamera[i_camera_index].SetExposureTime(ndExposureTimeValue);
+            // 露光時間を設定する
+            i_ret = m_lstCamera[i_camera_index].SetExposureTime(ref ndExposureTimeValue);
             if (i_ret != 0)
             {
                 // try-catchで捉えたエラー(内容はDLLError.log参照)
