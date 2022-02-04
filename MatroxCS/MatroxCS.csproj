@@ -95,7 +95,7 @@
     <Compile Include="Define.cs" />
     <Compile Include="FileIO.cs" />
     <Compile Include="LogMatroxCS.cs" />
-    <Compile Include="Parameter.cs" />
+    <Compile Include="Parameter\ParameterIO.cs" />
     <Compile Include="DisplayImage.cs" />
     <Compile Include="Graphic.cs" />
     <Compile Include="Log.cs" />
@@ -103,7 +103,7 @@
     <Compile Include="Parameter\CameraGeneral.cs" />
     <Compile Include="Parameter\CameraInfo.cs" />
     <Compile Include="Parameter\IParameter.cs" />
-    <Compile Include="Parameter\ParameterFactory.cs" />
+    <Compile Include="Parameter\JsonIO.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
