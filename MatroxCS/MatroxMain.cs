@@ -28,9 +28,9 @@ namespace MatroxCS
         CBase m_cBase = new CBase();                                            // ベースオブジェクト
         CGraphic m_cGraphic = new CGraphic();                                   // グラフィックオブジェクト
         CCameraGeneral m_cCameraGeneral = new CCameraGeneral();                 // パラメータオブジェクト
-        CParameter m_cParameter = new CParameter();                             // パラメータクラスオブジェクト
+        CParameterIO m_cParameter = new CParameterIO();                         // パラメータクラスオブジェクト
         bool m_bMilInitialFinished = false;                                     // 初期処理完了済みかを示す
-        AbsAlgorithm m_cAlgorithm;                                                // アルゴリズムオブジェクト
+        AbsAlgorithm m_cAlgorithm;                                              // アルゴリズムオブジェクト
 
         #endregion
 
@@ -391,7 +391,7 @@ namespace MatroxCS
         /// ゲイン値を設定する
         /// </summary>
         /// <param name="niCameraID">指定カメラID</param>
-        /// <param name="ndGainValue">ゲイン値</param>
+        /// <param name="ndGainValue">ゲイン値(実際に設定されたゲイン値が戻る)</param>
         /// <returns></returns>
         public int SetGain(int niCameraID, ref double ndGainValue)
         {
@@ -429,7 +429,7 @@ namespace MatroxCS
         /// 露光時間を設定する
         /// </summary>
         /// <param name="niCameraID">指定カメラID</param>
-        /// <param name="ndExposureTimeValue">ゲイン値</param>
+        /// <param name="ndExposureTimeValue">露光時間(実際に設定された露光時間が戻る)</param>
         /// <returns></returns>
         public int SetExposureTime(int niCameraID, ref double ndExposureTimeValue)
         {

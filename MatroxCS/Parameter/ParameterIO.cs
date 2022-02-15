@@ -10,7 +10,7 @@ using System.Reflection;
 
 namespace MatroxCS
 {
-    class CParameter
+    class CParameterIO
     {
         string m_strCommentCode = "###";    // コメントコード
         string m_strNewLineCode = "\r\n";   // 改行コード
@@ -41,7 +41,7 @@ namespace MatroxCS
                         return -3;
                 }
             }
-            i_ret = CParameterFactory<CCameraGeneral>.Load(nstrSettingFilePath, ref ncCameraGeneral);
+            i_ret = CJsonIO<CCameraGeneral>.Load(nstrSettingFilePath, ref ncCameraGeneral);
             switch (i_ret)
             {
                 case -1:
@@ -94,7 +94,7 @@ namespace MatroxCS
             c_json_camera_info.Manufacturer = 0;
             c_json_camera_general.CameraInformation.Add(c_json_camera_info);
             
-            int i_ret = CParameterFactory<CCameraGeneral>.Save(nstrSettingFilePath, c_json_camera_general);
+            int i_ret = CJsonIO<CCameraGeneral>.Save(nstrSettingFilePath, c_json_camera_general);
             switch (i_ret)
             {
                 case -1:

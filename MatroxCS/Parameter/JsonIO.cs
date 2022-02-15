@@ -12,7 +12,7 @@ using MatroxCS.Parameter;
 namespace MatroxCS.Parameter
 {
 
-    public class CParameterFactory<T> where T : IParameter
+    public class CJsonIO<T> where T : IParameter
     {
         const string m_strCommentCode = "###";    // コメントコード
         const string m_strNewLineCode = "\r\n";   // 改行コード

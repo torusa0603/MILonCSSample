@@ -12,6 +12,7 @@ using MatroxCS.Parameter;
 
 namespace MatroxCS.Camera
 {
+    // 要デバック(コマンドの文字列が間違っている可能性あり)
     class CBaumerCamera : CCameraBase
     {
         double[] m_dGainMargin;
@@ -28,6 +29,7 @@ namespace MatroxCS.Camera
         /// <returns></returns>
         public override int SetGain(ref double ndGain)
         {
+            // gigeモードであるかを確認
             if (m_siBoardType != (int)CDefine.MTX_TYPE.MTX_GIGE)
             {
                 return 0;
@@ -45,7 +47,9 @@ namespace MatroxCS.Camera
             if (ndGain > m_dGainMargin[1])
                 ndGain = m_dGainMargin[1];
 
+            // ゲイン値を設定する
             MIL.MdigControlFeature(m_milDigitizer, MIL.M_FEATURE_VALUE, "Gain", MIL.M_TYPE_DOUBLE, ref ndGain);
+            // 変更されたゲイン値を取得する
             MIL.MdigInquireFeature(m_milDigitizer, MIL.M_FEATURE_VALUE, "Gain", MIL.M_TYPE_DOUBLE, ref ndGain);
 
 
@@ -59,12 +63,11 @@ namespace MatroxCS.Camera
         /// <returns></returns>
         public override int SetExposureTime(ref double ndExposureTime)
         {
+            // gigeモードであるかを確認
             if (m_siBoardType != (int)CDefine.MTX_TYPE.MTX_GIGE)
             {
                 return 0;
             }
-
-            double[] d_exposure_time_margin = GetExposureTimeMargin();
 
             // 露光時間の値範囲を決定する
             if (m_dExposureTimeMargin == null)
@@ -73,12 +76,14 @@ namespace MatroxCS.Camera
             }
 
             // 値が範囲以外の場合は丸め込む
-            if (ndExposureTime < d_exposure_time_margin[0])
-                ndExposureTime = d_exposure_time_margin[0];
-            if (ndExposureTime > d_exposure_time_margin[1])
-                ndExposureTime = d_exposure_time_margin[1];
+            if (ndExposureTime < m_dExposureTimeMargin[0])
+                ndExposureTime = m_dExposureTimeMargin[0];
+            if (ndExposureTime > m_dExposureTimeMargin[1])
+                ndExposureTime = m_dExposureTimeMargin[1];
 
+            // 露光時間を設定する
             MIL.MdigControlFeature(m_milDigitizer, MIL.M_FEATURE_VALUE, "ExposureTime", MIL.M_TYPE_DOUBLE, ref ndExposureTime);
+            // 変更された露光時間を取得する
             MIL.MdigInquireFeature(m_milDigitizer, MIL.M_FEATURE_VALUE, "ExposureTime", MIL.M_TYPE_DOUBLE, ref ndExposureTime);
 
             return 0;
@@ -90,12 +95,16 @@ namespace MatroxCS.Camera
         /// <returns></returns>
         double[] GetGainMargin()
         {
+            // gigeモードであるかを確認
             if (m_siBoardType != (int)CDefine.MTX_TYPE.MTX_GIGE)
             {
                 return new double[] { 0, 0 };
             }
+
+            // 設定できるゲイン値の上限を取得
             double d_gain_max = 0;
             MIL.MdigInquireFeature(m_milDigitizer, MIL.M_FEATURE_MAX, "Gain", MIL.M_TYPE_DOUBLE, ref d_gain_max);
+            // 設定できるゲイン値の下限を取得
             double d_gain_min = 0;
             MIL.MdigInquireFeature(m_milDigitizer, MIL.M_FEATURE_MIN, "Gain", MIL.M_TYPE_DOUBLE, ref d_gain_min);
 
@@ -112,8 +121,12 @@ namespace MatroxCS.Camera
             {
                 return new double[] { 0, 0 };
             }
+
+            // 設定できる露光時間の上限を取得
             double d_exposure_time_max = 0;
             MIL.MdigInquireFeature(m_milDigitizer, MIL.M_FEATURE_MAX, "ExposureTime", MIL.M_TYPE_DOUBLE, ref d_exposure_time_max);
+
+            // 設定できる露光時間の下限を取得
             double d_exposure_time_min = 0;
             MIL.MdigInquireFeature(m_milDigitizer, MIL.M_FEATURE_MIN, "ExposureTime", MIL.M_TYPE_DOUBLE, ref d_exposure_time_min);
 
