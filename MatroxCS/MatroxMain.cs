@@ -360,7 +360,7 @@ namespace MatroxCS
         /// 画像差分モードをオフにする
         /// </summary>
         /// <param name="niCameraID">指定カメラID</param>
-        /// <returns>0:正常終了</returns>
+        /// <returns>0:正常終了、-100:致命的エラー発生中</returns>
         public int ResetDiffPicDiscriminationMode(int niCameraID)
         {
             if (m_cBase.GetFatalErrorOccured())
@@ -392,7 +392,7 @@ namespace MatroxCS
         /// </summary>
         /// <param name="niCameraID">指定カメラID</param>
         /// <param name="ndGainValue">ゲイン値(実際に設定されたゲイン値が戻る)</param>
-        /// <returns></returns>
+        /// <returns>0:正常終了、-1:指定カメラ該当なし、-100:致命的エラー発生中、-999:異常終了(内容に関してはDLLError.log参照)</returns>
         public int SetGain(int niCameraID, ref double ndGainValue)
         {
             int i_ret;
@@ -430,7 +430,7 @@ namespace MatroxCS
         /// </summary>
         /// <param name="niCameraID">指定カメラID</param>
         /// <param name="ndExposureTimeValue">露光時間(実際に設定された露光時間が戻る)</param>
-        /// <returns></returns>
+        /// <returns>0:正常終了、-1:指定カメラ該当なし、-100:致命的エラー発生中、-999:異常終了(内容に関してはDLLError.log参照)</returns>
         public int SetExposureTime(int niCameraID, ref double ndExposureTimeValue)
         {
             int i_ret;

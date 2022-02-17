@@ -17,7 +17,7 @@ namespace MatroxCS.Camera
         #region ローカル変数
 
         // MILに関する変数
-        protected MIL_ID m_milDigitizer = MIL.M_NULL;                             // デジタイザID
+        protected MIL_ID m_milDigitizer = MIL.M_NULL;                   // デジタイザID
         MIL_ID m_milShowImage = MIL.M_NULL;                             // カメラ映像を画面に表示するときの画像バッファ
         MIL_ID[] m_milGrabImageArray = { MIL.M_NULL, MIL.M_NULL };      // グラブ専用リングバッファ 2固定
         MIL_ID m_milDiffOrgImage = MIL.M_NULL;                          // 差分用オリジナル画像
@@ -25,7 +25,7 @@ namespace MatroxCS.Camera
         MIL_DIG_HOOK_FUNCTION_PTR m_delProcessingFunctionPtr;           // 画像取得関数のポインター    
         GCHandle m_handUserData_doThrough;                              // 自己インスタンスのポインター
         GCHandle m_handUserData_ProcessingFunction;                     // 自己インスタンスのポインター(画像取得関数内で使用)
-        CCameraBase m_cCamera;                                              // 自己のインスタンスをフック関数内で保持するために使用
+        CCameraBase m_cCamera;                                          // 自己のインスタンスをフック関数内で保持するために使用
 
         // カメラクラス固有変数
         bool m_bDiffPicDisciminateMode;                                 // 差分画像モードかどうかを示すフラグ
@@ -38,7 +38,7 @@ namespace MatroxCS.Camera
         string m_strIPAddress;                                          // カメラのIPアドレス
         Size m_szImageSize;                                             // 画像サイズ。カメラ画像バッファもカメラ映像用バッファも同サイズ
         string m_strCameraFilePath;                                     // DCFファイル名
-        string m_strCameraIdentifyName;                                 // カメラ固有名称
+        protected string m_strCameraIdentifyName;                       // カメラ固有名称
 
         #endregion
 
