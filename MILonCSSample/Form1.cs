@@ -144,26 +144,24 @@ namespace MILonCSSample
             for (int i_loop = 0; i_loop < m_lstCameraID.Count(); i_loop++)
             {
                 i_ret = cMatroxMain.ChangeThroughState(m_lstCameraID[i_loop]);
-                if (i_ret != -1)
+                // エラー処理
+                DialogResult result;
+                switch (i_ret)
                 {
-                    // エラー処理
-                    DialogResult result;
-                    switch (i_ret)
-                    {
 
-                        case -1:
-                            result = MessageBox.Show("カメラが見つかりませんでした", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
-                            break;
-                        case -100:
-                            result = MessageBox.Show("致命的なエラーが発生しました", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
-                            break;
-                        case -999:
-                            result = MessageBox.Show("DLLError.logを確認して下さい", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
-                            break;
-                        default:
-                            break;
-                    }
+                    case -1:
+                        result = MessageBox.Show("カメラが見つかりませんでした", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                        break;
+                    case -100:
+                        result = MessageBox.Show("致命的なエラーが発生しました", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                        break;
+                    case -999:
+                        result = MessageBox.Show("DLLError.logを確認して下さい", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
+                        break;
+                    default:
+                        break;
                 }
+
             }
             i_ret = 0;
 

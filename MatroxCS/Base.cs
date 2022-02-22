@@ -56,11 +56,6 @@ namespace MatroxCS
         {
             m_siBoardType = niBoardType;
 
-            //// ログオブジェクトを作成
-            //m_sdicLogInstance = new Dictionary<string, CLog>();
-            //m_sdicLogInstance.Add(m_sstrLogKeyMilError, new CLog(nstrExeFolderPath, "MILError.log"));
-            //m_sdicLogInstance.Add(m_sstrLogKeyDllError, new CLog(nstrExeFolderPath, "DLLError.log"));
-
             try
             {
                 // アプリケーションID取得

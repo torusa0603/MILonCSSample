@@ -134,7 +134,7 @@ namespace MatroxCS.Algorithm
         /// フィルタリング用画像バッファを表示させる
         /// </summary>
         /// <param name="nmilDisplayBuff">表示画像バッファ</param>
-        /// <returns></returns>
+        /// <returns>0:正常終了、-999:異常終了</returns>
         private int DisplayProcessBuff(MIL_ID nmilDisplayBuff)
         {
             try
@@ -198,6 +198,11 @@ namespace MatroxCS.Algorithm
             }
         }
 
+        /// <summary>
+        /// 白色のピクセル数を計測する
+        /// </summary>
+        /// <param name="nmilFilterProcessingMono">指定二値化画像</param>
+        /// <returns>白色ピクセル数</returns>
         private int CountWhitePixels(MIL_ID nmilFilterProcessingMono)
         {
             int i_ret = 0;
