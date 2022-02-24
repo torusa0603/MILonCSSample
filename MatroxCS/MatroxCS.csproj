@@ -50,8 +50,7 @@
     <AllowedReferenceRelatedFileExtensions>
       *.xml
     </AllowedReferenceRelatedFileExtensions>
-    <DocumentationFile>
-    </DocumentationFile>
+    <DocumentationFile>..\bin\Debug\MatroxCS.xml</DocumentationFile>
     <NoWarn>612,169</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">

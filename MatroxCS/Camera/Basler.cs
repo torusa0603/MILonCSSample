@@ -114,7 +114,7 @@ namespace MatroxCS.Camera
                 // gigeモードであるかを確認
                 if (m_siBoardType != (int)CDefine.MTX_TYPE.MTX_GIGE)
                 {
-                    m_dExposureTimeMargin = new double[] { 0, 0 };
+                    m_dGainMargin = new double[] { 0, 0 };
                     return 0;
                 }
 
@@ -125,7 +125,7 @@ namespace MatroxCS.Camera
                 double d_gain_min = 0;
                 MIL.MdigInquireFeature(m_milDigitizer, MIL.M_FEATURE_MIN, "GainRaw", MIL.M_TYPE_DOUBLE, ref d_gain_min);
 
-                m_dExposureTimeMargin = new double[] { d_gain_min, d_gain_max };
+                m_dGainMargin = new double[] { d_gain_min, d_gain_max };
             }
             catch (Exception ex)
             {

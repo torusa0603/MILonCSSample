@@ -150,7 +150,7 @@ namespace MatroxCS.Camera
                 ResetDiffPictureMode();
                 //m_milShowImageは開放しない。これはdispクラスが開放するから。
 
-                //  デジタイザ開放
+                //  デジタイザ開放(ハートビートが途絶えた後に行う場合エラーは出るが異常なし)
                 if (m_siBoardType != (int)CDefine.MTX_TYPE.MTX_HOST)
                 {
                     if (m_milDigitizer != MIL.M_NULL)
@@ -493,7 +493,7 @@ namespace MatroxCS.Camera
             m_sbFatalErrorOccured = true;
             //  エラーログ出力
             CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{m_strCameraIdentifyName},{MethodBase.GetCurrentMethod().Name},DisapperCamera");
-            // フリーズ状態にする
+            // フリーズさせる(MdigProcessでエラーが出るが異常なし)
             ChangeFreezeState();
         }
 

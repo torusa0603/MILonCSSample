@@ -63,6 +63,7 @@ namespace MILonCSSample
             m_lstDisplayID = new List<int>() { 0, 0, 0, 0, 0 };
             int? m_iCameraNumber = 0;                                                    // カメラ個数
             cMatroxMain.m_evMatroxFatalErrorOccured += OccuredMatroxFatalError;
+            cMatroxMain.m_sevCameraDisaapear += CameraDisconnectHandler;
             int i_ret = 0;
             // exeファイルのいるフォルダーパスを取得
             m_strExeFolderPath = AppDomain.CurrentDomain.BaseDirectory.TrimEnd('\\');
@@ -164,6 +165,8 @@ namespace MILonCSSample
 
             }
             i_ret = 0;
+
+            
 
             // パネル1ディスプレイID取得
             i_ret = cMatroxMain.OpenDisplay(pnl_camera1.Handle, new Size(pnl_camera1.Width, pnl_camera1.Height));
@@ -534,6 +537,14 @@ namespace MILonCSSample
             // Connectメニューを非活性にし、DisCoonnectメニューを活性化させる
             this.connectToolStripMenuItem.Enabled = false;
             this.disConnectToolStripMenuItem.Enabled = true;
+        }
+
+        /// <summary>
+        /// カメラとの通信が切断されたイベント
+        /// </summary>
+        private void CameraDisconnectHandler()
+        {
+            MessageBox.Show("カメラとの接続が途絶えました", "Error", MessageBoxButtons.OK, MessageBoxIcon.None);
         }
 
         /// <summary>

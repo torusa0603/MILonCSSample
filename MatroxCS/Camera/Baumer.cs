@@ -41,6 +41,11 @@ namespace MatroxCS.Camera
                 if (m_dGainMargin == null)
                 {
                     int i_ret = GetGainMargin();
+                    if (i_ret != 0)
+                    {
+                        // 範囲の取得失敗
+                        return -1;
+                    }
                 }
 
                 // 値が範囲以外の場合は丸め込む
@@ -83,6 +88,11 @@ namespace MatroxCS.Camera
                 if (m_dExposureTimeMargin == null)
                 {
                     int i_ret = GetExposureTimeMargin();
+                    if (i_ret != 0)
+                    {
+                        // 範囲の取得失敗
+                        return -1;
+                    }
                 }
 
                 // 値が範囲以外の場合は丸め込む
@@ -116,18 +126,18 @@ namespace MatroxCS.Camera
                 // gigeモードであるかを確認
                 if (m_siBoardType != (int)CDefine.MTX_TYPE.MTX_GIGE)
                 {
-                    m_dExposureTimeMargin = new double[] { 0, 0 };
+                    m_dGainMargin = new double[] { 0, 0 };
                     return 0;
                 }
 
                 // 設定できるゲイン値の上限を取得
                 double d_gain_max = 0;
-                MIL.MdigInquireFeature(m_milDigitizer, MIL.M_FEATURE_MAX, "GainRaw", MIL.M_TYPE_DOUBLE, ref d_gain_max);
+                MIL.MdigInquireFeature(m_milDigitizer, MIL.M_FEATURE_MAX, "Gain", MIL.M_TYPE_DOUBLE, ref d_gain_max);
                 // 設定できるゲイン値の下限を取得
                 double d_gain_min = 0;
-                MIL.MdigInquireFeature(m_milDigitizer, MIL.M_FEATURE_MIN, "GainRaw", MIL.M_TYPE_DOUBLE, ref d_gain_min);
+                MIL.MdigInquireFeature(m_milDigitizer, MIL.M_FEATURE_MIN, "Gain", MIL.M_TYPE_DOUBLE, ref d_gain_min);
 
-                m_dExposureTimeMargin = new double[] { d_gain_min, d_gain_max };
+                m_dGainMargin = new double[] { d_gain_min, d_gain_max };
             }
             catch (Exception ex)
             {
@@ -154,11 +164,11 @@ namespace MatroxCS.Camera
 
                 // 設定できる露光時間の上限を取得
                 double d_exposure_time_max = 0;
-                MIL.MdigInquireFeature(m_milDigitizer, MIL.M_FEATURE_MAX, "ExposureTimeAbs", MIL.M_TYPE_DOUBLE, ref d_exposure_time_max);
+                MIL.MdigInquireFeature(m_milDigitizer, MIL.M_FEATURE_MAX, "ExposureTime", MIL.M_TYPE_DOUBLE, ref d_exposure_time_max);
 
                 // 設定できる露光時間の下限を取得
                 double d_exposure_time_min = 0;
-                MIL.MdigInquireFeature(m_milDigitizer, MIL.M_FEATURE_MIN, "ExposureTimeAbs", MIL.M_TYPE_DOUBLE, ref d_exposure_time_min);
+                MIL.MdigInquireFeature(m_milDigitizer, MIL.M_FEATURE_MIN, "ExposureTime", MIL.M_TYPE_DOUBLE, ref d_exposure_time_min);
 
                 m_dExposureTimeMargin = new double[] { d_exposure_time_min, d_exposure_time_max };
 

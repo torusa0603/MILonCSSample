@@ -281,7 +281,7 @@ namespace MatroxCS
         /// </summary>
         /// <param name="niCameraID">指定カメラID</param>
         /// <returns>0:正常終了、-1:該当カメラID無し、-100:致命的エラー発生中、-999:異常終了(内容に関してはDLLError.log参照)</returns>
-        public int ChangeThroughState(int niCameraID)
+        public int ChangeThroughState(int? niCameraID)
         {
             int i_ret;
             if (m_cBase.GetFatalErrorOccured())
@@ -319,7 +319,7 @@ namespace MatroxCS
         /// <param name="niCameraID">指定カメラID</param>
         /// <param name="nbShowDiffPic">差分画像を表示するか</param>
         /// <returns>0:正常終了、-1:該当カメラID無し、-2:差分元画像バッファ取得失敗、-3:差分結果画像バッファ取得失敗、-999:異常終了(内容に関してはDLLError.log参照)</returns>
-        public int SetDiffPicDiscriminationMode(int niCameraID, bool nbShowDiffPic)
+        public int SetDiffPicDiscriminationMode(int? niCameraID, bool nbShowDiffPic)
         {
             int i_ret;
             if (m_cBase.GetFatalErrorOccured())
@@ -361,7 +361,7 @@ namespace MatroxCS
         /// </summary>
         /// <param name="niCameraID">指定カメラID</param>
         /// <returns>0:正常終了、-100:致命的エラー発生中</returns>
-        public int ResetDiffPicDiscriminationMode(int niCameraID)
+        public int ResetDiffPicDiscriminationMode(int? niCameraID)
         {
             if (m_cBase.GetFatalErrorOccured())
             {
@@ -393,7 +393,7 @@ namespace MatroxCS
         /// <param name="niCameraID">指定カメラID</param>
         /// <param name="ndGainValue">ゲイン値(実際に設定されたゲイン値が戻る)</param>
         /// <returns>0:正常終了、-1:指定カメラ該当なし、-100:致命的エラー発生中、-999:異常終了(内容に関してはDLLError.log参照)</returns>
-        public int SetGain(int niCameraID, ref double ndGainValue)
+        public int SetGain(int? niCameraID, ref double ndGainValue)
         {
             int i_ret;
             if (m_cBase.GetFatalErrorOccured())
@@ -431,7 +431,7 @@ namespace MatroxCS
         /// <param name="niCameraID">指定カメラID</param>
         /// <param name="ndExposureTimeValue">露光時間(実際に設定された露光時間が戻る)</param>
         /// <returns>0:正常終了、-1:指定カメラ該当なし、-100:致命的エラー発生中、-999:異常終了(内容に関してはDLLError.log参照)</returns>
-        public int SetExposureTime(int niCameraID, ref double ndExposureTimeValue)
+        public int SetExposureTime(int? niCameraID, ref double ndExposureTimeValue)
         {
             int i_ret;
             if (m_cBase.GetFatalErrorOccured())
@@ -525,7 +525,7 @@ namespace MatroxCS
         /// <param name="niDisplayID">指定ディスプレイID</param>
         /// <returns>0:正常終了、-1:該当カメラID・該当ディスプレイID無し、-2:該当カメラID無し、-3:該当ディスプレイID無し、-100:致命的エラー発生中<br />
         /// -200:初期化未完了、-999:異常終了(内容に関してはDLLError.log参照)</returns>
-        public int SelectCameraImageDisplay(int niCameraID, int niDisplayID)
+        public int SelectCameraImageDisplay(int? niCameraID, int? niDisplayID)
         {
             // 初期化処理が未完了の場合はエラーを返す
             if (!m_bMilInitialFinished)
@@ -607,7 +607,7 @@ namespace MatroxCS
         /// </summary>
         /// <param name="niDisplayID">指定ディスプレイID</param>
         /// <returns>0:正常終了、-1:該当ディスプレイID無し、-100:致命的エラー発生中、-999:異常終了(内容に関してはDLLError.log参照)</returns>
-        public int DeleteDisplay(int niDisplayID)
+        public int DeleteDisplay(int? niDisplayID)
         {
             int i_ret;
             // 指定ディスプレイIDのインデックス番号を取得
@@ -677,7 +677,7 @@ namespace MatroxCS
         /// <param name="niDisplayID">指定ディスプレイID</param>
         /// <returns>0:正常終了、-1:存在しないファイルパス、-2:該当ディスプレイID無し、-3:画像バッファ取得失敗、-4:オーバーレイバッファ取得失敗<br />
         /// -5:画像拡張子(bmp,jpg,jpeg,png)なし、-100:致命的エラー発生中、-999:異常終了(内容に関してはDLLError.log参照)</returns>
-        public int LoadImage(string nstrImageFilePath, int niDisplayID)
+        public int LoadImage(string nstrImageFilePath, int? niDisplayID)
         {
             int i_ret;
             if (m_cBase.GetFatalErrorOccured())
@@ -760,7 +760,7 @@ namespace MatroxCS
         /// <param name="nptStartPoint">直線の始点座標</param>
         /// <param name="nptEndPoint">直線の終点座標</param>
         /// <returns>0:正常終了、-1:該当ディスプレイID無し、-100:致命的エラー発生中、-200:初期化未完了、-999:異常終了(内容に関してはDLLError.log参照)</returns>
-        public int DrawLine(int niDisplayID, Point nptStartPoint, Point nptEndPoint)
+        public int DrawLine(int? niDisplayID, Point nptStartPoint, Point nptEndPoint)
         {
             int i_ret;
             // 初期化処理が未完了の場合はエラーを返す
@@ -801,7 +801,7 @@ namespace MatroxCS
         /// <param name="nptDiagonalPoint1">矩形の対角点1座標</param>
         /// <param name="nptDiagonalPoint2">矩形の対角点2座標</param>
         /// <returns>0:正常終了、-1:該当ディスプレイID無し、-100:致命的エラー発生中、-200:初期化未完了、-999:異常終了(内容に関してはDLLError.log参照)</returns>
-        public int DrawRectangle(int niDisplayID, Point nptDiagonalPoint1, Point nptDiagonalPoint2)
+        public int DrawRectangle(int? niDisplayID, Point nptDiagonalPoint1, Point nptDiagonalPoint2)
         {
             int i_ret;
             // 初期化処理が未完了の場合はエラーを返す
@@ -841,7 +841,7 @@ namespace MatroxCS
         /// </summary>
         /// <param name="niDisplayID">指定ディスプレイID</param>
         /// <returns>0:正常終了、-1:該当ディスプレイなし、-100:致命的エラー発生中、-200:初期化未完了、-999:異常終了(内容に関してはDLLError.log参照)</returns>
-        public int ClearGraph(int niDisplayID)
+        public int ClearGraph(int? niDisplayID)
         {
             int i_ret;
             // 初期化処理が未完了の場合はエラーを返す
@@ -884,7 +884,7 @@ namespace MatroxCS
         /// <param name="niDisplayID">指定ディスプレイID</param>
         /// <returns>0:正常終了、-1:該当ディスプレイID無し、-2:拡張子エラー、-3:画像バッファ取得失敗、-4:パス内にファイル名無し、-100:致命的エラー発生中<br />
         /// -999:異常終了(内容に関してはDLLError.log参照)</returns>
-        public int SaveImage(string nstrImageFilePath, bool nbIncludeGraphic, int niDisplayID)
+        public int SaveImage(string nstrImageFilePath, bool nbIncludeGraphic, int? niDisplayID)
         {
             if (m_cBase.GetFatalErrorOccured())
             {
@@ -966,7 +966,7 @@ namespace MatroxCS
         /// 先頭の数値はDLLからの戻り値(0:正常終了、-1:検査アルゴリズムが選択されていない、-2:該当カメラ無し、-3該当ディスプレイ無し:、-200:初期化未完了)<br />
         /// 先頭以降はアルゴリズムプログラムからの戻り値
         /// </returns>
-        public List<object> DoAlgorithm(int niCameraID, int? niDisplayID, Point? npCutOffset, Size? nszCutSize, List<object> nloValue)
+        public List<object> DoAlgorithm(int? niCameraID, int? niDisplayID, Point? npCutOffset, Size? nszCutSize, List<object> nloValue)
         {
             CRequiredParameterForAlgorithm c_algorithm_parameter = new CRequiredParameterForAlgorithm();    // 必須引数クラス
             List<object> ls_ret = new List<object> { };                                                     // アルゴリズムごとの専用引数オブジェクト
@@ -1048,8 +1048,13 @@ namespace MatroxCS
         /// </summary>
         /// <param name="niCameraID">指定カメラID</param>
         /// <returns>0以上の番号:該当インデックス番号、-1:該当カメラID無し</returns>
-        private int SearchCameraID(int niCameraID)
+        private int SearchCameraID(int? niCameraID)
         {
+            // nullが来た際はもちろん該当ID無しとする
+            if(niCameraID == null)
+            {
+                return -1;
+            }
             int i_index = 0;
             // リスト内の各カメラオブジェクトからIDを取得し、指定IDとの一致するものを探す
             foreach (CCameraBase camera in m_lstCamera)
@@ -1073,8 +1078,13 @@ namespace MatroxCS
         /// </summary>
         /// <param name="niDisplayID">指定ディスプレイID</param>
         /// <returns>0以上の番号:該当インデックス番号、-1:該当カメラID無し</returns>
-        private int SearchDisplayID(int niDisplayID)
+        private int SearchDisplayID(int? niDisplayID)
         {
+            // nullが来た際はもちろん該当ID無しとする
+            if (niDisplayID == null)
+            {
+                return -1;
+            }
             int i_index = 0;
             // リスト内の各ディスプレイオブジェクトからIDを取得し、指定IDとの一致するものを探す
             foreach (CDisplayImage displayimage in m_lstDisplayImage)
