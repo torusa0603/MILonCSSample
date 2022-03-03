@@ -40,6 +40,7 @@
             this.settingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exposureTimeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel_check = new System.Windows.Forms.Panel();
+            this.getContrastToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pnl_camera1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -129,7 +130,8 @@
             // settingToolStripMenuItem
             // 
             this.settingToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.exposureTimeToolStripMenuItem});
+            this.exposureTimeToolStripMenuItem,
+            this.getContrastToolStripMenuItem});
             this.settingToolStripMenuItem.Name = "settingToolStripMenuItem";
             this.settingToolStripMenuItem.Size = new System.Drawing.Size(56, 20);
             this.settingToolStripMenuItem.Text = "Setting";
@@ -148,6 +150,13 @@
             this.panel_check.Size = new System.Drawing.Size(720, 540);
             this.panel_check.TabIndex = 1;
             this.panel_check.Click += new System.EventHandler(this.panel_check_Click);
+            // 
+            // getContrastToolStripMenuItem
+            // 
+            this.getContrastToolStripMenuItem.Name = "getContrastToolStripMenuItem";
+            this.getContrastToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.getContrastToolStripMenuItem.Text = "Get_Contrast";
+            this.getContrastToolStripMenuItem.Click += new System.EventHandler(this.getContrastToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -187,6 +196,7 @@
         private System.Windows.Forms.Panel panel_check;
         private System.Windows.Forms.ToolStripMenuItem settingToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exposureTimeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem getContrastToolStripMenuItem;
     }
 }
 

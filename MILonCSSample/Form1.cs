@@ -14,7 +14,7 @@ namespace MILonCSSample
 {
     public partial class Form1 : Form
     {
-        CMatroxMain cMatroxMain;     // マトロックスオブジェクト
+        public static CMatroxMain cMatroxMain;     // マトロックスオブジェクト
         List<int> m_lstCameraID;     // カメラリストID
         List<int> m_lstDisplayID;    // ディスプレイID{パネル1, パネル2, パネル3, パネル4}
         string m_strExeFolderPath;   // アプリケーションの実行パス
@@ -1205,12 +1205,12 @@ namespace MILonCSSample
         /// <param name="e"></param>
         private void panel_check_Click(object sender, EventArgs e)
         {
-            int i_ret = cMatroxMain.SetAlgorithm("FujiwaDenki_CheckInoculant");
-            List<object> lo_argument = new List<object>() { 100 };
-            List<object> lo_ret;
-            Size sz_inspection_area = new Size((InoculationArea.InspectionArea[1].X - InoculationArea.InspectionArea[0].X),
-                (InoculationArea.InspectionArea[1].Y - InoculationArea.InspectionArea[0].Y));
-            lo_ret = cMatroxMain.DoAlgorithm(m_lstCameraID[0], m_lstDisplayID[4], InoculationArea.InspectionArea[0], sz_inspection_area, lo_argument);
+            //int i_ret = cMatroxMain.SetAlgorithm("FujiwaDenki_CheckInoculant");
+            //List<object> lo_argument = new List<object>() { 100 };
+            //List<object> lo_ret;
+            //Size sz_inspection_area = new Size((InoculationArea.InspectionArea[1].X - InoculationArea.InspectionArea[0].X),
+            //    (InoculationArea.InspectionArea[1].Y - InoculationArea.InspectionArea[0].Y));
+            //lo_ret = cMatroxMain.DoAlgorithm(m_lstCameraID[0], m_lstDisplayID[4], InoculationArea.InspectionArea[0], sz_inspection_area, lo_argument);
         }
 
         /// <summary>
@@ -1297,9 +1297,17 @@ namespace MILonCSSample
             // 設定フォームをモーダレス表示
             f_form_setting.Show();
         }
+
+        private void getContrastToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            // 設定フォーム作成
+            Form4 f_form_setting = new Form4(m_lstCameraID[0]);
+            // 設定フォームをモーダレス表示
+            f_form_setting.Show();
+        }
     }
 
-    static class InoculationArea
+    public static class InoculationArea
     {
         public static Point[] InspectionArea { get; set; } = { new Point(0, 0), new Point(0, 0) };
     }

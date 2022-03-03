@@ -403,6 +403,116 @@ namespace MatroxCS.Camera
             }
         }
 
+        /// <summary>
+        /// 選択範囲のコントラストを計測
+        /// </summary>
+        /// <param name="npntOffsest"></param>
+        /// <param name="nszInoculationArea"></param>
+        /// <param name="ndResult"></param>
+        /// <returns></returns>
+        public int GetContrast(Point npntOffsest, Size nszInoculationArea, ref double ndResult)
+        {
+            MIL_ID mil_copy_destbuff = MIL.M_NULL;
+            MIL_ID mil_copy_destbuff_mono = MIL.M_NULL;
+            int i_ret;
+            try
+            {
+                // 検査用の画像を取得
+                i_ret = SetProcessBuffer(m_milShowImage, m_szImageSize, ref mil_copy_destbuff);
+                // エラー処理
+                if(i_ret != 0)
+                {
+                    //  エラーログ出力
+                    CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name}_SetProcessBuffer,Error_{i_ret}");
+                    // バッファを解放する
+                    close();
+                    return CDefine.SpecificErrorCode.EXCEPTION_ERROR;
+                }
+
+                // モノクロ画像に変更する
+                MIL.MbufAlloc2d(m_smilSystem, m_szImageSize.Width, m_szImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC, ref mil_copy_destbuff_mono);
+                MIL.MimConvert(mil_copy_destbuff, mil_copy_destbuff, MIL.M_RGB_TO_HLS);
+                MIL.MbufCopyColor(mil_copy_destbuff, mil_copy_destbuff_mono, MIL.M_LUMINANCE);
+
+                // 画像を配列にする
+                byte[] image_pixel = new byte[nszInoculationArea.Width* nszInoculationArea.Height];
+                MIL.MbufGet2d(mil_copy_destbuff_mono, npntOffsest.X, npntOffsest.Y, nszInoculationArea.Width, nszInoculationArea.Height, image_pixel);
+
+
+                double d_Hdiff_value=0;
+                double d_Vdiff_value=0;
+                int i_thresh = 5;		//	差分輝度差が閾値以下のものはノイズとして、カウントしない
+                i_thresh = i_thresh * i_thresh;
+                //	垂直差分(隣接する画素値の差分の絶対値を加算していく)
+                int i_count = 0;
+                for (int i_loop = 0; i_loop < nszInoculationArea.Width; i_loop++)
+                {
+                    for (int i_loop2 = 0; i_loop2 < nszInoculationArea.Height - 1; i_loop2++)
+                    {
+                        int i_val = image_pixel[nszInoculationArea.Height * i_loop + i_loop2 + 1] - image_pixel[nszInoculationArea.Height * i_loop + i_loop2];
+                        i_val = i_val * i_val;
+                        if (i_val > i_thresh)
+                        {
+                            d_Hdiff_value += (double)i_val;
+                            i_count++;
+                        }
+                    }
+                }
+                //	水平差分
+                i_count = 0;
+                for (int i_loop = 0; i_loop < nszInoculationArea.Height; i_loop++)
+                {
+                    for (int i_loop2 = 0; i_loop2 < nszInoculationArea.Width - 1; i_loop2++)
+                    {
+                        int i_val = image_pixel[nszInoculationArea.Height * (i_loop2 + 1) + i_loop] - image_pixel[nszInoculationArea.Height * i_loop2 + i_loop];
+                        i_val = i_val * i_val;
+                        if (i_val > i_thresh)
+                        {
+                            d_Vdiff_value += (double)i_val;
+                            i_count++;
+                        }
+                    }
+                }
+
+                double d_contrast = (d_Hdiff_value + d_Vdiff_value) / 2.0;
+                //	正規化する
+                d_contrast = d_contrast / (nszInoculationArea.Height * nszInoculationArea.Width * 0.01);
+                d_contrast = Math.Sqrt(d_contrast);
+
+                if (d_contrast < 10.0)
+                {
+                    d_contrast = 10.0;
+                }
+
+                // バッファを解放する
+                close();
+
+                ndResult = d_contrast;
+            }
+            catch (Exception ex)
+            {
+                //  エラーログ出力
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                // バッファを解放する
+                close();
+                return CDefine.SpecificErrorCode.EXCEPTION_ERROR;
+            }
+            return 0;
+
+            void close()
+            {
+                // バッファを解放する
+                if (mil_copy_destbuff != MIL.M_NULL)
+                {
+                    MIL.MbufFree(mil_copy_destbuff);
+                }
+                if (mil_copy_destbuff_mono != MIL.M_NULL)
+                {
+                    MIL.MbufFree(mil_copy_destbuff_mono);
+                }
+            }
+        }
+
         #endregion
 
         #region ローカル関数
@@ -517,6 +627,88 @@ namespace MatroxCS.Camera
         public virtual int SetExposureTime(ref double ndExposureTime)
         {
             return 0;
+        }
+
+        /// <summary>
+        /// 加工用の画像バッファにコピーする
+        /// </summary>
+        /// <param name="nmilCopySorceBuff">コピー元バッファ</param>
+        /// <param name="niSorceImageSize">コピー元バッファのサイズ</param>
+        /// <param name="nmilCopyDestBuff">保存先バッファ</param>
+        /// <returns>0:正常終了、-999:異常終了</returns>
+        private int SetProcessBuffer(MIL_ID nmilCopySorceBuff, Size niSorceImageSize, ref MIL_ID nmilCopyDestBuff)
+        {
+            nmilCopyDestBuff = MIL.M_NULL;
+            try
+            {
+                // 加工元画像サイズに合わせてフィルタリング用画像バッファを確保する
+                MIL.MbufAllocColor(m_smilSystem, 3, niSorceImageSize.Width, niSorceImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR32, ref nmilCopyDestBuff);
+                if (nmilCopyDestBuff == MIL.M_NULL)
+                {
+                    // フィルタリング用画像バッファの確保失敗
+                    return -1;
+                }
+                // Cameraクラスのm_milShowをコピーする場合があるのでロックをかける
+                lock (m_slockObject)
+                {
+                    // 加工元画像をフィルタリング用画像バッファにコピー
+                    MIL.MbufCopy(nmilCopySorceBuff, nmilCopyDestBuff);
+                }
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                //  エラーログ出力
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                return CDefine.SpecificErrorCode.EXCEPTION_ERROR;
+            }
+        }
+
+        /// <summary>
+        /// 画像を切り抜く
+        /// </summary>
+        /// <param name="npntOffset">切り抜き座標</param>
+        /// <param name="niImageSize">切り抜きサイズ</param>
+        /// <param name="nmilCutBuff">切り抜き元兼切り抜き後の画像</param>
+        /// <returns>0:正常終了、-999:異常終了</returns>
+        private int CutoutProcessBuffer(Point npntOffset, Size niImageSize, ref MIL_ID nmilCutBuff)
+        {
+            try
+            {
+                MIL_ID mil_cutout_process_baffer = MIL.M_NULL;    // 一時切り抜き画像バッファ
+                MIL_ID mil_tep_cutout_process_baffer = MIL.M_NULL;
+                // 一時切り抜き画像バッファ確保
+                MIL.MbufAllocColor(m_smilSystem, 3, niImageSize.Width, niImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR32, ref mil_cutout_process_baffer);
+                if (mil_cutout_process_baffer == MIL.M_NULL)
+                {
+                    // 一時切り抜き画像バッファ確保失敗
+                    return -1;
+                }
+                // フィルタリング用画像バッファの一部分を切り抜き、一時切り抜き画像バッファに保存する
+                MIL.MbufChildColor2d(nmilCutBuff, MIL.M_ALL_BANDS, npntOffset.X, npntOffset.Y, niImageSize.Width, niImageSize.Height, ref mil_tep_cutout_process_baffer);
+                MIL.MbufCopy(mil_tep_cutout_process_baffer, mil_cutout_process_baffer);
+                // フィルタリング用画像バッファに切り抜き画像をコピーする
+                MIL.MbufFree(mil_tep_cutout_process_baffer);
+                MIL.MbufFree(nmilCutBuff);
+                nmilCutBuff = MIL.M_NULL;
+                MIL.MbufAllocColor(m_smilSystem, 3, niImageSize.Width, niImageSize.Height, 8 + MIL.M_UNSIGNED, MIL.M_IMAGE + MIL.M_PROC + MIL.M_DISP + MIL.M_PACKED + MIL.M_BGR32, ref nmilCutBuff);
+                if (nmilCutBuff == MIL.M_NULL)
+                {
+                    // フィルタリング用画像バッファ確保失敗
+                    return -2;
+                }
+                MIL.MbufCopy(mil_cutout_process_baffer, nmilCutBuff);
+                // 一時切り抜き画像バッファを解放する
+                MIL.MbufFree(mil_cutout_process_baffer);
+                mil_cutout_process_baffer = MIL.M_NULL;
+                return 0;
+            }
+            catch (Exception ex)
+            {
+                //  エラーログ出力
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},{ex.Message}");
+                return CDefine.SpecificErrorCode.EXCEPTION_ERROR;
+            }
         }
     }
 }

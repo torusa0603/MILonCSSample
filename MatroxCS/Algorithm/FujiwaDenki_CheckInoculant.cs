@@ -18,6 +18,7 @@ namespace MatroxCS.Algorithm
         /// <summary>
         /// 接種材検査装置用アルゴリズム
         /// </summary>
+        /// <param name="ncRequiredParameterForAlgorithm"></param>
         /// <param name="noValue">{0:(int)判定閾値, 1:(bool)初期化フラグ, 2:(int)取得したい画像枚数, 3:(string)保存先フォルダー}</param>
         /// <returns></returns>
         public override List<object> Execute(CRequiredParameterForAlgorithm ncRequiredParameterForAlgorithm, List<object> noValue = null)
@@ -154,8 +155,7 @@ namespace MatroxCS.Algorithm
         /// <summary>
         /// 画像を切り抜き、その画像をフィルタリング用画像とする
         /// </summary>
-        /// <param name="niOffsetX">切り抜きX座標</param>
-        /// <param name="niOffsetY">切り抜きY座標</param>
+        /// <param name="npntOffset">切り抜き座標</param>
         /// <param name="niImageSize">切り抜きサイズ</param>
         /// <returns></returns>
         private int CutoutProcessBaffa(Point npntOffset, Size niImageSize)

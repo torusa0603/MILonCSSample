@@ -754,6 +754,51 @@ namespace MatroxCS
         }
 
         /// <summary>
+        /// 選択範囲内のコントラストを計測
+        /// </summary>
+        /// <param name="niCameraID"></param>
+        /// <param name="npntOffsest"></param>
+        /// <param name="nszInoculationArea"></param>
+        /// <param name="ndResult"></param>
+        /// <returns></returns>
+        public int GetContrast(int? niCameraID, Point npntOffsest, Size nszInoculationArea, ref double ndResult)
+        {
+            if (nszInoculationArea.Width == 0 || nszInoculationArea.Height == 0)
+            {
+                return 0;
+            }
+            int i_ret;
+            if (m_cBase.GetFatalErrorOccured())
+            {
+                // 致命的なエラーが起きている
+                return CDefine.SpecificErrorCode.FATAL_ERROR_OCCURED;
+            }
+            // 指定カメラIDのインデックスを探す
+            int i_camera_index = SearchCameraID(niCameraID);
+            if (i_camera_index == -1)
+            {
+                // 該当オブジェクトなし
+                CLogMatroxCS.Output(CDefine.LogKey.DLL_ERROR, $"{MethodBase.GetCurrentMethod().Name},該当カメラオブジェクトなし");
+                return -1;
+            }
+            // コントラストを取得
+            i_ret = m_lstCamera[i_camera_index].GetContrast(npntOffsest, nszInoculationArea,ref ndResult);
+            if (i_ret != 0)
+            {
+                // try-catchで捉えたエラー(内容はDLLError.log参照)
+                return -2;
+            }
+            if (m_cBase.GetFatalErrorOccured())
+            {
+                // 致命的なエラーが起きている
+                return CDefine.SpecificErrorCode.FATAL_ERROR_OCCURED;
+            }
+
+
+            return 0;
+        }
+
+        /// <summary>
         /// 直線を描画
         /// </summary>
         /// <param name="niDisplayID">指定ディスプレイID</param>

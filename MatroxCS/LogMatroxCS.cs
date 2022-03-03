@@ -11,8 +11,8 @@ namespace MatroxCS
         // 辞書型ログインスタンスを作成
         private static Dictionary<string, CLog> m_sdicLogInstance 
             = new Dictionary<string, CLog>() { 
-                {CDefine.LogKey.MIL_ERROR, new CLog(CDefine.EXE_FOLDER_PATH, "MILError.log")},    // MIL由来のエラー用
-                {CDefine.LogKey.DLL_ERROR, new CLog(CDefine.EXE_FOLDER_PATH, "DLLError.log")},    // DLL由来のエラー用
+                {CDefine.LogKey.MIL_ERROR, new CLog(CDefine.EXE_FOLDER_PATH, "MatroxError.log")},    // MIL由来のエラー用
+                {CDefine.LogKey.DLL_ERROR, new CLog(CDefine.EXE_FOLDER_PATH, "MILDLLError.log")},    // DLL由来のエラー用
                 {CDefine.LogKey.OPERATE,  new CLog(CDefine.EXE_FOLDER_PATH, "Operate.log")}};    // 操作履歴用
 
         /// <summary>

@@ -42,7 +42,7 @@ namespace MatroxCS
             /// <summary>
             /// MILエラー用オブジェクトに対応するキー名
             /// </summary>
-            public const string MIL_ERROR = "MILError";
+            public const string MIL_ERROR = "MatroxError";
             /// <summary>
             /// DLL由来エラー用オブジェクトに対応するキー名
             /// </summary>
