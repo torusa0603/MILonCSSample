@@ -62,9 +62,12 @@ namespace MatroxCS.Algorithm
             MIL.MimBinarize(m_milFilterProcessing, m_milFilterProcessingMono, MIL.M_GREATER_OR_EQUAL, 20, MIL.M_NULL);
             MIL.MbufCopy(m_milFilterProcessingMono, m_milFilterProcessing);
 
-            double i_ratio_white_pixels = CountWhitePixels(m_milFilterProcessingMono) * 100.0 / (ncRequiredParameterForAlgorithm.CutBufferSize.Width * ncRequiredParameterForAlgorithm.CutBufferSize.Height);
+            //double d_ratio_white_pixels = CountWhitePixels(m_milFilterProcessingMono) * 100.0 / (ncRequiredParameterForAlgorithm.CutBufferSize.Width * ncRequiredParameterForAlgorithm.CutBufferSize.Height);
+            double d_count_whitebits = CountWhitePixels(m_milFilterProcessingMono);
+
+
             bool b_result;  // 判定結果
-            if (i_ratio_white_pixels > (int)noValue[0])
+            if (d_count_whitebits > (int)noValue[0])
             {
                 b_result = true;
                 // 保存を要求されている枚数以下なら保存を行う
@@ -93,7 +96,7 @@ namespace MatroxCS.Algorithm
             }
 
             ls_ret.Add(b_result);
-            ls_ret.Add(i_ratio_white_pixels);
+            ls_ret.Add(d_count_whitebits);
 
             MIL.MbufFree(m_milFilterProcessing);
             m_milFilterProcessing = MIL.M_NULL;

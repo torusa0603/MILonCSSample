@@ -42,7 +42,6 @@ namespace MatroxCS
         /// Matrox制御の初期化
         /// </summary>
         /// <param name="nstrSettingFilePath">設定ファイルパス</param>
-        /// <param name="nstrExeFolderPath">アプリケーションの実行パスexe</param>
         /// <returns>
         /// 0:正常終了、-1:設定ファイルの途中パスディレクトリが存在しない、-2:設定ファイル作成・書き込みエラー、-3:設定ファイルなし(新規作成)、-4:設定ファイル構文エラー、-5:設定値エラー<br />
         /// -6:アプリケーションID取得失敗、-7:指定ボードの該当なし、-8:システムID取得失敗、-9:デジタイザー取得失敗、-10:グラブ専用バッファ取得失敗、-11:グラフィックバッファID取得失敗<br />
@@ -216,6 +215,7 @@ namespace MatroxCS
                     return CDefine.SpecificErrorCode.EXCEPTION_ERROR;
                 }
             }
+
             // ディスプレイオブジェクトリストをクリア
             m_lstDisplayImage.Clear();
             // グラフィックオブジェクトをクリア
@@ -225,6 +225,7 @@ namespace MatroxCS
                 // try-catchで捉えたエラー(内容はDLLError.log参照)
                 return CDefine.SpecificErrorCode.EXCEPTION_ERROR;
             }
+
             // ベースオブジェクトの終了処理
             m_cBase.End();
             if (i_ret != 0)
