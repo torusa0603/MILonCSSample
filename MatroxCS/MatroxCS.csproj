@@ -52,6 +52,7 @@
     </AllowedReferenceRelatedFileExtensions>
     <DocumentationFile>..\bin\Debug\MatroxCS.xml</DocumentationFile>
     <NoWarn>612,169</NoWarn>
+    <WarningLevel>1</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>..\bin\Release\</OutputPath>
