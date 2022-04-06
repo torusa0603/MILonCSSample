@@ -1,0 +1,16 @@
+/
+/
+/
+[CAMERA_NAME]
+Generic Device
+[CONFIG_FILE]
+50CF
+MTXGIGE
+Tuesday, February 01, 2022 14:52:14
+[INFO_FILE_REV]
+10.00.2564.1
+GIGEVISION
+[STANDARD_FEATURES]
+FLOAT_Gain                                                            "5.01171875"
+FLOAT_ExposureTime                                                    "200.0"
+[EOF]

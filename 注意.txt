@@ -1,1 +1,2 @@
 NuGetで"Newtonsoft.Json"パッケージを追加
+Sampleファルダ内のファイルをexeのあるフォルダにコピーしてください

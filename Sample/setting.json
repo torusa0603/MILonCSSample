@@ -1,0 +1,33 @@
+﻿{
+  "Number": 1,
+  "BoardType" : 4 ,
+  "HeartBeatTime" : 5,
+  "CameraInformation": [
+    {
+      "IdentifyName": "BaumerGigECamera",
+      "CameraType": 0,
+      "CameraFile": "gigevision_baumer_vcxg-04c.dcf",
+      "Width": 720,
+      "Height": 540,
+      "Color": 0,
+      "ImagePose": 0,
+      "UseSerialComm": 0,
+      "COMNo": 0,
+      "IPAddress": "192.168.3.31",
+      "Manufacturer": 1
+    },
+    {
+      "IdentifyName": "JAIGigECamera",
+      "CameraType": 0,
+      "CameraFile": "gigevision_jai_go-5100m-pge.dcf",
+      "Width": 720,
+      "Height": 540,
+      "Color": 0,
+      "ImagePose": 0,
+      "UseSerialComm": 0,
+      "COMNo": 0,
+      "IPAddress": "10.110.133.33",
+      "Manufacturer": 100
+    }
+  ]
+}
