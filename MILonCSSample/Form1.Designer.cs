@@ -39,8 +39,8 @@
             this.disConnectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.settingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exposureTimeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.panel_check = new System.Windows.Forms.Panel();
             this.getContrastToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.panel_check = new System.Windows.Forms.Panel();
             this.pnl_camera1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -56,7 +56,7 @@
             // pnl_camera1
             // 
             this.pnl_camera1.Controls.Add(this.btn_save);
-            this.pnl_camera1.Location = new System.Drawing.Point(0, 27);
+            this.pnl_camera1.Location = new System.Drawing.Point(720, 27);
             this.pnl_camera1.Name = "pnl_camera1";
             this.pnl_camera1.Size = new System.Drawing.Size(720, 540);
             this.pnl_camera1.TabIndex = 0;
@@ -139,30 +139,30 @@
             // exposureTimeToolStripMenuItem
             // 
             this.exposureTimeToolStripMenuItem.Name = "exposureTimeToolStripMenuItem";
-            this.exposureTimeToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.exposureTimeToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
             this.exposureTimeToolStripMenuItem.Text = "ExposureTime & Gain";
             this.exposureTimeToolStripMenuItem.Click += new System.EventHandler(this.exposureTimeToolStripMenuItem_Click);
             // 
+            // getContrastToolStripMenuItem
+            // 
+            this.getContrastToolStripMenuItem.Name = "getContrastToolStripMenuItem";
+            this.getContrastToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
+            this.getContrastToolStripMenuItem.Text = "Get_Contrast";
+            this.getContrastToolStripMenuItem.Click += new System.EventHandler(this.getContrastToolStripMenuItem_Click);
+            // 
             // panel_check
             // 
-            this.panel_check.Location = new System.Drawing.Point(720, 27);
+            this.panel_check.Location = new System.Drawing.Point(720, 567);
             this.panel_check.Name = "panel_check";
             this.panel_check.Size = new System.Drawing.Size(720, 540);
             this.panel_check.TabIndex = 1;
             this.panel_check.Click += new System.EventHandler(this.panel_check_Click);
             // 
-            // getContrastToolStripMenuItem
-            // 
-            this.getContrastToolStripMenuItem.Name = "getContrastToolStripMenuItem";
-            this.getContrastToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.getContrastToolStripMenuItem.Text = "Get_Contrast";
-            this.getContrastToolStripMenuItem.Click += new System.EventHandler(this.getContrastToolStripMenuItem_Click);
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1440, 567);
+            this.ClientSize = new System.Drawing.Size(1440, 1061);
             this.Controls.Add(this.pnl_camera1);
             this.Controls.Add(this.pnl_camera2);
             this.Controls.Add(this.panel_check);
